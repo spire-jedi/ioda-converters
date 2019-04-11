@@ -84,7 +84,6 @@ contains
     call check_nc(nf90_get_var(ncid,qcid,in_qcpath))
     call check_nc(nf90_inq_varid(ncid,"QCAll",qcid))
     call check_nc(nf90_get_var(ncid,qcid,in_qcall))
-    ! which (all?) QC variables to save?
     ! metadata
     call check_nc(nf90_get_att(ncid,NF90_GLOBAL,"satellite_name",sat))
     call check_nc(nf90_get_att(ncid,NF90_GLOBAL,"instrument_name",inst))
@@ -193,6 +192,7 @@ contains
 
     real, dimension(n_abich) :: freqs, wvlens, wvnums
     integer, dimension(n_abich) :: chans,polar
+    integer, dimension(nobs_out) :: deepblue
 
     ! create the file, add dimensions, variables, and metadata
     call check_nc(nf90_create(path=outfile,cmode=nf90_clobber,ncid=ncid))
@@ -211,14 +211,15 @@ contains
 
     ! dimensions
     call check_nc(nf90_def_dim(ncid,'nlocs',NF90_UNLIMITED,nlocsid))
-    call check_nc(nf90_def_dim(ncid,'nobs',nobs_out*n_abich,nobsid))
+    call check_nc(nf90_def_dim(ncid,'nobs',nobs_out,nobsid)) ! force just ch 4
+    !call check_nc(nf90_def_dim(ncid,'nobs',nobs_out*n_abich,nobsid))
     !call check_nc(nf90_def_dim(ncid,'nrecs',nobs_out,nrecsid))
     call check_nc(nf90_def_dim(ncid,'nrecs',1,nrecsid)) ! one record here?
-    call check_nc(nf90_def_dim(ncid,'nvars',n_abich,nvarsid))
+    !call check_nc(nf90_def_dim(ncid,'nvars',n_abich,nvarsid))
+    call check_nc(nf90_def_dim(ncid,'nvars',1,nvarsid)) ! force just outputting channel 4
     !call check_nc(nf90_def_dim(ncid,'nchans',n_abich,nchansid))
 
     ! variables
-    !call check_nc(nf90_def_var(ncid,'AOD_bins',nf90_real,bdimid,binvarid))
     ! note, some of these variable names need to be changed eventually (see
     ! commented out lines for example)
     call check_nc(nf90_def_var(ncid,'frequency@VarMetaData',nf90_real,nvarsid,varids(1)))
@@ -240,6 +241,7 @@ contains
     call check_nc(nf90_def_var(ncid,'time@MetaData',nf90_float,nlocsid,varids(11)))
     j = 12
     do i=1,n_abich
+      if (i /= 4 ) cycle
       write(chchar,'(i5)') i
       varname = 'aerosol_optical_depth_'//trim(adjustl(chchar))//'@ObsValue'
       call check_nc(nf90_def_var(ncid,trim(varname),nf90_float,nlocsid,varids(j))) 
@@ -264,21 +266,28 @@ contains
       chans(i) = i
       polar(i) = 1 ! idk what this should be, it's 1 for ch 4 in sample file
     end do
+    do i=1,nobs_out
+      deepblue(i) = 0
+    enddo
     ! put the variables into the file
-    call check_nc(nf90_put_var(ncid,varids(1),freqs))
-    call check_nc(nf90_put_var(ncid,varids(2),polar)) ! polarization? 1?
-    call check_nc(nf90_put_var(ncid,varids(3),wvnums))
-    ! sensor channel
-    call check_nc(nf90_put_var(ncid,varids(4),chans))
+    !call check_nc(nf90_put_var(ncid,varids(1),freqs))
+    !call check_nc(nf90_put_var(ncid,varids(2),polar)) ! polarization? 1?
+    !call check_nc(nf90_put_var(ncid,varids(3),wvnums))
+    !call check_nc(nf90_put_var(ncid,varids(4),chans))
+    call check_nc(nf90_put_var(ncid,varids(1),freqs(4)))
+    call check_nc(nf90_put_var(ncid,varids(2),polar(4))) ! polarization? 1?
+    call check_nc(nf90_put_var(ncid,varids(3),wvnums(4)))
+    call check_nc(nf90_put_var(ncid,varids(4),chans(4)))
     call check_nc(nf90_put_var(ncid,varids(5),viirs_aod_output(:)%lat))
     call check_nc(nf90_put_var(ncid,varids(6),viirs_aod_output(:)%lon))
     call check_nc(nf90_put_var(ncid,varids(7),0.))! solar zenith all 0 for test
     call check_nc(nf90_put_var(ncid,varids(8),0.))! solar azimuth all 0 for test
-    call check_nc(nf90_put_var(ncid,varids(9),0)) ! modis_deep_blue_flag all zeros
+    call check_nc(nf90_put_var(ncid,varids(9),deepblue)) ! modis_deep_blue_flag all zeros
     call check_nc(nf90_put_var(ncid,varids(10),viirs_aod_output(:)%stype)) !surface type
     call check_nc(nf90_put_var(ncid,varids(11),tdiff))
     j=12
     do i=1,n_abich
+      if (i /= 4 ) cycle ! just write out channel 4
       ! observation value
       call check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%values(i)))
       j=j+1

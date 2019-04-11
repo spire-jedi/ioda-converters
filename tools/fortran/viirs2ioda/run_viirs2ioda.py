@@ -12,7 +12,7 @@ FV3Dir='/scratch3/BMC/chem-var/pagowski/tmp/FV3GFS/FV3_FIX/C96'
 CycleHrs=6
 StartCycle=dt.datetime(2018,4,14,12)
 EndCycle=dt.datetime(2018,4,15,12)
-viirs2ioda='/scratch4/NCEPDEV/da/save/Cory.R.Martin/JEDI/viirs2ioda/viirs2ioda'
+viirs2ioda='/scratch4/NCEPDEV/da/save/Cory.R.Martin/JEDI/src/ioda-converters_2/tools/fortran/viirs2ioda/viirs2ioda'
 
 my_env = os.environ.copy()
 my_env['OMP_NUM_THREADS'] = '10' # for openmp to speed up fortran call
