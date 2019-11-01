@@ -7,6 +7,7 @@ list( APPEND programs
   test_gsidiag.py
   combine_conv.py
   subset_files.py
+  proc_ens_diag.py
 )
 
 SET_TARGETS_DEPS( "${libs}"

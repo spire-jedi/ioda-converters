@@ -4,6 +4,7 @@ import os
 import sys
 from multiprocessing import Pool
 import glob
+import proc_ens_diag as diagproc
 
 sys.path.append("@SCRIPT_LIB_PATH@")
 import gsi_ncdiag as gsid
@@ -115,25 +116,32 @@ if MyArgs.obs_dir:
     ObsDir = MyArgs.obs_dir
     # conventional obs first
     # get list of conv diag files
-    convfiles = glob.glob(DiagDir+'/*conv*')
+    convfiles = glob.glob(DiagDir+'/*conv*_ensmean.nc4')
     for convfile in convfiles:
         splitfname = convfile.split('/')[-1].split('_')
         if 'conv' in splitfname:
             i = splitfname.index('conv')
             c = "_".join(splitfname[i:i + 2])
         try:
+            if "conv_q" in convfile:
+              diagproc.proc_ens_diag_convq(convfile)
+            elif "conv_uv" in convfile:
+              diagproc.proc_ens_diag_convuv(convfile)
+            else:
+              diagproc.proc_ens_diag(convfile)
             for p in gsid.conv_platforms[c]:
                 res = obspool.apply_async(run_conv_obs, args=(convfile, ObsDir, [p]))
         except KeyError:
             pass
     # radiances next
-    radfiles = glob.glob(DiagDir+'/diag*')
+    radfiles = glob.glob(DiagDir+'/diag*_ensmean.nc4')
     for radfile in radfiles:
         process = False
         for p in gsid.rad_sensors:
             if p in radfile:
                 process = True
         if process:
+            diagproc.proc_ens_diag_rad(radfile)
             res = obspool.apply_async(run_radiances_obs, args=(radfile, ObsDir))
     # atmospheric composition observations
     # aod first
@@ -151,6 +159,7 @@ if MyArgs.obs_dir:
             if p in radfile:
                 process = True
         if process:
+            diagproc.proc_ens_diag(radfile)
             res = obspool.apply_async(run_oz_obs, args=(radfile, ObsDir))
 
 # process geovals files
