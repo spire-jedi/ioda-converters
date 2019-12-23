@@ -27,7 +27,7 @@ contains
     use viirs2ioda_vars, only: fv3_gridfiles,ntiles_fv3,nobs,&
                                viirs_aod_input, pi, r2d, d2r, r_earth,&
                                thinning_grid_ratio_min,thinning_grid_ratio_max,&
-                               nobs_out, viirs_aod_output, n_abich
+                               nobs_out, viirs_aod_output, n_abich, tdiffout
     use kd_tree, only: init_kd_tree, close_kd_tree, knn_search_ts, knn_search
     use m_unirnk, only: unirnk
     implicit none
@@ -83,7 +83,7 @@ contains
     call close_kd_tree()
     allocate(obsgrid_unique(j))
     call unirnk(obsgrid(1:j),obsgrid_unique,nobs_out)
-    allocate(viirs_aod_output(nobs_out))
+    allocate(viirs_aod_output(nobs_out), tdiffout(nobs_out))
     do i=1,nobs_out
       if (allocated(viirs_aod_output(i)%values)) &
          & deallocate(viirs_aod_output(i)%values)
