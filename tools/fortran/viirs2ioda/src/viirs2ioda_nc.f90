@@ -178,7 +178,7 @@ contains
     ! write netCDF file in a format that is readable by IODA
     use viirs2ioda_vars, only: outfile, &
                                n_abich,nobs_out, viirs_aod_output,&
-                               sat,inst,validtimestr,tdiff
+                               sat,inst,validtimestr,tdiff,tdiffout
     use datetime_mod
     implicit none
     ! netCDF required variables
@@ -269,6 +269,10 @@ contains
     do i=1,nobs_out
       deepblue(i) = 0
     enddo
+
+    ! for now assign the same time to all the obs
+    tdiffout(:) = tdiff
+
     ! put the variables into the file
     !call check_nc(nf90_put_var(ncid,varids(1),freqs))
     !call check_nc(nf90_put_var(ncid,varids(2),polar)) ! polarization? 1?
@@ -284,7 +288,7 @@ contains
     call check_nc(nf90_put_var(ncid,varids(8),0.))! solar azimuth all 0 for test
     call check_nc(nf90_put_var(ncid,varids(9),deepblue)) ! modis_deep_blue_flag all zeros
     call check_nc(nf90_put_var(ncid,varids(10),viirs_aod_output(:)%stype)) !surface type
-    call check_nc(nf90_put_var(ncid,varids(11),tdiff))
+    call check_nc(nf90_put_var(ncid,varids(11),tdiffout(:)))
     j=12
     do i=1,n_abich
       if (i /= 4 ) cycle ! just write out channel 4

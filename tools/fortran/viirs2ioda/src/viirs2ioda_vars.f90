@@ -18,6 +18,7 @@ module viirs2ioda_vars
   ! dataset attributes
   character(len=20) :: inst, sat, tendstr
   real :: tdiff
+  real, allocatable, dimension(:) :: tdiffout
 
   ! input data arrays
   integer, parameter :: ntiles_fv3=6

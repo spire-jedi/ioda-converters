@@ -2,11 +2,11 @@ module viirs2ioda_thin
 contains
   subroutine in2out
     use viirs2ioda_vars, only: nobs, nobs_out, viirs_aod_input,&
-                               viirs_aod_output,n_abich
+                               viirs_aod_output,n_abich,tdiffout
     implicit none
     integer :: i
     nobs_out = nobs
-    allocate(viirs_aod_output(nobs_out))
+    allocate(viirs_aod_output(nobs_out), tdiffout(nobs_out))
     do i=1,nobs_out
       if (allocated(viirs_aod_output(i)%values)) &
          & deallocate(viirs_aod_output(i)%values)
