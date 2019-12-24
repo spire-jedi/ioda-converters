@@ -41,12 +41,13 @@ contains
     
     integer :: i,j,nobs2,qcval
     real :: ab,bb,au,bu
-    integer :: yyyy,mm,dd,hh,ii,qc
+    integer :: yyyy,mm,dd,hh,ii,qc_retain
 
     type(datetime_type) :: datatime
     type(timedelta_type) dt
 
-    qc = 0 ! Retrieval quality:  0: high; 1: medium; 2: low; 3: no retrieval
+!only retain high quality
+    qc_retain = 0 ! Retrieval quality:  0: high; 1: medium; 2: low; 3: no retrieval
 
     ! open the file
     call check_nc(nf90_open(infile, nf90_nowrite, ncid))
@@ -64,8 +65,9 @@ contains
 
     ! allocate arrays
     allocate(in_lats(ncols,nrows),in_lons(ncols,nrows))
-    allocate(in_AOD(n_abich,ncols,nrows))
-    allocate(in_lats1(nobs),in_lons1(nobs),in_AOD1(n_abich,nobs))
+!    allocate(in_AOD(n_abich,ncols,nrows))
+!    allocate(in_AOD1(n_abich,nobs))
+    allocate(in_lats1(nobs),in_lons1(nobs))
     allocate(in_aodtmp(nobs))
     allocate(in_qcpath(ncols,nrows),in_qcall(ncols,nrows))
     allocate(in_qcpath1(nobs),in_qcall1(nobs))
@@ -76,8 +78,8 @@ contains
     call check_nc(nf90_get_var(ncid,varid,in_lats))
     call check_nc(nf90_inq_varid(ncid,"Longitude",varid))
     call check_nc(nf90_get_var(ncid,varid,in_lons))
-    call check_nc(nf90_inq_varid(ncid,"AOD_channel",varid))
-    call check_nc(nf90_get_var(ncid,varid,in_AOD))
+!    call check_nc(nf90_inq_varid(ncid,"AOD_channel",varid))
+!    call check_nc(nf90_get_var(ncid,varid,in_AOD))
     call check_nc(nf90_inq_varid(ncid,"AOD550",varid))
     call check_nc(nf90_get_var(ncid,varid,in_AOD550))
     call check_nc(nf90_inq_varid(ncid,"QCPath",qcid))
@@ -90,11 +92,13 @@ contains
     call check_nc(nf90_get_att(ncid,NF90_GLOBAL,"time_coverage_end",tendstr))
     
     ! place into viirs_aod type array
-    where (in_AOD<-1) in_AOD=NF90_FILL_REAL ! can't have negative AOD!
-    in_aodtmp2 = pack(in_qcall,in_qcall<=qc)
+!@mzp
+!    where (in_AOD<-1) in_AOD=NF90_FILL_REAL ! can't have negative AOD!
+    WHERE(in_AOD550 < 0.) in_qcall=3
+    in_aodtmp2 = pack(in_qcall,in_qcall <= qc_retain)
     in_lats1 = reshape(in_lats,shape(in_lats1))
     in_lons1 = reshape(in_lons,shape(in_lons1))
-    in_AOD1 = reshape(in_AOD,shape(in_AOD1))
+!    in_AOD1 = reshape(in_AOD,shape(in_AOD1))
     in_AOD5501 = reshape(in_AOD550,shape(in_AOD5501))
     in_qcall1 = reshape(in_qcall,shape(in_qcall1))
     in_qcpath1 = reshape(in_qcpath,shape(in_qcpath1))
@@ -102,12 +106,13 @@ contains
     nobs = size(in_aodtmp2)
     allocate(viirs_aod_input(nobs))
     i=1
-    do j=1,nobs2
-      if (in_qcall1(j) <= qc) then 
-        if (allocated(viirs_aod_input(i)%values)) &
-           & deallocate(viirs_aod_input(i)%values)
-        allocate(viirs_aod_input(i)%values(n_abich))
-        viirs_aod_input(i)%values(:)=in_AOD1(:,j)
+    DO j=1,nobs2
+      if (in_qcall1(j) <= qc_retain) then 
+!        if (allocated(viirs_aod_input(i)%values)) &
+!           & deallocate(viirs_aod_input(i)%values)
+!        allocate(viirs_aod_input(i)%values(n_abich))
+!        viirs_aod_input(i)%values(:)=in_AOD1(:,j)
+        viirs_aod_input(i)%values550=in_AOD5501(j)
         viirs_aod_input(i)%lat=in_lats1(j)
         viirs_aod_input(i)%lon=in_lons1(j)
         viirs_aod_input(i)%qcall=in_qcall1(j)
@@ -151,9 +156,10 @@ contains
       else
         cycle
       end if
-    end do
+    END DO
     
-    deallocate(in_lats,in_lats1,in_lons,in_lons1,in_AOD,in_AOD1)
+    deallocate(in_lats,in_lats1,in_lons,in_lons1,in_AOD550,in_AOD5501)
+!    deallocate(in_lats,in_lats1,in_lons,in_lons1,in_AOD,in_AOD1)
 
     ! get time information, just assume the end time of the swath is the time
     ! for all obs (VIIRS will only be 1-2 mins per file, close enough
@@ -174,7 +180,7 @@ contains
 
 
 
-  subroutine write_iodaaod_nc
+  SUBROUTINE write_iodaaod_nc
     ! write netCDF file in a format that is readable by IODA
     use viirs2ioda_vars, only: outfile, &
                                n_abich,nobs_out, viirs_aod_output,&
@@ -239,7 +245,27 @@ contains
     call check_nc(nf90_def_var(ncid,'modis_deep_blue_flag@MetaData',nf90_int,nlocsid,varids(9)))
     call check_nc(nf90_def_var(ncid,'surface_type@MetaData',nf90_int,nlocsid,varids(10)))
     call check_nc(nf90_def_var(ncid,'time@MetaData',nf90_float,nlocsid,varids(11)))
+
+    i=4
+    WRITE(chchar,'(i5)') i
+
     j = 12
+
+    varname = 'aerosol_optical_depth_'//TRIM(ADJUSTL(chchar))//'@ObsValue'
+    CALL check_nc(nf90_def_var(ncid,TRIM(varname),nf90_float,nlocsid,varids(j))) 
+    j=j+1
+    varname = 'aerosol_optical_depth_'//TRIM(ADJUSTL(chchar))//'@ObsError'
+    CALL check_nc(nf90_def_var(ncid,TRIM(varname),nf90_float,nlocsid,varids(j))) 
+    j=j+1
+    varname = 'aerosol_optical_depth_'//TRIM(ADJUSTL(chchar))//'@PreQc'
+    CALL check_nc(nf90_def_var(ncid,TRIM(varname),nf90_float,nlocsid,varids(j))) 
+    j=j+1
+    varname = 'aerosol_optical_depth_'//TRIM(ADJUSTL(chchar))//'@ObsBias'
+    CALL check_nc(nf90_def_var(ncid,TRIM(varname),nf90_float,nlocsid,varids(j))) 
+    j=j+1
+    
+    goto 101
+
     do i=1,n_abich
       if (i /= 4 ) cycle
       write(chchar,'(i5)') i
@@ -257,6 +283,8 @@ contains
       j=j+1
     end do
     
+101 CONTINUE
+
     call check_nc(nf90_enddef(ncid))
 
     wvlens = (/412.,445.,488.,555.,672.,746.,865.,1240.,1378.,1610.,2250./)
@@ -266,12 +294,14 @@ contains
       chans(i) = i
       polar(i) = 1 ! idk what this should be, it's 1 for ch 4 in sample file
     end do
+
     do i=1,nobs_out
       deepblue(i) = 0
     enddo
 
     ! for now assign the same time to all the obs
     tdiffout(:) = tdiff
+
 
     ! put the variables into the file
     !call check_nc(nf90_put_var(ncid,varids(1),freqs))
@@ -289,7 +319,24 @@ contains
     call check_nc(nf90_put_var(ncid,varids(9),deepblue)) ! modis_deep_blue_flag all zeros
     call check_nc(nf90_put_var(ncid,varids(10),viirs_aod_output(:)%stype)) !surface type
     call check_nc(nf90_put_var(ncid,varids(11),tdiffout(:)))
+
+
     j=12
+
+    CALL check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%values550))
+    j=j+1
+! obs error
+    CALL check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%uncertainty))
+    j=j+1
+! obs qc
+    CALL check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%qcall))
+    j=j+1
+! obs bias
+    CALL check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%bias))
+    j=j+1
+
+    goto 102
+
     do i=1,n_abich
       if (i /= 4 ) cycle ! just write out channel 4
       ! observation value
@@ -305,6 +352,8 @@ contains
       call check_nc(nf90_put_var(ncid,varids(j),viirs_aod_output(:)%bias))
       j=j+1
     end do
+
+102 CONTINUE
 
     call check_nc(nf90_close(ncid)) ! close and finish writing out
     print *, 'Wrote to outfile: ', trim(outfile)

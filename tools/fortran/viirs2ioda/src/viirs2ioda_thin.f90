@@ -6,13 +6,14 @@ contains
     implicit none
     integer :: i
     nobs_out = nobs
-    allocate(viirs_aod_output(nobs_out), tdiffout(nobs_out))
+    ALLOCATE(viirs_aod_output(nobs_out), tdiffout(nobs_out))
     do i=1,nobs_out
-      if (allocated(viirs_aod_output(i)%values)) &
-         & deallocate(viirs_aod_output(i)%values)
-      allocate(viirs_aod_output(i)%values(n_abich))
+!      if (allocated(viirs_aod_output(i)%values)) &
+!         & deallocate(viirs_aod_output(i)%values)
+!      allocate(viirs_aod_output(i)%values(n_abich))
       viirs_aod_output(i)%obstype=viirs_aod_input(i)%obstype
-      viirs_aod_output(i)%values(:)=viirs_aod_input(i)%values(:)
+!      viirs_aod_output(i)%values(:)=viirs_aod_input(i)%values(:)
+     viirs_aod_output(i)%values550=viirs_aod_input(i)%values550
       viirs_aod_output(i)%lat=viirs_aod_input(i)%lat
       viirs_aod_output(i)%lon=viirs_aod_input(i)%lon
       viirs_aod_output(i)%qcall=viirs_aod_input(i)%qcall
@@ -42,6 +43,7 @@ contains
 
     ! read FV3 grid information
     call read_fv3_grid(fv3griddata,fv3_gridfiles)
+
     nxy = size(fv3griddata,2)
     nx=sqrt(real(nxy)/real(ntiles_fv3))
 
@@ -83,14 +85,15 @@ contains
     call close_kd_tree()
     allocate(obsgrid_unique(j))
     call unirnk(obsgrid(1:j),obsgrid_unique,nobs_out)
-    allocate(viirs_aod_output(nobs_out), tdiffout(nobs_out))
+    ALLOCATE(viirs_aod_output(nobs_out),tdiffout(nobs_out))
     do i=1,nobs_out
-      if (allocated(viirs_aod_output(i)%values)) &
-         & deallocate(viirs_aod_output(i)%values)
-      allocate(viirs_aod_output(i)%values(n_abich))
+!      if (allocated(viirs_aod_output(i)%values)) &
+!         & deallocate(viirs_aod_output(i)%values)
+!      allocate(viirs_aod_output(i)%values(n_abich))
       j = obsgrid(obsgrid_unique(i))
       viirs_aod_output(i)%obstype=viirs_aod_input(j)%obstype
-      viirs_aod_output(i)%values(:)=viirs_aod_input(j)%values(:)
+!      viirs_aod_output(i)%values(:)=viirs_aod_input(j)%values(:)
+      viirs_aod_output(i)%values550=viirs_aod_input(j)%values550
       viirs_aod_output(i)%lat=viirs_aod_input(j)%lat
       viirs_aod_output(i)%lon=viirs_aod_input(j)%lon
       viirs_aod_output(i)%qcall=viirs_aod_input(j)%qcall

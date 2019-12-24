@@ -18,7 +18,7 @@ module viirs2ioda_vars
   ! dataset attributes
   character(len=20) :: inst, sat, tendstr
   real :: tdiff
-  real, allocatable, dimension(:) :: tdiffout
+  REAL, ALLOCATABLE, DIMENSION(:) :: tdiffout
 
   ! input data arrays
   integer, parameter :: ntiles_fv3=6
@@ -31,7 +31,7 @@ module viirs2ioda_vars
     !character(len=NF90_MAX_NAME) :: instrument 
     character(len=NF90_MAX_NAME) :: obstype
     real :: lat, lon
-    real :: bias, uncertainty
+    REAL :: bias, uncertainty, values550
     real, allocatable :: values(:)
     integer :: qcall,stype
   end type viirs_aod
