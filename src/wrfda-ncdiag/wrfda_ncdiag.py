@@ -107,6 +107,15 @@ rad_platform_sensor_ObsError = {
     'goes-17-abi': [wrfda_miss_float]*10,
     'himawari-8-ahi': [1.052, 1.700, 1.700, 1.350, 0.814, wrfda_miss_float, 0.871, 0.926, 0.933, 0.787],
 }
+
+# rad_platform_sensor_ObsBias contains a fixed constant mean bias of OMB
+# Note: this is a temporary kludge and will be superceded by VarBC in UFO
+rad_platform_sensor_ObsBias = {
+    'goes-16-abi': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    'goes-17-abi': [0.0]*10,
+    'himawari-8-ahi': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+}
+
 # Note: ABI/AHI channel 12 is sensitive to O3, which is not included in WRFDA RTM interfaces
 #       Therefore ObsError is specified as missing
 
@@ -358,6 +367,7 @@ class Radiances:
         obsdata = np.transpose(np.asarray(self.df['tb_obs']))
         obserr = rad_platform_sensor_ObsError[self.platform_sensor]
         # obserr  = np.transpose(np.asarray(self.df['tb_err']))
+        obsbias = rad_platform_sensor_ObsBias[self.platform_sensor]
         obsqc = np.transpose(np.asarray(self.df['tb_qc']))
 
         # loop through channels for subset
@@ -368,6 +378,8 @@ class Radiances:
 
             obsdatasub = obsdata[c]
             obsdatasub[obsdatasub <= wrfda_miss_float] = nc.default_fillvals['f4']
+            obsdatasub[obsdatasub > wrfda_miss_float] = np.subtract(
+              obsdatasub[obsdatasub > wrfda_miss_float], obsbias[c])
 
             obserrsub = np.full(self.nlocs, obserr[c])
             obserrsub[obserrsub <= wrfda_miss_float] = nc.default_fillvals['f4']
