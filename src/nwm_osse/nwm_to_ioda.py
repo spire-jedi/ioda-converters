@@ -103,8 +103,8 @@ arg_parse_description = (
     'Read snow NWM/NoahMP RESTART files and convert'
     'to IODA observation files.')
 
-output_var_names = {'SNEQV': 'snow_depth', 'SNOWH': 'swe'}
-
+output_var_names = {'SNEQV': 'swe', 'SNOWH': 'snow_depth'}
+## Add units here or track units from noahmp
 
 def read_restart(
         restart_dir: pathlib.Path,
