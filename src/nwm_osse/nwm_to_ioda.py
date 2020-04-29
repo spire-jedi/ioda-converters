@@ -12,8 +12,12 @@ import xarray as xr
 from pprint import pprint as print
 from copy import deepcopy
 
-sys.path.append("/jedi/tools/lib/pyiodaconv")  # dummy before install
-# sys.path.append("@SCRIPT_LIB_PATH@")
+#import pdb
+#pdb.set_trace()
+
+
+# sys.path.append("/jedi/tools/lib/pyiodaconv")  # dummy before install
+sys.path.append("@SCRIPT_LIB_PATH@")
 import ioda_conv_ncio as iconv
 
 # (C) Copyright 2019 UCAR
@@ -103,7 +107,7 @@ arg_parse_description = (
     'Read snow NWM/NoahMP RESTART files and convert'
     'to IODA observation files.')
 
-output_var_names = {'SNEQV': 'swe', 'SNOWH': 'snow_depth'}
+output_var_names = {'SNEQV': 'swe', 'SNOWH': 'snow_depth', 'LAI': 'leaf_area' }
 ## Add units here or track units from noahmp
 
 def read_restart(
