@@ -30,6 +30,7 @@ list( APPEND test_input
   testinput/sondes_obs_2018041500_m.nc4
   testinput/gnssro_obs_2018041500_s.nc4
   testinput/wrfdadiags_goes-16-abi_2018041500.nc
+  testinput/viirs_aod.nc
   testinput/b001xx007.20200310.bufr
 )
 
@@ -56,6 +57,7 @@ list( APPEND test_output
   testoutput/sondes_obs_2018041500_m.odb
   testoutput/gnssro_obs_2018041500_s.odb
   testoutput/abi_g16_obs_2018041500.nc4
+  testoutput/viirs_aod.nc
   testoutput/ioda.NC001007.2020031012.nc
 )
 
@@ -349,3 +351,17 @@ if (odc_FOUND)
                          testrun/gnssro_obs_2018041500_s.odb"
                         gnssro_obs_2018041500_s.odb)
 endif ()
+
+#==============================================================================
+# VIIRS aod converter
+#==============================================================================
+
+ecbuild_add_test( TARGET test_iodaconv_viirs_aod
+                  TYPE SCRIPT
+                  COMMAND iodaconv_comp.sh
+                  ARGS netcdf
+                       "${CMAKE_BINARY_DIR}/bin/viirs_aod2ioda.py
+                       -i testinput/viirs_aod.nc
+                       -o testrun/viirs_aod.nc"
+                      viirs_aod.nc)
+
