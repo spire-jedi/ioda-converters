@@ -264,7 +264,7 @@ contains
     freqs = 2.99792458e8 / (wvlens*1e-9)
     do i=1,n_abich
       chans(i) = i
-      polar(i) = 1 ! idk what this should be, it's 1 for ch 4 in sample file
+      polar(i) = 1 ! idk what this should be, it is 1 for ch 4 in sample file
     end do
     do i=1,nobs_out
       deepblue(i) = 0
