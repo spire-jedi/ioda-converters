@@ -90,7 +90,7 @@ contains
     call check_nc(nf90_get_att(ncid,NF90_GLOBAL,"time_coverage_end",tendstr))
     
     ! place into viirs_aod type array
-    where (in_AOD<-1) in_AOD=NF90_FILL_REAL ! can't have negative AOD!
+    where (in_AOD<-1) in_AOD=NF90_FILL_REAL ! cannot have negative AOD!
     in_aodtmp2 = pack(in_qcall,in_qcall<=qc)
     in_lats1 = reshape(in_lats,shape(in_lats1))
     in_lons1 = reshape(in_lons,shape(in_lons1))
