@@ -1,0 +1,1 @@
+/scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters/test/testoutput/smap_sss_rss.nc

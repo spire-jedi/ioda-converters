@@ -1,0 +1,1 @@
+/scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters/test/testinput/gsidiag_amsua_aqua_radiance_test.nc

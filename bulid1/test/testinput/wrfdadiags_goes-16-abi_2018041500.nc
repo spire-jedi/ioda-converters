@@ -1,0 +1,1 @@
+/scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters/test/testinput/wrfdadiags_goes-16-abi_2018041500.nc

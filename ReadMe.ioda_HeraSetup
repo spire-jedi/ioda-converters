@@ -1,0 +1,8 @@
+# ------------Youlong Xia, 09 April 2020
+mkdir build
+source ioda_envr
+cd build
+ecbuild --prefix=/scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters/build /scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters
+make
+make install
+ctest
