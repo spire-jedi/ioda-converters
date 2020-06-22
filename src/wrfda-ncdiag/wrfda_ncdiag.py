@@ -103,7 +103,10 @@ sensor_chanlist_dict = {
 }
 
 rad_platform_sensor_ObsError = {
-    'goes-16-abi': [2.720, 1.790, 1.920, 1.740, 5.000, wrfda_miss_float, 3.080, 3.060, 2.820, 1.740],
+#30KM-15x15SUPEROB
+#    'goes-16-abi': [2.720, 1.790, 1.920, 1.740, 5.000, wrfda_miss_float, 3.080, 3.060, 2.820, 1.740],
+#120KM-15X15SUPEROB
+    'goes-16-abi': [6.007, 3.420, 3.644, 3.776, 6.724, wrfda_miss_float, 7.319, 7.495, 7.239, 5.405],
     'goes-17-abi': [wrfda_miss_float]*10,
     'himawari-8-ahi': [1.052, 1.700, 1.700, 1.350, 0.814, wrfda_miss_float, 0.871, 0.926, 0.933, 0.787],
 }
@@ -111,7 +114,9 @@ rad_platform_sensor_ObsError = {
 # rad_platform_sensor_ObsBias contains a fixed constant mean bias of OMB
 # Note: this is a temporary kludge and will be superceded by VarBC in UFO
 rad_platform_sensor_ObsBias = {
-    'goes-16-abi': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+#120KM-15X15SUPEROB
+    'goes-16-abi': [-1.451, 1.296, 1.796, 0.2322, -2.138, 0.000, -1.855, -1.147, -1.317, -2.346],
+#    'goes-16-abi': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
     'goes-17-abi': [0.0]*10,
     'himawari-8-ahi': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 }
