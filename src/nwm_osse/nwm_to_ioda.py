@@ -4,20 +4,15 @@ from multiprocessing import Pool
 import numpy as np
 import os
 import pathlib
-import pickle
 import sys
+import warnings
 import xarray as xr
 
 # temporary for dev
 from pprint import pprint as print
-from copy import deepcopy
 
-#import pdb
-#pdb.set_trace()
-
-
-# sys.path.append("/jedi/tools/lib/pyiodaconv")  # dummy before install
-sys.path.append("@SCRIPT_LIB_PATH@")
+sys.path.append("/home/vagrant/jedi/bundle-ioda/build/lib/pyiodaconv")  # dummy before install
+# sys.path.append("@SCRIPT_LIB_PATH@")
 import ioda_conv_ncio as iconv
 
 # (C) Copyright 2019 UCAR
@@ -41,10 +36,11 @@ import ioda_conv_ncio as iconv
 
 # Example testing usage:
 # ipython --pdb -c "%run nwm_to_ioda.py \
-#    --restart_dir ../../../../data/domains/v2.1/taylor_park_v2.1/NWM/RESTART_spinup_2007-10-01_v2.1_AORC/ \
-#    --wrfinput ../../../../data/domains/v2.1/taylor_park_v2.1/NWM/DOMAIN/wrfinput.nc \
-#    --output_file ../../../../data/nwm_osse/nwm_osse_ioda.nc \
-#    --times 2017010100,2017010100 "
+#    --restart_dir ../../../data/domains/v2.1/taylor_park_v2.1/NWM/RESTART_spinup_2007-10-01_v2.1_AORC/ \
+#    --wrfinput ../../../data/domains/v2.1/taylor_park_v2.1/NWM/DOMAIN/wrfinput.nc \
+#    --output_file ../../../data/nwm_osse/nwm_osse_ioda.nc \
+#    --time_window_center 2017010100 \
+#    --restart_vars SNEQV"
 
 # ipython --pdb -c "%run nwm_to_ioda.py \
 #    --restart_dir ../../../../data/domains/v2.1/taylor_park_v2.1/NWM/RESTART_spinup_2007-10-01_v2.1_AORC/ \  ## these have a fixed name
@@ -107,8 +103,9 @@ arg_parse_description = (
     'Read snow NWM/NoahMP RESTART files and convert'
     'to IODA observation files.')
 
-output_var_names = {'SNEQV': 'swe', 'SNOWH': 'snow_depth', 'LAI': 'leaf_area' }
-## Add units here or track units from noahmp
+output_var_names = {'SNEQV': 'swe', 'SNOWH': 'snow_depth', 'LAI': 'leaf_area'}
+# Add units here or track units from noahmp
+
 
 def read_restart(
         restart_dir: pathlib.Path,
@@ -137,7 +134,7 @@ def read_restart(
         I dont need to maintain its use in function...
     """
 
-    # currently unused... 
+    # currently unused...
     attr_dict = {}
 
     # Get the lon and lat from wrfinput file.
@@ -164,14 +161,15 @@ def read_restart(
                 restart_files += [ff]
 
     if len(restart_files) is 0:
+        warnings.warn("No restart files found.")
         return(None)
 
     # Get the data and its dimensions
-    restart_ds = xr.open_mfdataset(restart_files)
+    restart_ds = xr.open_mfdataset(restart_files, combine='by_coords')
 
     # There should not be lots of times, so I'm going to avoid using
     # something else (pandas/numpy) for this
-    time = [datetime.strptime(tt,'%Y-%m-%d_%H')
+    time = [datetime.strptime(tt, '%Y-%m-%d_%H')
             for tt in restart_ds.Times.values.astype('U13').tolist()]
     time_str = np.array([tt.strftime("%Y-%m-%dT%H:%M:%SZ") for tt in time])
 
@@ -237,7 +235,7 @@ def read_restart(
     loc_dict = {
         'latitude': lat_full[thin_mask],
         'longitude': lon_full[thin_mask],
-        'datetime': time_full[thin_mask],}
+        'datetime': time_full[thin_mask]}
 
     # -----------------------------------------------------------------------------
     # Obs data and ObsError: Blue and yellow boxes in conceptual figure.
@@ -355,6 +353,7 @@ def nwm_to_ioda(
     # use the writer class to create the final output file
     writer.BuildNetcdf(obs_dict_ioda, {}, loc_dict, var_dict, attr_dict)
     return(0)
+
 
 # Make parser separate, testable.
 def parse_arguments():

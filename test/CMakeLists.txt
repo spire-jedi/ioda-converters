@@ -20,7 +20,10 @@ list( APPEND test_input
   testinput/gsidiag_conv_t_sfc_test.nc
   testinput/gsidiag_amsua_aqua_radiance_test.nc
   testinput/odb_sonde_16019.odb
-  testinput/owp_snow_obs.pkl
+  testinput/nwm_restart.nc
+  testinput/RESTART.2017010100_DOMAIN1
+  testinput/nwm_wrfinput.nc	
+  testinput/owp_snow_obs.pkl	
   testinput/gnssro_kompsat5_20180415_00Z.bufr
   testinput/argoclim_test.nc
   testinput/cryosat2_L2_test.nc
@@ -39,7 +42,8 @@ list( APPEND test_output
   testoutput/sfc_tv_obs_2018041500.nc4
   testoutput/amsua_aqua_obs_2018041500.nc4
   testoutput/odb_sonde_16019.nc4
-  testoutput/owp_snow_obs.nc
+  testoutput/nwm_osse_ioda.nc
+  testoutput/owp_snow_obs.nc	
   testoutput/gnssro_kompsat5_2018041500.nc4
   testoutput/argoclim.nc
   testoutput/cryosat2_L2.nc
@@ -72,9 +76,23 @@ message( STATUS "Library path for testing: ${CTEST_LIBRARY_PATH}" )
 #===============================================================================
 
 #===============================================================================
+# nwm_osse converters
+#===============================================================================
+ecbuild_add_test( TARGET test_iodaconv_nwm_osse
+                  TYPE SCRIPT
+                  COMMAND iodaconv_comp.sh
+                  ARGS "${CMAKE_BINARY_DIR}/bin/nwm_to_ioda.py
+                       --restart_dir testinput/
+		       --wrfinput testinput/nwm_wrfinput.nc
+		       --output_file testrun/nwm_osse_ioda.nc
+		       --time_window_center 2017010100
+                       --restart_vars SNEQV"
+  		      nwm_osse_ioda.nc)
+
+
+#===============================================================================
 # owp_snow_data converters
 #===============================================================================
-
 ecbuild_add_test( TARGET test_iodaconv_owp_snow_obs_pkl
                   TYPE SCRIPT
                   COMMAND iodaconv_comp.sh
