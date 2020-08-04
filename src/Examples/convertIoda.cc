@@ -5,19 +5,156 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0. 
  */
 
+#include "convertIoda.h"
+
 #include <iostream>
-#include <map>
 #include <numeric>
 #include <set>
-#include <string>
-#include <typeindex>
-#include <typeinfo>
 
-#include "ioda/Engines/Factory.h"
-#include "ioda/ObsGroup.h"
-#include "jedi/Error.h"
+//**********************************************************************//
+// FUNCTIONS
+//**********************************************************************//
+
+void getDimensionInfo(const ioda::Group & file, DimInfo_t & dimInfo) {
+  // Look through the variables and check how they are dimensioned. Record the dimension
+  // names, sizes and mark which ones need to be used in the output file. Also record
+  // the variable names and which dimensions go with each variable. There are
+  // two primary changes to the variables to consider:
+  //     Radiances go from a list of vectors (one per channel) to a single 2D array
+  //     String go from 2D character arrays to vectors of strings
+
+  for (auto & dimName: file.vars.list()) {
+    ioda::Variable var = file.vars.open(dimName);
+    if (var.isDimensionScale()) {
+      ioda::Dimensions varDims = var.getDimensions();
+      bool unlimited = (dimName == "nlocs");
+      DimSpecs dspecs(varDims.dimsCur[0], unlimited);
+      dimInfo.insert(std::pair<std::string, DimSpecs>(dimName, dspecs));
+    }
+  }
+
+}
+
+void getVariableInfo(const ioda::Group & file, DimInfo_t & dimInfo, VarInfo_t & varInfo) {
+  for (auto & varName : file.vars.list()) {
+    ioda::Variable var = file.vars.open(varName);
+    if (!var.isDimensionScale()) {
+      // Find which dimensions are attached to this variable
+      ioda::Dimensions varDims = var.getDimensions();
+      std::vector<std::string> dimList;
+      for (std::size_t i = 0; i < varDims.dimensionality; ++i) {
+        for (auto & idim : dimInfo) {
+          std::string dimName = idim.first;
+          ioda::Variable dimVar = file.vars[dimName];
+          if (var.isDimensionScaleAttached(i, dimVar)) {
+            // Every variable is a vector so just keep track of the first dimension
+            // for the output. Strings are stored as 2D character arrays in the input
+            // file, but will be stored as string vectors in the output file.
+            if (i == 0) {
+              idim.second.need_for_output_ = true;
+              dimList.push_back(dimName);
+            }
+          }
+        }
+      }
+
+      // Find the type of this variable, only have int, float and string
+      std::string varType;
+      if (var.isA<int>()) {
+        varType = "int";
+      } else if (var.isA<float>()) {
+        varType = "float";
+      } else {
+        varType = "string";
+      }
+
+      // Record the variable information
+      VarSpecs varspecs(dimList, varType);
+      varInfo.insert(std::pair<std::string, VarSpecs>(varName, varspecs));
+    }
+  }
+}
+
+void copyGlobalAttributes(const ioda::Group & inGroup, ioda::ObsGroup & outGroup) {
+  for (auto & attrName : inGroup.atts.list()) {
+    std::cout << "    Attribute: " << attrName << std::endl;
+    ioda::Attribute inAttr = inGroup.atts[attrName];
+    if (inAttr.isA<int>()) {
+      int attrValue;
+      inAttr.read<int>(attrValue);
+      std::cout << "        Integer: " << attrValue << std::endl;
+      outGroup.atts.add<int>(attrName, attrValue, { 1 });
+    } else if (inAttr.isA<float>()) {
+      float attrValue;
+      inAttr.read<float>(attrValue);
+      std::cout << "        Float: " << attrValue << std::endl;
+      outGroup.atts.add<float>(attrName, attrValue, { 1 });
+    } else {
+      // string type
+      std::string attrValue;
+      //inAttr.read<std::string>(attrValue);
+      attrValue = "X";
+      std::cout << "        String: " << attrValue << std::endl;
+      outGroup.atts.add<std::string>(attrName, attrValue, { 1 });
+    }
+  }
+}
+
+void copyVarAttributes(const ioda::Variable & inVar, ioda::Variable & outVar) {
+  for (auto & attrName : inVar.atts.list()) {
+    if ((attrName != "DIMENSION_LIST") && (attrName != "_Netcdf4Coordinates")) {
+      std::cout << "    Attribute: " << attrName << std::endl;
+      ioda::Attribute inAttr = inVar.atts[attrName];
+      if (inAttr.isA<int>()) {
+        int attrValue;
+        inAttr.read<int>(attrValue);
+        std::cout << "        Integer: " << attrValue << std::endl;
+        outVar.atts.add<int>(attrName, attrValue, { 1 });
+      } else if (inAttr.isA<float>()) {
+        float attrValue;
+        inAttr.read<float>(attrValue);
+        std::cout << "        Float: " << attrValue << std::endl;
+        outVar.atts.add<float>(attrName, attrValue, { 1 });
+      } else {
+        // string type
+        std::string attrValue;
+        inAttr.read<std::string>(attrValue);
+        //attrValue = "X";
+        std::cout << "        String: " << attrValue << std::endl;
+        outVar.atts.add<std::string>(attrName, attrValue, { 1 });
+      }
+    }
+  }
+}
+
+void copyVarData(const ioda::Variable & inVar, ioda::Variable & outVar) {
+  if (inVar.isA<int>()) {
+    std::cout << "    Data: Integer" << std::endl;
+    std::vector<int> varData;
+    inVar.read(varData);
+    outVar.write(varData);
+  } else if (inVar.isA<float>()) {
+    std::cout << "    Data: Float" << std::endl;
+    std::vector<float> varData;
+    inVar.read(varData);
+    outVar.write(varData);
+  } else {
+    std::cout << "    Data: String" << std::endl;
+    //std::vector<std::string> varData;
+    //inVar.read(varData);
+    //outVar.write(varData);
+  }
+}
+
+//**********************************************************************//
+// MAIN
+//**********************************************************************//
 
 int main(int argc, char** argv) {
+
+  DimInfo_t dimInfo;
+  VarInfo_t varInfo;
+
   // Need two arguments: input file and output file
   std::string fullProgName{ argv[0] };
   std::string progName;
@@ -42,110 +179,48 @@ int main(int argc, char** argv) {
             << "    Input file: " << inputFile << std::endl
             << "    Output file: " << outputFile << std::endl;
 
-  // Open the input and output files. The input file is not in the ioda format so
-  // open it as a Group (not an ObsGroup).
+  // Open the input and grab dimension and variable information. The input file
+  // is not in the new ioda format so open it as a Group (not an ObsGroup).
+  ioda::Engines::BackendNames beName = ioda::Engines::BackendNames::Hdf5File;
   ioda::Engines::BackendCreationParameters beParams;
   beParams.fileName = inputFile;
   beParams.action = ioda::Engines::BackendFileActions::Open;
   beParams.openMode = ioda::Engines::BackendOpenModes::Read_Only;
+
   ioda::Group in_group =
-      ioda::Engines::constructBackend(ioda::Engines::BackendNames::Hdf5File, beParams);
-
-  bool clobber = true;
-  ioda::ObsGroup out_group = ioda::ObsGroup::createObsGroupFile(outputFile, clobber);
-
-  // Look through the variables and check how they are dimensioned. Record the dimension
-  // names, sizes and mark which ones need to be used in the output file. Also record
-  // the variable names and which dimensions go with each variable. There are
-  // two primary changes to the variables to consider:
-  //     Radiances go from a list of vectors (one per channel) to a single 2D array
-  //     String go from 2D character arrays to vectors of strings
-
-  // record of input dimension specs
-  struct dimSpecs {
-    int size_;
-    bool has_coords_;
-    std::string var_name_;
-
-    // constructor
-    dimSpecs(const int size, const bool has_coords = false, const std::string & var_name = "") :
-        size_(size), has_coords_(has_coords), var_name_(var_name) {
-    }
-  };
-  std::map<std::string, dimSpecs> dimInfo;
-
-  // record of input variable specs
-  struct varSpecs {
-    std::vector<std::string> dim_list_;
-    std::string dtype_;
-    bool has_chans_;
-    std::vector<int> chan_nums_;
-
-    // constructor
-    varSpecs(const std::vector<std::string> & dim_list, const std::string & dtype,
-             const bool has_chans = false,
-             const std::vector<int> & chan_nums = std::vector<int>()) :
-        dim_list_(dim_list), dtype_(dtype), has_chans_(has_chans), chan_nums_(chan_nums) {
-    }
-  };
-  std::map<std::string, varSpecs> varInfo;
+      ioda::Engines::constructBackend(beName, beParams);
 
   // Record information about dimension scales
-  for (auto & dimName: in_group.vars.list()) {
-    ioda::Variable var = in_group.vars.open(dimName);
-    if (var.isDimensionScale()) {
-      ioda::Dimensions varDims = var.getDimensions();
-      dimSpecs dspecs(varDims.dimsCur[0]);
-      dimInfo.insert(std::pair<std::string, dimSpecs>(dimName, dspecs));
-    }
-  }
+  getDimensionInfo(in_group, dimInfo);
 
   // Record information about variables
-  std::set<std::string> necessaryDims;
-  for (auto & varName : in_group.vars.list()) {
-    ioda::Variable var = in_group.vars.open(varName);
-    if (!var.isDimensionScale()) {
-      // Find which dimensions are attached to this variable
-      ioda::Dimensions varDims = var.getDimensions();
-      std::vector<std::string> dimList;
-      for (std::size_t i = 0; i < varDims.dimensionality; ++i) {
-        for (auto & idim : dimInfo) {
-          std::string dimName = idim.first;
-          ioda::Variable dimVar = in_group.vars[dimName];
-          if (var.isDimensionScaleAttached(i, dimVar)) {
-            dimList.push_back(dimName);
-            // Every variable is a vector so just keep track of the first dimension
-            // for the output. Strings are stored as 2D character arrays in the input
-            // file, but will be stored as string vectors in the output file.
-            if (i == 0) {
-              necessaryDims.insert(dimName);
-            }
-          }
-        }
-      }
+  getVariableInfo(in_group, dimInfo, varInfo);
 
-      // Find the type of this variable, only have int, float and string
-      std::string varType;
-      if (var.isA<int>()) {
-        varType = "int";
-      } else if (var.isA<float>()) {
-        varType = "float";
-      } else {
-        varType = "string";
-      }
-
-      // Record the variable information
-      varSpecs varspecs(dimList, varType);
-      varInfo.insert(std::pair<std::string, varSpecs>(varName, varspecs));
+  // Create the new dimension specs for generating the ObsGroup
+  ioda::NewDimensionScales_t newDims;
+  for (auto & idim : dimInfo) {
+    if (idim.second.need_for_output_) {
+      std::string dimName = idim.first;
+      int dimSize = idim.second.size_;
+      int dimMaxSize = idim.second.size_;
+      int dimChunkSize = idim.second.size_;
+      if (idim.second.unlimited_) dimMaxSize = ioda::Unlimited;
+      newDims.push_back(
+        std::make_shared<ioda::NewDimensionScale<int>>(dimName, dimSize, dimMaxSize, dimSize));
     }
   }
 
-  // Create the dimension scales in the output file
-  for (auto & dimName : necessaryDims) {
-    std::vector<int> dimIndices(dimInfo.at(dimName).size_);
-    std::iota(dimIndices.begin(), dimIndices.end(), 1);
-    out_group.createDimScale(dimName, dimIndices);
-  }
+  // Create a backend with a file for writing, and attach to an ObsGroup
+  beName = ioda::Engines::BackendNames::Hdf5File;
+  beParams.fileName = outputFile;
+  beParams.action = ioda::Engines::BackendFileActions::Create;
+  beParams.createMode = ioda::Engines::BackendCreateModes::Truncate_If_Exists;
+
+  ioda::Group backend = constructBackend(beName, beParams);
+  ioda::ObsGroup out_group = ioda::ObsGroup::generate(backend, newDims);
+
+  // Copy global (top-level group) attribute
+  copyGlobalAttributes(in_group, out_group);
 
   // Transfer the variables to the output file
   for (auto & ivar : varInfo) {
@@ -153,9 +228,20 @@ int main(int argc, char** argv) {
     ioda::Variable inVar = in_group.vars.open(varName);
 
     std::cout << "Input variable: " << varName << std::endl;
-    for (auto & attrName : inVar.atts.list()) {
-      std::cout << "    Attribute: " << attrName << std::endl;
+    ioda::Variable outVar;
+    if (ivar.second.dtype_ == "int") {
+      outVar = createOutputVariable<int>(out_group, varName, ivar.second.dim_list_, -999);
+    } else if (ivar.second.dtype_ == "float") {
+      outVar = createOutputVariable<float>(out_group, varName, ivar.second.dim_list_, -999);
+    } else if (ivar.second.dtype_ == "string") {
+      outVar = createOutputVariable<std::string>(out_group, varName, ivar.second.dim_list_, { "fill" });
     }
+
+    // Copy attributes
+    copyVarAttributes(inVar, outVar);
+
+    // Copy data
+    copyVarData(inVar, outVar);
   }
 
   return 0;
