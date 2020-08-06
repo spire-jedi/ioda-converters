@@ -395,3 +395,16 @@ ecbuild_add_test( TARGET test_iodaconv_viirs_aod
                        -t 0.0"
                       viirs_aod.nc)
 
+#==============================================================================
+# Example converters
+#==============================================================================
+
+ecbuild_add_test( TARGET test_iodaconv_example_smap_sss
+                  TYPE SCRIPT
+                  COMMAND iodaconv_comp.sh
+                  ARGS netcdf
+                       "${CMAKE_BINARY_DIR}/bin/smap_sss2newioda.py
+                       -i testinput/smap_sss_rss.nc
+                       -o testrun/smap_sss_rss_example.nc
+                       -d 2018041512"
+                      smap_sss_rss_example.nc)
