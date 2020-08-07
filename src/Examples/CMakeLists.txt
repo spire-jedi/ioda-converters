@@ -3,7 +3,7 @@
 # Build gnssro ncepbufr to ioda NetCDF4 converter
 #
 
-ecbuild_add_executable( TARGET  convertIoda.x
-                        SOURCES convertIoda.cc
-                        LIBS    ioda::ioda-engines
+ecbuild_add_executable( TARGET  netcdf2ioda.x
+                        SOURCES netcdf2ioda.cc
+                        LIBS    ioda-engines
                        )

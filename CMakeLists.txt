@@ -73,10 +73,6 @@ find_package( Eigen3 REQUIRED NO_MODULE HINTS
               $ENV{Eigen3_PATH} $ENV{EIGEN3_PATH} $ENV{Eigen_PATH} $ENV{EIGEN_PATH} )
 include_directories( ${EIGEN3_INCLUDE_DIRS} )
 
-# ioda-engines
-find_package(jedi REQUIRED)
-find_package(ioda_engines REQUIRED)
-
 ################################################################################
 # Export package info
 ################################################################################
