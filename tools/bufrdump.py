@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("bufr_file", type=str, 
                         help="full pathname of input file")
     parser.add_argument("observation_type", type=str, 
-                        help="output directory")
+                        help="observation type (e.g., NC031001)")
     parser.add_argument("-o", type=str, required=False, \
                         help="file for output. Output to terminal if omitted")
     args = parser.parse_args()
