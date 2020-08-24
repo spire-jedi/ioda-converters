@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 #==============================================================================
+# A collection of functions for processing tables and YAML files for BUFR files
+#
 # 08-19-2020   Jeffrey Smith          Initial version
 #=============================================================================
 
@@ -132,7 +134,8 @@ def getMnemonicList(obsType, section2):
 
         Input:
             obsType - observation type (e.g., "NC031001") or parent key
-            section2 - dictionary containing Section 2 from a .tbl file
+            section2 - dictionary containing Section 2 from the table in a
+                       BUFR file
 
         Return:
             list of mnemonics that will be output

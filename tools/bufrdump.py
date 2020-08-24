@@ -1,27 +1,34 @@
 #!/usr/bin/env python
 
 #==============================================================================
+# Program to dump out the values for 1 field from a BUFR file
+#
 # 08-19-2020   Jeffrey Smith          Initial version
 #==============================================================================
 
 import argparse
+import collections
 import ncepbufr
-import numpy as np
-import sys
 import netCDF4
+import numpy as np
 import subprocess
+import sys
 
 import readAncillary
 
 
-def bufrdump(BUFRFileName, obsType, outputFile=None):
+def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     """ dumps a field from a BUFR file
 
         Input:
             BUFRFileName - complete pathname of file that a field is to be
                            dumped from
             obsType - the observation type (e.g., NC001001)
-            outputFile - optional file to hold output. defaults to stdout
+            textFile - if passed, write output as text to this file
+            netCDFFile - if passed, write output as netCDF to this file
+
+        If both textFile and netCDFFile are passed, output will be written
+        to textFile but not to netCDFFile.
     """
 
     # there undoubtedly is a better way to extract tables from BUFR files
@@ -44,10 +51,13 @@ def bufrdump(BUFRFileName, obsType, outputFile=None):
     (whichField, seq) = getMnemonicChoice(mnemonicChains, section1)
 
     # dump the field
-    if outputFile:
-        fd = open(outputFile, 'w')
+    if textFile:
+        fd = open(textFile, 'w')
         dumpBUFRField(BUFRFileName, whichField, mnemonicChains, seq, fd)
         fd.close()
+    elif netCDFFile:
+        BUFRField2netCDF(BUFRFileName, whichField, mnemonicChains, seq, 
+                         netCDFFile)
     else:
         dumpBUFRField(BUFRFileName, whichField, mnemonicChains, seq, 
                       sys.stdout)
@@ -59,9 +69,10 @@ def getMnemonicChoice(mnemonicChains, section1):
     """ gets users choice of which field to dump
 
         Input:
-            mnemonicChains - list containing a the field names from the .tbl
-                             file
-            section1 - first section from a .tbl file
+            mnemonicChains - list containing the mnemonic names of the fields
+                             in the BUFR file as a hierarchy of mnemonics
+                             chained together with '_' (e.g., YYMMDD_YEAR)
+            section1 - first section from a BUFR table
 
         Return:
             whichField - mnemonic of field to dump
@@ -75,6 +86,9 @@ def getMnemonicChoice(mnemonicChains, section1):
         if m.count('_') == 0:
             solitaryList.append(m)
         else:
+            # separate mnemonics into "sequence" or "solitary" based on 
+            # whether the next to last link in the mnemonic chain indicates
+            # that it is some sort of repetition
             chainLinks = m.split('_')
             if chainLinks[-2][0] in ['{', '(', '<']:
                 sequenceList.append(chainLinks[-2][1:-1])
@@ -103,13 +117,20 @@ def getMnemonicChoice(mnemonicChains, section1):
     print()
 
     # get user's selection
-    selection = int(input("Enter number of selection: "))
-    if selection <= len(solitaryList):
-        whichField = solitaryList[selection - 1]
-        seq = False
-    else:
-        whichField = sequenceList[selection - len(solitaryList) - 1]
-        seq = True
+    while True:
+        selection = int(input("Enter number of selection: "))
+        if selection <= 0:
+            print("You have entered an invalid selection")
+        elif selection <= len(solitaryList):
+            whichField = solitaryList[selection - 1]
+            seq = False
+            break
+        elif selection <= (len(solitaryList) + len(sequenceList)):
+            whichField = sequenceList[selection - len(solitaryList) - 1]
+            seq = True
+            break
+        else:
+            print("You have entered an invalid selction")              
 
     return (whichField, seq)
 
@@ -121,8 +142,9 @@ def dumpBUFRField(BUFRFilePath, whichField, mnemonicChains, seq, fd):
         Input:
             BUFRFilePath - complete pathname of the BUFR file
             whichField - the mnemonic of the field to dump
-            mnemonicChains - list containing a the field names from the .tbl
-                             file
+            mnemonicChains - list containing the mnemonic names of the fields
+                             in the BUFR file as a hierarchy of mnemonics
+                             chained together with '_' (e.g., YYMMDD_YEAR)
             seq - True if the field to be dumped is a sequence, False otherwise
             fd - file descriptor of file to write output to
     """
@@ -164,18 +186,97 @@ def dumpBUFRField(BUFRFilePath, whichField, mnemonicChains, seq, fd):
     return
 
 
+def BUFRField2netCDF(BUFRFilePath, whichField, mnemonicChains, seq, 
+                      outputFile):
+    """ dumps the field from the BUFR file to a netCDF file.
+
+        Input:
+            BUFRFilePath - complete pathname of the BUFR file
+            whichField - the mnemonic of the field to dump
+            mnemonicChains - list containing the mnemonic names of the fields
+                             in the BUFR file as a hierarchy of mnemonics
+                             chained together with '_' (e.g., YYMMDD_YEAR)
+            seq - True if the field to be dumped is a sequence, False otherwise
+            outputFile - full pathname of the file to write to
+    """
+
+
+    nfd = netCDF4.Dataset(outputFile, 'w')
+
+    if seq:
+        # get the individual mnemonics that are in the sequence, faking names
+        # where there are duplicates by adding underscores
+        mnemonics = [x.split('_')[-1] 
+                     for x in mnemonicChains if whichField in x]
+        for i in range(1, len(mnemonics)):
+            while mnemonics[i] in mnemonics[0:i]:
+                mnemonics[i] = mnemonics[i] + '_'
+    else:
+        mnemonics = [whichField]
+
+    dim1 = nfd.createDimension("nlocs", size=0)
+
+    bfd = ncepbufr.open(BUFRFilePath, 'r')
+
+    # read and write
+    idxSubset = 0
+    while bfd.advance() == 0:
+        if bfd._subsets() < 1:
+            continue
+        while bfd.load_subset() == 0:
+            vals = bfd.read_subset(whichField, seq=seq).data.squeeze()
+
+            if idxSubset == 0:
+                # first time throught create variables
+                vars = collections.OrderedDict()
+                if len(vals.shape) == 2:
+                    dim2 = nfd.createDimension("nlevels", size=0)
+                    dims = ("nlocs", "nlevels")
+                else:
+                    dims = ("nlocs",)
+
+                for m in mnemonics:
+                    vars[m] = nfd.createVariable(m, "f8", dims)
+
+            # write the data. there must be a better way to do this
+            idxVal = 0
+            for k in vars.keys():
+                if len(vals.shape) == 2:
+                    vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
+                        = vals[idxVal,:]
+                elif len(vals.shape) == 1:
+                    vars[k][idxSubset:idxSubset+1] = vals[idxVal]
+                else:
+                    vars[k][idxSubset:idxSubset+1] = vals
+                idxVal += 1
+
+            idxSubset += 1
+
+    bfd.close()
+    nfd.close()
+
+    return
+
+
 if __name__ == "__main__":
 
+    # parse command line
     parser = argparse.ArgumentParser()
     parser.add_argument("bufr_file", type=str, 
                         help="full pathname of input file")
     parser.add_argument("observation_type", type=str, 
                         help="observation type (e.g., NC031001)")
-    parser.add_argument("-o", type=str, required=False, \
-                        help="file for output. Output to terminal if omitted")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-o", type=str, required=False, \
+                        help="write text output to specified file rather than stdout")
+    group.add_argument("-n", type=str, required=False, \
+                        help="write output to specified netCDF file rather than stdout")
     args = parser.parse_args()
 
+    # run dump program
     if args.o:
-        bufrdump(args.bufr_file, args.observation_type, outputFile=args.o)
+        bufrdump(args.bufr_file, args.observation_type, textFile=args.o)
+    elif args.n:
+        bufrdump(args.bufr_file, args.observation_type, netCDFFile=args.n)
     else:
         bufrdump(args.bufr_file, args.observation_type)
