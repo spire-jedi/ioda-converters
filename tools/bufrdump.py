@@ -14,7 +14,8 @@ import numpy as np
 import subprocess
 import sys
 
-import readAncillary
+#import readAncillary
+import rA as readAncillary
 
 
 def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
@@ -48,19 +49,17 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     mnemonicChains = readAncillary.getMnemonicList(obsType, section2)
 
     # get the user's choice of which field to dump
-    (whichField, seq) = getMnemonicChoice(mnemonicChains, section1)
+    whichField = getMnemonicChoice(mnemonicChains, section1)
 
     # dump the field
     if textFile:
         fd = open(textFile, 'w')
-        dumpBUFRField(BUFRFileName, whichField, mnemonicChains, seq, fd)
+        dumpBUFRField(BUFRFileName, whichField, fd)
         fd.close()
     elif netCDFFile:
-        BUFRField2netCDF(BUFRFileName, whichField, mnemonicChains, seq, 
-                         netCDFFile)
+        BUFRField2netCDF(BUFRFileName, whichField, netCDFFile)
     else:
-        dumpBUFRField(BUFRFileName, whichField, mnemonicChains, seq, 
-                      sys.stdout)
+        dumpBUFRField(BUFRFileName, whichField, sys.stdout)
 
     return
 
@@ -75,29 +74,12 @@ def getMnemonicChoice(mnemonicChains, section1):
             section1 - first section from a BUFR table
 
         Return:
-            whichField - mnemonic of field to dump
-            seq - True if field is a sequence, False otherwise
+            whichField - Mnemonic object for field to dump
     """
 
     # separate the fields into sequences and single ("solitary") fields
-    solitaryList = []
-    sequenceList = []
-    for m in mnemonicChains:
-        if m.count('_') == 0:
-            solitaryList.append(m)
-        else:
-            # separate mnemonics into "sequence" or "solitary" based on 
-            # whether the next to last link in the mnemonic chain indicates
-            # that it is some sort of repetition
-            chainLinks = m.split('_')
-            if chainLinks[-2][0] in ['{', '(', '<']:
-                sequenceList.append(chainLinks[-2][1:-1])
-            elif chainLinks[-2][0] == '"':
-                sequenceList.append(chainLinks[-2][1:-2])
-            else:
-                solitaryList.append(chainLinks[-1])
-    # remove duplicates from sequenceList
-    sequenceList = list(dict.fromkeys(sequenceList))
+    solitaryList = [x for x in mnemonicChains if not x.seq]
+    sequenceList = [x for x in mnemonicChains if x.seq]
 
     # post a list of the fields
     idx = 0
@@ -105,15 +87,16 @@ def getMnemonicChoice(mnemonicChains, section1):
     for m in solitaryList:
         idx += 1
         # don't know what to do with mnemonics that start with a period
-        if m[0] == '"':
-            print("{:3}) {:10} - {}".format(idx, m[1:-2], section1[m[1:-2]]))
-        elif m[0] != '.':
-            print("{:3}) {:10} - {}".format(idx, m, section1[m]))
+        if m.name[0] == '"':
+            print("{:3}) {:10} - {}".format(idx, m.name[1:-2], 
+                                            section1[m.name[1:-2]]))
+        elif m.name[0] != '.':
+            print("{:3}) {:10} - {}".format(idx, m.name, section1[m.name]))
 
     print("\nSequences:")
     for m in sequenceList:
         idx += 1
-        print("{:3}) {:10} - {}".format(idx, m, section1[m]))
+        print("{:3}) {:10} - {}".format(idx, m.name, section1[m.name]))
     print()
 
     # get user's selection
@@ -123,36 +106,30 @@ def getMnemonicChoice(mnemonicChains, section1):
             print("You have entered an invalid selection")
         elif selection <= len(solitaryList):
             whichField = solitaryList[selection - 1]
-            seq = False
             break
         elif selection <= (len(solitaryList) + len(sequenceList)):
             whichField = sequenceList[selection - len(solitaryList) - 1]
-            seq = True
             break
         else:
             print("You have entered an invalid selction")              
 
-    return (whichField, seq)
+    return whichField
 
 
-def dumpBUFRField(BUFRFilePath, whichField, mnemonicChains, seq, fd):
+def dumpBUFRField(BUFRFilePath, whichField, fd):
     """ dumps the field from the BUFR file. The bulk of the code in this
         function was blatantly plagiarized from Steve Herbener's bufrtest.py.
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
-            whichField - the mnemonic of the field to dump
-            mnemonicChains - list containing the mnemonic names of the fields
-                             in the BUFR file as a hierarchy of mnemonics
-                             chained together with '_' (e.g., YYMMDD_YEAR)
-            seq - True if the field to be dumped is a sequence, False otherwise
+            whichField - Mnemonic object of the field to dump
             fd - file descriptor of file to write output to
     """
 
-    if seq:
-        sequenceLength = len([x for x in mnemonicChains if whichField in x])
+    if whichField.seq:
+        sequenceLength = len(whichField.children)
         fd.write("Order of individual fields: {}\n".format(
-            [x.split('_')[-1] for x in mnemonicChains if whichField in x]))
+            [x.name for x in whichField.children]))
     else:
         sequenceLength = 1
 
@@ -166,8 +143,9 @@ def dumpBUFRField(BUFRFilePath, whichField, mnemonicChains, seq, fd):
         isub = 0
         while (bufr.load_subset() == 0):
             isub += 1
-            Vals = bufr.read_subset(whichField, seq=seq).data.squeeze()
-            if seq:
+            Vals = bufr.read_subset \
+                   (whichField.name, seq=whichField.seq).data.squeeze()
+            if whichField.seq:
                 try:
                     fd.write(
                         "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
@@ -186,33 +164,27 @@ def dumpBUFRField(BUFRFilePath, whichField, mnemonicChains, seq, fd):
     return
 
 
-def BUFRField2netCDF(BUFRFilePath, whichField, mnemonicChains, seq, 
-                      outputFile):
+def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
     """ dumps the field from the BUFR file to a netCDF file.
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
-            whichField - the mnemonic of the field to dump
-            mnemonicChains - list containing the mnemonic names of the fields
-                             in the BUFR file as a hierarchy of mnemonics
-                             chained together with '_' (e.g., YYMMDD_YEAR)
-            seq - True if the field to be dumped is a sequence, False otherwise
+            whichField - Mnemonic object of field to dump
             outputFile - full pathname of the file to write to
     """
 
 
     nfd = netCDF4.Dataset(outputFile, 'w')
 
-    if seq:
+    if whichField.seq:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
-        mnemonics = [x.split('_')[-1] 
-                     for x in mnemonicChains if whichField in x]
+        mnemonics = [x.name for x in whichField.children]
         for i in range(1, len(mnemonics)):
             while mnemonics[i] in mnemonics[0:i]:
                 mnemonics[i] = mnemonics[i] + '_'
     else:
-        mnemonics = [whichField]
+        mnemonics = [whichField.name]
 
     dim1 = nfd.createDimension("nlocs", size=0)
 
@@ -224,7 +196,8 @@ def BUFRField2netCDF(BUFRFilePath, whichField, mnemonicChains, seq,
         if bfd._subsets() < 1:
             continue
         while bfd.load_subset() == 0:
-            vals = bfd.read_subset(whichField, seq=seq).data.squeeze()
+            vals = bfd.read_subset \
+                   (whichField.name, seq=whichField.seq).data.squeeze()
 
             if idxSubset == 0:
                 # first time throught create variables

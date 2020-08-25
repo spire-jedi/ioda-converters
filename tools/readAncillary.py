@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
-#==============================================================================
-# A collection of functions for processing tables and YAML files for BUFR files
+#=============================================================================
+# functions that support table and YAML usage with BUFR files
 #
-# 08-19-2020   Jeffrey Smith          Initial version
+# 08/24/2020   Jeffrey Smith          initial version
 #=============================================================================
 
 import collections
@@ -17,15 +17,28 @@ SECTION1_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 SECTION2_PATTERN = "\|.{10}\|.{67}\|"
 SECTION3_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 
+# class (used like a C struct) for nodes in a tree for mnemonics from
+# a BUFR table
+class Mnemonic:
+    def __init__(self, name, seq, parent):
+        self.name = name
+        self.seq = seq
+        self.parent = parent
+        self.children = []
+        return
+
+# exception for BUFR files/tables
 class BUFRTableError(Exception):
     def __init__(self, message):
         self.message = "BUFRTableError: %s" % (message,)
         return
 
+# exception for .dict files
 class YAMLFileError(Exception):
     def __init__(self, message):
         self.message = "YAMLFileError: %s" % (message,)
         return
+
 
 def readTable(tableFileName):
     """ reads a .tbl file
@@ -126,46 +139,91 @@ def readYAMLFile(yamlFile):
 
 
 def getMnemonicList(obsType, section2):
-    """ returns a list of the mnemonics for a given observation type.
-        The mnemonics contain the entire hierarchy of a field chained
-        together with underscores, e.g., YYMMDD_YEAR for the YEAR field
-        that is grouped into YYMMDD. Ideally, this should instead be
-        handled in a tree data structure.
+    """ returns a list of the mnemonics that can be extracted from a BUFR
+        file for a specific observation type
 
         Input:
             obsType - observation type (e.g., "NC031001") or parent key
-            section2 - dictionary containing Section 2 from the table in a
-                       BUFR file
+            section2 - dictionary containing Section 2 from a .tbl file
 
         Return:
             list of mnemonics that will be output
     """
 
-    mnemonicList = []
+    # need to create a root node for a tree
+    treeTop = Mnemonic(obsType, False, None)
 
-    mnemonicsForID = section2[obsType]
-    for m in mnemonicsForID:
-        if re.search("\{|\(|\<", m):
-            mSearch = m[1:-1]
-        elif m[0] == '"':
-            mSearch = m[1:-2]
-        else:
-            mSearch = m
-
-        if mSearch in section2.keys():
-            # if m is a key then it is a parent mnemonic, so get its members
-            mnemonicList.extend([m + '_' + x for x in \
-                                 getMnemonicList(mSearch, section2)])
-        else:
-            # not a parent, so it is a field name.
-            mnemonicList.append(m)
+    buildMnemonicTree(treeTop, section2)
+    mnemonicList = findSearchableNodes(treeTop)
 
     return mnemonicList
 
 
-if __name__ == "__main__":
-    (a,b,c) = readTable("NC031001.tbl")
-    #print('A', a)
-    #print
-    #print('B', b)
-#!/usr/bin/env python
+def buildMnemonicTree(root, section2):
+    """ builds a hierarchical tree for the mnemonics for a given observation 
+        type
+
+        Input:
+            root - root node for segment of tree to process
+            section2 - dictionary containing Section 2 from a .tbl file
+
+        Return:
+            list of mnemonics that will be output
+    """
+
+    mnemonicsForID = section2[root.name]
+    for m in mnemonicsForID:
+        if re.search("\{|\(|\<", m):
+            m = m[1:-1]
+            seq = True
+        elif m[0] == '"':
+            m = m[1:-2]
+            seq = True
+        else:
+            seq = False
+
+        node = Mnemonic(m, seq, root)
+
+        if m in section2.keys():
+            # if m is a key then it is a parent, so get its members
+            root.children.append(node)
+            buildMnemonicTree(node, section2)
+        else:
+            # not a parent, so it is a field name.
+            root.children.append(node)
+
+    return 
+
+
+def findSearchableNodes(root):
+    """ finds the nodes that reference a mnemonic that can be retrieved
+        from a BUFR file. These nodes are the leaves except when a node
+        that is a sequence is a parent of 1 or more leaves.
+
+        Input:
+            root - the root node of the tree to search
+
+        Return:
+            a list of nodes that reference mnemonics that can be retrieved
+            from a BUFR file
+    """
+
+    nodeList = []
+
+    if len(root.children) > 0:
+        # root is not a leaf so visit its children
+        for node in root.children:
+            nodeList.extend(findSearchableNodes(node))
+    else:
+        # a leaf, so it is added to the list unless its parent is a sequence,
+        # in which case its parent is added
+        if root.parent.seq:
+            nodeList.append(root.parent)
+        else:
+            nodeList.append(root)
+
+    # remove duplicates (can happen if leaf nodes share a parent that is
+    # a sequence)
+    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
+
+    return nodeList
