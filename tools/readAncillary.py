@@ -19,7 +19,7 @@ SECTION3_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 
 # class (used like a C struct) for nodes in a tree for mnemonics from
 # a BUFR table
-class Mnemonic:
+class MnemonicNode:
     def __init__(self, name, seq, parent):
         self.name = name
         self.seq = seq
@@ -151,7 +151,7 @@ def getMnemonicList(obsType, section2):
     """
 
     # need to create a root node for a tree
-    treeTop = Mnemonic(obsType, False, None)
+    treeTop = MnemonicNode(obsType, False, None)
 
     buildMnemonicTree(treeTop, section2)
     mnemonicList = findSearchableNodes(treeTop)
@@ -182,7 +182,7 @@ def buildMnemonicTree(root, section2):
         else:
             seq = False
 
-        node = Mnemonic(m, seq, root)
+        node = MnemonicNode(m, seq, root)
 
         if m in section2.keys():
             # if m is a key then it is a parent, so get its members
@@ -227,3 +227,25 @@ def findSearchableNodes(root):
     nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
 
     return nodeList
+
+
+def traverseMnemonicTree(root):
+    """ returns the leaves of a mnemonic tree by performing a standard
+        tree traversal
+
+        Input:
+            root - root node of the tree to traverse
+
+        Return:
+            list of leaves in the tree (MnemonicNode objects)
+    """
+
+    leafList = []
+
+    if len(root.children) > 0:
+        for node in root.children:
+            leafList.extend(traverseMnemonicTree(node))
+    else:
+        leafList.append(root)
+
+    return leafList

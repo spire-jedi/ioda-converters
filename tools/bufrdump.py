@@ -9,13 +9,17 @@
 import argparse
 import collections
 import ncepbufr
-import netCDF4
+try:
+    import netCDF4
+except ModuleNotFoundError:
+    print("netCDF4 module not found, so can't choose netCDF output option")
 import numpy as np
+import os.path
 import subprocess
 import sys
 
-#import readAncillary
-import rA as readAncillary
+sys.path.append(os.path.dirname(sys.argv[0]))
+import readAncillary
 
 
 def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
@@ -35,8 +39,9 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     # there undoubtedly is a better way to extract tables from BUFR files
     # than by running another process that dumps the tables but I don't know
     # what it is
-    ts = subprocess.run(args=["./bufrtblstruc.py", BUFRFileName], 
-                        capture_output=True)
+    execDir = os.path.dirname(sys.argv[0])
+    executable = os.path.join(execDir, "bufrtblstruc.py")
+    ts = subprocess.run(args=[executable, BUFRFileName], capture_output=True)
     tblLines = ts.stdout.decode("utf-8").split('\n')
     try:
         (section1, section2, section3) = readAncillary.parseTable(tblLines)
@@ -74,7 +79,7 @@ def getMnemonicChoice(mnemonicChains, section1):
             section1 - first section from a BUFR table
 
         Return:
-            whichField - Mnemonic object for field to dump
+            whichField - MnemonicNode object for field to dump
     """
 
     # separate the fields into sequences and single ("solitary") fields
@@ -122,14 +127,18 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
-            whichField - Mnemonic object of the field to dump
+            whichField - MnemonicNode object of the field to dump
             fd - file descriptor of file to write output to
     """
 
     if whichField.seq:
-        sequenceLength = len(whichField.children)
+        # I've found 1 case so far in which a sequence contains a sequence.
+        # I don't know how that is handled, but in this case the child
+        # sequence was the last child so I can skip it. If the child sequence
+        # isn't the last child, the results will not be correct.
+        sequenceLength = len([x for x in whichField.children if not x.seq])
         fd.write("Order of individual fields: {}\n".format(
-            [x.name for x in whichField.children]))
+            [x.name for x in whichField.children if not x.seq]))
     else:
         sequenceLength = 1
 
@@ -169,7 +178,7 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
-            whichField - Mnemonic object of field to dump
+            whichField - MnemonicNode object of field to dump
             outputFile - full pathname of the file to write to
     """
 
@@ -179,7 +188,11 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
     if whichField.seq:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
-        mnemonics = [x.name for x in whichField.children]
+        # I've found 1 case so far in which a sequence contains a sequence.
+        # I don't know how that is handled, but in this case the child
+        # sequence was the last child so I can skip it. If the child sequence
+        # isn't the last child, the results will not be correct.
+        mnemonics = [x.name for x in whichField.children if not x.seq]
         for i in range(1, len(mnemonics)):
             while mnemonics[i] in mnemonics[0:i]:
                 mnemonics[i] = mnemonics[i] + '_'
@@ -209,7 +222,10 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
                     dims = ("nlocs",)
 
                 for m in mnemonics:
-                    vars[m] = nfd.createVariable(m, "f8", dims)
+                    try:
+                        vars[m] = nfd.createVariable(m, "f8", dims)
+                    except RuntimeError:
+                        print("not able to create variable ", m)
 
             # write the data. there must be a better way to do this
             idxVal = 0
