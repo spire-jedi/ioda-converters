@@ -10,12 +10,15 @@ import collections
 import os.path
 import re
 import sys
-
 import yaml
 
+# Patterns for searching
 SECTION1_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 SECTION2_PATTERN = "\|.{10}\|.{67}\|"
 SECTION3_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
+DEFINED_MNEMONIC_PATTERN = "^\| [A-Z|0-9]{3,}"
+DELAYED_REP_PATTERN = "\{|\(|\<[A-Z|0-9]{3,}"
+REGULAR_REP_PATTERN = "\"[A-Z|0-9]{3,}\"\d{1,}"
 
 # class (used like a C struct) for nodes in a tree for mnemonics from
 # a BUFR table
@@ -83,20 +86,20 @@ def parseTable(tblLines):
 
         # fill in dictionary of Section 1 values
         while re.search(SECTION1_PATTERN, tblLines[idx]):
-            if re.search("^\| [A-Z|0-9]{3,}", tblLines[idx]) and \
+            if re.search(DEFINED_MNEMONIC_PATTERN, tblLines[idx]) and \
                not ("MNEMONIC" in tblLines[idx]):
                 fields = tblLines[idx].split('|')
                 section1[fields[1].strip()] = fields[3].strip()
             idx += 1
 
-        # skip to the frist line of information from Section 2
+        # skip to the first line of information from Section 2
         while not re.search(SECTION2_PATTERN, tblLines[idx]):
             idx += 1
 
         # fill in dictionary of Section 2 values
         currentKey = ""
         while re.search(SECTION2_PATTERN, tblLines[idx]):
-            if re.search("^\| [A-Z|0-9]{3,}", tblLines[idx]) and \
+            if re.search(DEFINED_MNEMONIC_PATTERN, tblLines[idx]) and \
                not ("MNEMONIC" in tblLines[idx]):
                 fields = tblLines[idx].split('|')
                 parts = fields[2].split()
@@ -173,10 +176,10 @@ def buildMnemonicTree(root, section2):
 
     mnemonicsForID = section2[root.name]
     for m in mnemonicsForID:
-        if re.search("\{|\(|\<", m):
+        if re.search(DELAYED_REP_PATTERN, m):
             m = m[1:-1]
             seq = True
-        elif m[0] == '"':
+        elif re.search(REGULAR_REP_PATTERN, m):
             m = m[1:-2]
             seq = True
         else:

@@ -70,12 +70,11 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
 
 
 def getMnemonicChoice(mnemonicChains, section1):
-    """ gets users choice of which field to dump
+    """ gets user's choice of which field to dump
 
         Input:
             mnemonicChains - list containing the mnemonic names of the fields
-                             in the BUFR file as a hierarchy of mnemonics
-                             chained together with '_' (e.g., YYMMDD_YEAR)
+                             in the BUFR file
             section1 - first section from a BUFR table
 
         Return:
