@@ -7,65 +7,53 @@
 # IODA-CONVERTERS
 ################################################################################
 
-cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.12 )
 
-project( iodaconv C CXX Fortran )
+project( iodaconv VERSION 0.0.1 LANGUAGES C CXX Fortran )
+
+## Configuration
+include(GNUInstallDirs)
+include(CTest)
 
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH} )
+include( iodaconv_extra_macros )
 
-set( ECBUILD_DEFAULT_BUILD_TYPE Release )
-set( ENABLE_OS_TESTS           OFF CACHE BOOL "Disable OS tests" FORCE )
-set( ENABLE_LARGE_FILE_SUPPORT OFF CACHE BOOL "Disable testing of large file support" FORCE )
-set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
+# Location of .pycodestyle for norm checking within IODA-converters
+set( IODACONV_PYLINT_CFG_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
-include( ecbuild_system NO_POLICY_SCOPE )
-include( GNUInstallDirs )
+# Location of installed python iodaconv libraries
+set( PYIODACONV_BUILD_LIBDIR   ${CMAKE_BINARY_DIR}/lib/pyiodaconv )
+set( PYIODACONV_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pyiodaconv )
 
-ecbuild_requires_macro_version( 2.7 )
 
-################################################################################
-# Project
-################################################################################
+## Dependencies
 
-ecbuild_declare_project()
+find_package(jedi REQUIRED)
+find_package(ioda_engines REQUIRED)
 
-ecbuild_enable_fortran( REQUIRED )
-ecbuild_add_cxx11_flags()
-
-set( IODACONV_LINKER_LANGUAGE CXX )
-
-################################################################################
-# Dependencies
-################################################################################
-
-# python
-ecbuild_find_python( REQUIRED )
-
-# odb api
-ecbuild_add_option( FEATURE ODB_API
-                    DEFAULT OFF
-                    DESCRIPTION "Support for ODB API"
-                    REQUIRED_PACKAGES "PROJECT odb_api  VERSION 0.17" )
-
-if (HAVE_ODB_API)
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DHAVE_ODB_API")
-endif (HAVE_ODB_API)
-
-# NetCDF and bufrlib are optional. If found, the following variables are set
-# bufrlib_FOUND
-# NETCDF4_FOUND
-find_package(bufrlib)
-find_package(NetCDF COMPONENTS Fortran)
-if( bufrlib_FOUND AND NETCDF4_FOUND )
-  set( HAVE_BUFRLIB_AND_NETCDF "1" )
-  message( STATUS "Fortran components enabled since both bufrlib and NETCDF are found")
-else()
-  set( HAVE_BUFRLIB_AND_NETCDF "0" )
-  message( STATUS "Fortran components disabled since both bufrlib and NETCDF are not found")
+set(HDF5_PREFER_PARALLEL true)
+find_package(HDF5 REQUIRED COMPONENTS C HL)
+if (HDF5_IS_PARALLEL)
+    find_package(MPI REQUIRED)
 endif()
 
-# ODC is optional. Sets: odc_FOUND
-find_package(odc QUIET)
+# Optional: gnssro converter dependencies
+# Either jedicmake or ecbuild are required for FindNetCDF.cmake
+find_package(jedicmake QUIET)
+if(jedicmake_FOUND)
+    message(STATUS "Found: jedicmake")
+else()
+    message(STATUS "NOT Found: jedicmake")
+    find_package(ecbuild QUIET)
+    if( NOT ecbuild_FOUND OR NOT EXISTS ${ecbuild_MACROS_DIR})
+        message(STATUS "NOT Found: ecbuild")
+        message(WARNING "Neither jedicmake nor ecbuild was found.")
+    else()
+        message(STATUS "Found: ecbuild")
+    endif()
+    list(APPEND CMAKE_MODULE_PATH ${ecbuild_MACROS_DIR})
+    include(ecbuild_log) #Required for ecbuild/FindNetCDF.cmake
+endif()
 
 # Eigen3
 find_package( Eigen3 REQUIRED NO_MODULE HINTS
@@ -73,58 +61,72 @@ find_package( Eigen3 REQUIRED NO_MODULE HINTS
               $ENV{Eigen3_PATH} $ENV{EIGEN3_PATH} $ENV{Eigen_PATH} $ENV{EIGEN_PATH} )
 include_directories( ${EIGEN3_INCLUDE_DIRS} )
 
-################################################################################
-# Export package info
-################################################################################
-
-list( APPEND IODACONV_TPLS ) # NetCDF oops )
-
-set( IODACONV_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src
-                       ${CMAKE_Fortran_MODULE_DIRECTORY} )
-set( IODACONV_LIBRARIES ioda )
-
-get_directory_property( IODACONV_DEFINITIONS COMPILE_DEFINITIONS )
-
-foreach( _tpl ${IODACONV_TPLS} )
-  string( TOUPPER ${_tpl} TPL )
-  list( APPEND IODACONV_EXTRA_DEFINITIONS   ${${TPL}_DEFINITIONS}  ${${TPL}_TPL_DEFINITIONS}  )
-  list( APPEND IODACONV_EXTRA_INCLUDE_DIRS  ${${TPL}_INCLUDE_DIRS} ${${TPL}_TPL_INCLUDE_DIRS} )
-  list( APPEND IODACONV_EXTRA_LIBRARIES     ${${TPL}_LIBRARIES}    ${${TPL}_TPL_LIBRARIES}    )
-endforeach()
-
-if( HAVE_ODB_API )
-  list( APPEND IODACONV_EXTRA_LIBRARIES     Odb    )
+find_package(bufrlib QUIET)
+find_package(NetCDF QUIET COMPONENTS Fortran)
+if( bufrlib_FOUND AND NetCDF_Fortran_FOUND )
+    set(iodaconv_gnssro_ENABLED True)
+    message(STATUS "Found: bufrlib")
+    message(STATUS "Found: NetCDF::NetCDF_Fortran")
+    message(STATUS "Enabled Component: gnssro")
+else()
+    set(iodaconv_gnssro_ENABLED False)
+    if(NOT bufrlib_FOUND)
+        message(STATUS "NOT-Found: bufrlib - GNSSRO converter disabled")
+    endif()
+    if(NOT NetCDF_Fortran_FOUND)
+        message(STATUS "NOT-Found: NetCDF - GNSSRO converter disabled")
+    endif()
+    message(STATUS "Disabled Component: gnssro")
 endif()
 
-# Location of .pycodestyle for norm checking within IODA-converters
-set( IODACONV_PYLINT_CFG_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# Location of installed python iodaconv libraries
-set( PYIODACONV_BUILD_LIBDIR   ${CMAKE_BINARY_DIR}/lib/pyiodaconv )
-set( PYIODACONV_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib/pyiodaconv )
+## Sources
+# Core components
+add_subdirectory(src/Examples)
+add_subdirectory(src/chem)
+add_subdirectory(src/gsi-ncdiag)
+add_subdirectory(src/lib-python)
+add_subdirectory(src/marine)
+add_subdirectory(src/ncep)
+add_subdirectory(src/ssec)
+add_subdirectory(src/wrfda-ncdiag)
 
-################################################################################
-# Sources
-################################################################################
+# Optional components
+if(iodaconv_gnssro_ENABLED)
+    add_subdirectory(src/gnssro)
+endif()
 
-include( iodaconv_compiler_flags )
-include_directories( ${IODACONV_INCLUDE_DIRS} ${IODACONV_EXTRA_INCLUDE_DIRS} )
-include( iodaconv_extra_macros )
-add_subdirectory( src )
+# Auxiliaries
 add_subdirectory( tools )
 add_subdirectory( test )
 
-if(ECBUILD_INSTALL_FORTRAN_MODULES)
-  install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/${CMAKE_CFG_INTDIR} DESTINATION ${INSTALL_INCLUDE_DIR} )
-endif()
 
-################################################################################
-# Finalise configuration
-################################################################################
+## Package config
+include(CMakePackageConfigHelpers)
 
-# prepares a tar.gz of the sources and/or binaries
-ecbuild_install_project( NAME ioda )
+#Install location for CMake config files
+set(CONFIG_INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
-# print the summary of the configuration
-ecbuild_print_summary()
+# <pkgname>-config.cmake: build-tree
+set( CONFIG_BINDIR ${CMAKE_BINARY_DIR}/bin )
+set( CONFIG_PYTHON_PATH ${PYIODACONV_BUILD_LIBDIR} )
+configure_package_config_file(PackageConfig.cmake.in ${PROJECT_NAME}-config.cmake
+                              INSTALL_DESTINATION .
+                              INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}
+                              PATH_VARS CONFIG_BINDIR CONFIG_PYTHON_PATH)
 
+# <pkgname>-config.cmake: install-tree
+set( CONFIG_BINDIR ${CMAKE_INSTALL_FULL_BINDIR} )
+set( CONFIG_PYTHON_PATH ${PYIODACONV_INSTALL_LIBDIR} )
+configure_package_config_file(PackageConfig.cmake.in install/${PROJECT_NAME}-config.cmake
+                              INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION}
+                              PATH_VARS CONFIG_BINDIR CONFIG_PYTHON_PATH)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install/${PROJECT_NAME}-config.cmake
+        DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+# <pkgname>-config-version.cmake
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+                                 VERSION ${PROJECT_VERSION} COMPATIBILITY AnyNewerVersion)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+        DESTINATION ${CONFIG_INSTALL_DESTINATION})
