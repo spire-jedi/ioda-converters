@@ -5,4 +5,5 @@
 
 
 add_executable(netcdf2ioda.x netcdf2ioda.cc)
-target_link_libraries(netcdf2ioda.x PUBLIC ioda_engines::ioda_engines)
+#target_link_libraries(netcdf2ioda.x PUBLIC ioda_engines::ioda_engines jedi::jedi)
+target_link_libraries(netcdf2ioda.x PUBLIC ioda_engines jedi)

@@ -28,8 +28,8 @@ set( PYIODACONV_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/p
 
 ## Dependencies
 
-find_package(jedi REQUIRED)
-find_package(ioda_engines REQUIRED)
+#ebuild_find_package(jedi REQUIRED)
+#ebuild_find_package(ioda_engines REQUIRED)
 
 set(HDF5_PREFER_PARALLEL true)
 find_package(HDF5 REQUIRED COMPONENTS C HL)
