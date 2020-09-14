@@ -34,3 +34,5 @@ install( PROGRAMS ${install_bin_marine_scripts_deps} DESTINATION ${CMAKE_INSTALL
 add_test(NAME iodaconv_marine_coding_norms
          COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_lint.sh
                  ${CMAKE_CURRENT_SOURCE_DIR} ${IODACONV_PYLINT_CFG_DIR} )
+
+add_subdirectory(godae)
