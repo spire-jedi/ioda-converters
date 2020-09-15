@@ -7,6 +7,10 @@
 # FLAGS COMMON TO ALL BUILD TYPES
 ####################################################################
 
+if(CMAKE_Fortran_COMPILER_ID MATCHES GNU AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fallow-argument-mismatch")
+endif()
+
 if( OpenMP_Fortran_FOUND )
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} OpenMP::OpenMP_Fortran")
 endif()
