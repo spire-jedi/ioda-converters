@@ -144,6 +144,20 @@ add_test(NAME test_iodaconv_godae_trak
             -d 2004070812"
             godae_trak.nc)
 
+# These test_read_godae_* tests will be removed before PR
+add_test(NAME test_read_godae_prof
+         COMMAND ${CMAKE_BINARY_DIR}/bin/read_godae.x
+                 prof
+                 testinput/godae_prof.bin)
+add_test(NAME test_read_godae_ship
+         COMMAND ${CMAKE_BINARY_DIR}/bin/read_godae.x
+                 ship
+                 testinput/godae_ship.bin)
+add_test(NAME test_read_godae_trak
+         COMMAND ${CMAKE_BINARY_DIR}/bin/read_godae.x
+                 trak
+                 testinput/godae_trak.bin)
+
 add_test(NAME test_iodaconv_hgodas_insitu
          COMMAND ${CMAKE_BINARY_DIR}/bin/iodaconv_comp.sh netcdf
             "${CMAKE_BINARY_DIR}/bin/hgodas_insitu2ioda.py
