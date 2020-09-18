@@ -393,7 +393,21 @@ class ObsType(object):
                       self.rep_spec, self.seq_spec, self.misc_spec]:
             for sub_slist in slist:
                 for var_spec in sub_slist:
+                    if var_spec[1] == "TMSLPFSQ":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "depth_below_sea_water_surface"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_water_temperature"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
                     Vname = var_spec[0]
+                    print("creating variable ", Vname)
                     Dtype = var_spec[2]
                     DimNames = var_spec[3]
                     DimSizes = var_spec[4]
@@ -413,8 +427,12 @@ class ObsType(object):
                     # are of fixed size, the built-in algorithm for calculating
                     # chunk sizes will do a good job.
                     #print("Vname = ", Vname)
-                    nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                      shuffle=True, complevel=6)
+                    try:
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                    except RuntimeError:
+                        print(Vname, " is a duplicate")
+                        sys.exit()
 
     ##########################################################################
     # This method will fill in the dimension variables with coordinate values.
@@ -477,9 +495,21 @@ class ObsType(object):
                 # Netcdf variable name is in VarSpec[0]
                 # Data type is in VarSpec[2]
                 if (VarSpec[1] != 'RRSTG'):
-                    OutVals[VarSpec[0]] = BufrFloatToActual(Bval, VarSpec[2])
-                    OutValsBufr[VarSpec[1]] = BufrFloatToActual(
-                        Bval, VarSpec[2])
+                    if VarSpec[1] == "TMSLPFSQ":
+                        x = BufrValues[0][0,:].squeeze()
+                        OutVals["depth_below_sea_water_surface"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[0][6,:].squeeze()
+                        OutVals["sea_water_temperature"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[0][9,:].squeeze()
+                        OutVals["salinity"] \
+                            = BufrFloatToActual(x[:], 3)
+                    else:
+                        OutVals[VarSpec[0]] = BufrFloatToActual(Bval,
+                                                                VarSpec[2])
+                        OutValsBufr[VarSpec[1]] = BufrFloatToActual(
+                            Bval, VarSpec[2])
         return [OutVals, OutValsBufr]
 
     ##########################################################################

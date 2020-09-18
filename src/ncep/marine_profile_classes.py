@@ -15,6 +15,17 @@ sys.path.append("/scratch2/NCEPDEV/marineda/Jeffrey.Smith/IODA_FEATURE/build/lib
 import bufr2ncCommon as cm
 from bufr2ncObsTypes_marine import ObsType
 
+# class (used like a C struct) for nodes in a tree for mnemonics from
+# a BUFR table
+
+class Mnemonic:
+    def __init__(self, name, seq, parent):
+        self.name = name
+        self.seq = seq
+        self.parent = parent
+        self.children = []
+        return
+
 #config_path = "/usr/local/lib/pyiodaconv/config/"
 #config_path = "/scratch2/NCEPDEV/marineda/Jeffrey.Smith/IODA_FEATURE/build/lib/pyiodaconv"
 config_path = "/home/Jeffrey.Smith/"
@@ -234,16 +245,14 @@ class NC031006ProfileType(ObsType):
                     tablefile)  # i.e. 'NC001007.tbl'
                 write_yaml(full_table, dictfile)
 
-            idx = 0
-            for x in blist:
-                #if re.search("^TMSLPFDT", x):
-                if re.search("^CURRPFDT", x) or re.search("^DOXYPFDT", x) \
-                   or re.search("SFCSLNTY", x):
-                    del blist[idx]
-                    break
-                idx += 1
-
-            spec_list = get_int_spec(alt_type, blist)
+            spec_list = get_spec(alt_type, blist, \
+                                 nodesToPurge=["CURRPFDT", "DOXYPFDT", 
+                                               "TEHUDAT2", "SFCSLNTY", 
+                                               "DATSIG", "QFQF", "GGQF", 
+                                               "HSALG", "HSAWS", "TSIG", 
+                                               "ISNW", "TPMI", "SST1",
+                                               "SSTH", "TMSLPFSQ"])
+            #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
 
@@ -290,81 +299,15 @@ class NC031006ProfileType(ObsType):
             # TODO Check not sure what the evn_ and rep_ are
             self.evn_spec = []
 
-            spec_list = get_rep_spec(alt_type, blist)
-            repspec = []
-            repspecDum = []
+            
+            self.rep_spec = []
 
-            for i in spec_list[alt_type]:
-                if i in full_table:
-                    repspecDum = [
-                        full_table[i]['name'].replace(
-                            ' ',
-                            '_').replace('/', '_'),
-                        i,
-                        full_table[i]['dtype'],
-                        full_table[i]['ddims']]
-                    if repspecDum not in repspec:
-                        repspec.append([full_table[i]['name'].replace(
-                            ' ', '_').replace('/', '_'), i, full_table[i]['dtype'], full_table[i]['ddims']])
-                    # else:
-                    # TODO what to do if the spec is not in the full_table (or
-                    # in this case, does not have a unit in the full_table)
-            for j, dname in enumerate(repspec):
-                if len(dname[3]) == 1:
-                    repspec[j].append([self.nlocs])
-                elif len(dname[3]) == 2:
-                    repspec[j].append([self.nlocs, self.nstring])
-                else:
-                    print('walked off the edge')
-
-                #write_yaml(repspec, Lexicon)
-            #else:
-                #repspec = read_yaml(Lexicon)
-
-            # The last mnemonic (RRSTG) corresponds to the raw data, instead
-            # of -1 below, it is explicitly removed. The issue with RRSTG is
-            # the Binary length of it, which makes the system to crash
-            # during at BufrFloatToActual string convention. Probably, there
-            # are more Mnemonics with the same problem.
-
-            self.rep_spec = [repspec[x:x + 1] \
-                             for x in range(0, len(repspec), 1) if not repspec[x] in intspec]
-            self.rep_spec = self.rep_spec
-
-            #self.rep_spec = []
             # TODO Check the intspec for "SQ" if exist, added at seq_spec
-            spec_list = get_seq_spec(alt_type, blist)
-            seqspec = []
-            seqspecDum = []
-
-            for i in spec_list[alt_type]:
-                if i in full_table:
-                    seqspecDum = [
-                        full_table[i]['name'].replace(
-                            ' ',
-                            '_').replace('/', '_'),
-                        i,
-                        full_table[i]['dtype'],
-                        full_table[i]['ddims']]
-                    if seqspecDum not in seqspec:
-                        seqspec.append([full_table[i]['name'].replace(
-                            ' ', '_').replace('/', '_'), i, full_table[i]['dtype'], full_table[i]['ddims']])
-                    # else:
-                    # TODO what to do if the spec is not in the full_table (or
-                    # in this case, does not have a unit in the full_table)
-            for j, dname in enumerate(seqspec):
-                if len(dname[3]) == 1:
-                    seqspec[j].append([self.nlocs])
-                elif len(dname[3]) == 2:
-                    seqspec[j].append([self.nlocs, self.nstring])
-                else:
-                    print('walked off the edge')
-
-            self.seq_spec = [seqspec[x:x + 1] \
-                             for x in range(0, len(seqspec), 1) if not seqspec[x] in intspec and not seqspec[x] in repspec]
-            self.seq_spec = self.seq_spec
             #self.seq_spec = []
-            #self.seq_spec = ["TMSLPSQ"]
+            seqspec = []
+            seqspec.append(["tmslpfsq", "TMSLPFSQ", 3, ["nlocs"], [-1]])
+            write_yaml(intspec, Lexicon)
+            self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
 
@@ -503,6 +446,146 @@ def read_table(filename):
             full_table[key]['ddims'] = nums_dims
     return full_table, part_b
 
+
+def get_spec(mnemonic, part_b, nodesToPurge=None):
+    """ returns a list of the mnemonics that can be extracted from a BUFR
+        file for a specific observation type
+
+        Input:
+            obsType - observation type (e.g., "NC031001") or parent key
+            section2 - dictionary containing Section 2 from a .tbl file
+
+        Return:
+            list of mnemonics that will be output
+    """
+
+    # need to create a root node for a tree
+    treeTop = Mnemonic(mnemonic, False, None)
+
+    buildMnemonicTree(treeTop, part_b)
+    pruneTree(treeTop, nodesToPurge)
+    mnemonicList = findSearchableNodes(treeTop)
+    #mnemonicList = traverseTree(treeTop)
+
+    mnemonicDict = {}
+    mnemonicDict[mnemonic] = [x.name for x in mnemonicList]
+    return mnemonicDict
+
+
+def buildMnemonicTree(root, part_b):
+    """ builds a hierarchical tree for the mnemonics for a given observation 
+        type
+
+        Input:
+            root - root node for segment of tree to process
+            section2 - dictionary containing Section 2 from a .tbl file
+
+        Return:
+            list of mnemonics that will be output
+    """
+
+    mnemonicsForID = []
+    for line in part_b:
+        if re.search("^\| %s " % (root.name), line):
+            segments = line.split('|')
+            mnemonicsForID.extend(segments[2].split())
+    for m in mnemonicsForID:
+        if re.search("\{|\(|\<", m):
+            m = m[1:-1]
+            seq = True
+        elif m[0] == '"':
+            m = m[1:-2]
+            seq = True
+        else:
+            seq = False
+
+        node = Mnemonic(m, seq, root)
+
+        isKey = False
+        for line in part_b:
+            if re.search("^\| %s " % (m), line):
+                isKey = True
+                break
+        if isKey:
+            # if m is a key then it is a parent, so get its members
+            root.children.append(node)
+            buildMnemonicTree(node, part_b)
+        else:
+            # not a parent, so it is a field name.
+            root.children.append(node)
+
+    return 
+
+
+def findSearchableNodes(root):
+    """ finds the nodes that reference a mnemonic that can be retrieved
+        from a BUFR file. These nodes are the leaves except when a node
+        that is a sequence is a parent of 1 or more leaves.
+
+        Input:
+            root - the root node of the tree to search
+
+        Return:
+            a list of nodes that reference mnemonics that can be retrieved
+            from a BUFR file
+    """
+
+    nodeList = []
+
+    if len(root.children) > 0:
+        # root is not a leaf so visit its children
+        for node in root.children:
+            nodeList.extend(findSearchableNodes(node))
+    else:
+        # a leaf, so it is added to the list unless its parent is a sequence,
+        # in which case its parent is added
+        if root.parent.seq:
+            nodeList.append(root.parent)
+        else:
+            nodeList.append(root)
+
+    # remove duplicates
+    nodeList = [x for i,x in enumerate(nodeList) if x not in nodeList[:i]]
+
+    return nodeList
+
+
+def traverseTree(root):
+
+    nodeList = []
+
+    if len(root.children) > 0:
+        for node in root.children:
+            nodeList.extend(traverseTree(node))
+    else:
+        nodeList.append(root)
+
+    return nodeList
+
+
+def pruneTree(root, nodesToPurge):
+
+    purged = False
+    if root.name in nodesToPurge:
+        # delete all the children, grandchildren, and so on
+        while len(root.children) > 0:
+            didPurge = pruneTree(root.children[0], 
+                                  [x.name for x in root.children[0].children])
+            del root.children[0]
+        # delete the node from its parent's list of children
+        root.parent.children.remove(root)
+        purged = True
+    else:
+        # continue traversing the tree
+        idx = 0
+        while idx < len(root.children):
+            didPurge = pruneTree(root.children[idx], nodesToPurge)
+            if not didPurge:
+                idx += 1
+
+    return purged
+
+
 ##########################################################################
 # get the int_spec entries from satellite table
 ##########################################################################
@@ -604,7 +687,7 @@ def get_rep_spec(mnemonic, part_b):
                 bentries[mnemonic] = ''.join(
                     line.split('|')[2:]).strip().split()
                 # bentries is a dictionary for the mnemonic
-    bentries[mnemonic] = [x[1:-1] for x in bentries[mnemonic] if '(' in x]
+    #bentries[mnemonic] = [x[1:-1] for x in bentries[mnemonic] if '(' in x]
 
     for b_monic in bentries[mnemonic]:
         for line in part_b:
@@ -786,7 +869,6 @@ if __name__ == '__main__':
         bufr.advance()
         mnemonic = bufr.msg_type
         bufr.close()
-        print('Mnemonic name is ', mnemonic)
     else:
         sys.exit('The ', BufrFname, 'does not exist.')
 
@@ -802,7 +884,11 @@ if __name__ == '__main__':
     # Create the observation instance
 
     #Obs = MarineProfileType(BfileType, mnemonic, ObsTable, DictObs)
-    Obs = NC031006ProfileType(BfileType)
+    if ObsType == "NC031006":
+        Obs = NC031006ProfileType(BfileType)
+    else:
+        Obs = MarineProfileType(BfileType, ObsType, ObsType + ".tbl", 
+                                ObsType + ".dict")
     NumMessages = MessageCounter(BufrFname)
     if MaxNumMsg > 0:
         Obs.max_num_msg = MaxNumMsg
