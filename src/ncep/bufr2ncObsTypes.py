@@ -406,8 +406,56 @@ class ObsType(object):
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
+                    elif var_spec[1] == "DOXYPFSQ":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "depth_below_sea_water_surface"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "dissolved_oxygen"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "GLPFDATA":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "water_pressure"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_water_temperature"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "BSYWND2":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "maximum_wind_gust_direction"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "maximum_wind_speed_gusts"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "PRESSQ03":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "pressure"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "pressure_reduced_to_mean_sea_level"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "3hour_pressure_change"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "characteristic_of_pressure_tendency"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
                     Vname = var_spec[0]
-                    print("creating variable ", Vname)
                     Dtype = var_spec[2]
                     DimNames = var_spec[3]
                     DimSizes = var_spec[4]
@@ -489,6 +537,7 @@ class ObsType(object):
         # Make a separate copy of the input dictionary
         OutVals = {key: value for key, value in ActualValues.items()}
         OutValsBufr = {key: value for key, value in ActualValuesBufr.items()}
+        idx = 0
         for SubSpecs, SubBvals in zip(SpecList, BufrValues):
             for VarSpec, Bval in zip(SubSpecs, SubBvals):
                 # Convert according to the spec, and add to the dictionary.
@@ -496,15 +545,57 @@ class ObsType(object):
                 # Data type is in VarSpec[2]
                 if (VarSpec[1] != 'RRSTG'):
                     if VarSpec[1] == "TMSLPFSQ":
-                        x = BufrValues[0][0,:].squeeze()
+                        x = BufrValues[idx][0,:].squeeze()
                         OutVals["depth_below_sea_water_surface"] \
                             = BufrFloatToActual(x[:], 3)
-                        x = BufrValues[0][6,:].squeeze()
+                        x = BufrValues[idx][6,:].squeeze()
                         OutVals["sea_water_temperature"] \
                             = BufrFloatToActual(x[:], 3)
-                        x = BufrValues[0][9,:].squeeze()
+                        x = BufrValues[idx][9,:].squeeze()
                         OutVals["salinity"] \
                             = BufrFloatToActual(x[:], 3)
+                        idx += 1
+                    elif VarSpec[1] == "DOXYPFSQ":
+                        x = BufrValues[idx][0,:].squeeze()
+                        OutVals["depth_below_sea_water_surface"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][6,:].squeeze()
+                        OutVals["dissolved_oxygen"] \
+                            = BufrFloatToActual(x[:], 3)
+                        idx += 1
+                    elif VarSpec[1] == "GLPFDATA":
+                        x = BufrValues[idx][0,:].squeeze()
+                        OutVals["water_pressure"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][3,:].squeeze()
+                        OutVals["sea_water_temperature"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][6,:].squeeze()
+                        OutVals["salinity"] \
+                            = BufrFloatToActual(x[:], 3)
+                        idx += 1
+                    elif VarSpec[1] == "BSYWND2":
+                        x = BufrValues[idx][1,:].squeeze()
+                        OutVals["maximum_wind_gust_direction"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        OutVals["maximum_wind_speed_gusts"] \
+                            = BufrFloatToActual(x[:], 3)
+                        idx += 1
+                    elif VarSpec[1] == "PRESSQ03":
+                        x = BufrValues[idx][0,:].squeeze()
+                        OutVals["pressure"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][1,:].squeeze()
+                        OutVals["pressure_reduced_to_mean_sea_level"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        OutVals["3hour_pressure_change"] \
+                            = BufrFloatToActual(x[:], 3)
+                        x = BufrValues[idx][3,:].squeeze()
+                        OutVals["characteristic_of_pressure_tendency"] \
+                            = BufrFloatToActual(x[:], 3)
+                        idx += 1
                     else:
                         OutVals[VarSpec[0]] = BufrFloatToActual(Bval,
                                                                 VarSpec[2])
@@ -776,16 +867,12 @@ class ObsType(object):
                 # netcdf variable name and contains the associated data value.
                 [ActualValues, ActualValuesBufr] = self.extract_bufr(bufr)
                 if isProfile:
-                    #hmm = open("b2.dat", 'a')
-                    theK = ""
                     maxLength = 1
                     for k in ActualValues[0].keys():
                         if len(ActualValues[0][k].shape) >= 1 and \
                            ActualValues[0][k].shape[0] > maxLength:
                             maxLength = ActualValues[0][k].shape[0]
                             theK = k
-                    #hmm.write("%s %d %d\n" % (theK, ActualValues[0][k].shape[0], maxLength))
-                    #hmm.close()
                     bigCount += maxLength
 
                 for i in range(len(ActualValues)):
