@@ -206,15 +206,15 @@ class MarineProfileType(ObsType):
         super(MarineProfileType, self).init_dim_spec()
 
 
-class NC031006ProfileType(ObsType):
+class NC031005ProfileType(ObsType):
 
     def __init__(self, bf_type):
 
-        super(NC031006ProfileType, self).__init__()
+        super(NC031005ProfileType, self).__init__()
 
-        alt_type = "NC031006"
-        dictfile = "NC031006.dict"
-        tablefile = "NC031006.tbl"
+        alt_type = "NC031005"
+        dictfile = "NC031005.dict"
+        tablefile = "NC031005.tbl"
 
         self.bufr_ftype = bf_type
         self.multi_level = False
@@ -232,9 +232,9 @@ class NC031006ProfileType(ObsType):
             ['longitude@MetaData', '', cm.DTYPE_FLOAT, ['nlocs'], [self.nlocs]])
         self.misc_spec[0].append(
             ['datetime@MetaData', '', cm.DTYPE_STRING, ['nlocs', 'nstring'], [self.nlocs, self.nstring]])
-
+        
         if (bf_type == cm.BFILE_BUFR):
-            self.mtype_re = "NC031006"  # alt_type is the BUFR mnemonic
+            self.mtype_re = "NC031005"  # alt_type is the BUFR mnemonic
 
             if os.path.isfile(dictfile):
                 # i.e. 'NC001007.dict'
@@ -245,13 +245,17 @@ class NC031006ProfileType(ObsType):
                     tablefile)  # i.e. 'NC001007.tbl'
                 write_yaml(full_table, dictfile)
 
-            spec_list = get_spec(alt_type, blist, \
-                                 nodesToPurge=["CURRPFDT", "DOXYPFDT", 
-                                               "TEHUDAT2", "SFCSLNTY", 
-                                               "DATSIG", "QFQF", "GGQF", 
-                                               "HSALG", "HSAWS", "TSIG", 
-                                               "ISNW", "TPMI", "SST1",
-                                               "SSTH", "TMSLPFSQ"])
+            spec_list = get_spec(alt_type, blist,
+                                 parentsToPurge=[],
+                                 leavesToPurge=[["QFQF", "NC031005"],
+                                                ["GGQF", "NC031005"],
+                                                ["QFQF", "DOXYPFSQ"],
+                                                ["GGQF", "DOXYPFSQ"],
+                                                ["QFQF", "GLPFDATA"],
+                                                ["GGQF", "GLPFDATA"],
+                                                ["WPRES", "DOXYPFSQ"],
+                                                ["RRSTG", "NC031005"]])
+                                 #nodesToPurge=["DOXYPFDT"])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -305,6 +309,137 @@ class NC031006ProfileType(ObsType):
             # TODO Check the intspec for "SQ" if exist, added at seq_spec
             #self.seq_spec = []
             seqspec = []
+            seqspec.append(["doxypfsq", "DOXYPFSQ", 3, ["nlocs"], [-1]])
+            seqspec.append(["glpfdata", "GLPFDATA", 3, ["nlocs"], [-1]])
+            write_yaml(intspec, Lexicon)
+            self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
+
+            self.nrecs = 1  # place holder
+
+        # Set the dimension specs.
+        super(NC031005ProfileType, self).init_dim_spec()
+
+        return
+
+
+class NC031006ProfileType(ObsType):
+
+    def __init__(self, bf_type):
+
+        super(NC031006ProfileType, self).__init__()
+
+        alt_type = "NC031006"
+        dictfile = "NC031006.dict"
+        tablefile = "NC031006.tbl"
+
+        self.bufr_ftype = bf_type
+        self.multi_level = False
+        # Put the time and date vars in the subclasses so that their dimensions
+        # can vary ( [nlocs], [nlocs,nlevs] ).
+        self.misc_spec[0].append(
+            ['ObsTime@MetaData', '', cm.DTYPE_INTEGER, ['nlocs'], [self.nlocs]])
+        self.misc_spec[0].append(
+            ['ObsDate@MetaData', '', cm.DTYPE_INTEGER, ['nlocs'], [self.nlocs]])
+        self.misc_spec[0].append(
+            ['time@MetaData', '', cm.DTYPE_DOUBLE, ['nlocs'], [self.nlocs]])
+        self.misc_spec[0].append(
+            ['latitude@MetaData', '', cm.DTYPE_FLOAT, ['nlocs'], [self.nlocs]])
+        self.misc_spec[0].append(
+            ['longitude@MetaData', '', cm.DTYPE_FLOAT, ['nlocs'], [self.nlocs]])
+        self.misc_spec[0].append(
+            ['datetime@MetaData', '', cm.DTYPE_STRING, ['nlocs', 'nstring'], [self.nlocs, self.nstring]])
+
+        if (bf_type == cm.BFILE_BUFR):
+            self.mtype_re = "NC031006"  # alt_type is the BUFR mnemonic
+
+            if os.path.isfile(dictfile):
+                # i.e. 'NC001007.dict'
+                full_table = read_yaml(dictfile)
+                _, blist = read_table(tablefile)
+            else:
+                full_table, blist = read_table(
+                    tablefile)  # i.e. 'NC001007.tbl'
+                write_yaml(full_table, dictfile)
+
+            spec_list = get_spec(alt_type, blist, \
+                                 parentsToPurge=["CURRPFDT", "DOXYPFDT", 
+                                                 "TEHUDAT2", "SFCSLNTY", 
+                                                 "SEATEMPH"],
+                                 leavesToPurge=[["DATSIG", "NC031006"],
+                                                ["QFQF", "CURRPFSQ"],
+                                                ["GGQF", "CURRPFSQ"], 
+                                                ["QFQF", "DOYYPFSQ"],
+                                                ["GGQF", "DOXYPFSQ"], 
+                                                ["QFQF", "TMSLPFSQ"],
+                                                ["GGQF", "TMSLPFSQ"], 
+                                                ["HSALG", "NC031006"],
+                                                ["HSAWS", "NC031006"],
+                                                ["TSIG", "NC031006"], 
+                                                ["ISNW", "NC031006"],
+                                                ["TPMI", "NC031006"],
+                                                ["SST1", "NC031006"],
+                                                ["SSTH", "NC031006"]])
+                                 #nodesToPurge=["CURRPFDT", "DOXYPFDT", 
+                                               #"TEHUDAT2", "SFCSLNTY", 
+                                               #"DATSIG", "QFQF", "GGQF", 
+                                               #"HSALG", "HSAWS", "TSIG", 
+                                               #"ISNW", "TPMI", "SST1",
+                                               #"SSTH", "TMSLPFSQ"])
+            #spec_list = get_int_spec(alt_type, blist)
+            intspec = []
+            intspecDum = []
+
+            if not os.path.isfile(Lexicon):
+                for i in spec_list[alt_type]:
+                    if i in full_table:
+                        intspecDum = [
+                            full_table[i]['name'].replace(
+                                ' ',
+                                '_').replace('/', '_'),
+                            i,
+                            full_table[i]['dtype'],
+                            full_table[i]['ddims']]
+                        if intspecDum not in intspec:
+                            intspec.append([full_table[i]['name'].replace(
+                                ' ', '_').replace('/', '_'), i, full_table[i]['dtype'], full_table[i]['ddims']])
+                    # else:
+                    # TODO what to do if the spec is not in the full_table (or
+                    # in this case, does not have a unit in the full_table)
+                for j, dname in enumerate(intspec):
+                    if len(dname[3]) == 1:
+                        intspec[j].append([self.nlocs])
+                    elif len(dname[3]) == 2:
+                        intspec[j].append([self.nlocs, self.nstring])
+                    else:
+                        print('walked off the edge')
+
+                write_yaml(intspec, Lexicon)
+            else:
+                intspec = read_yaml(Lexicon)
+
+            self.nvars = 0
+            for k in intspec:
+                if '@ObsValue' in (" ".join(map(str, k))):
+                    self.nvars += 1
+            # The last mnemonic (RRSTG) corresponds to the raw data, instead
+            # of -1 below, it is explicitly removed. The issue with RRSTG is
+            # the Binary length of it, which makes the system to crash
+            # during at BufrFloatToActual string convention. Probably, there
+            # are more Mnemonics with the same problem.
+
+            self.int_spec = [intspec[x:x + 1]
+                             for x in range(0, len(intspec), 1)]
+            # TODO Check not sure what the evn_ and rep_ are
+            self.evn_spec = []
+
+            
+            self.rep_spec = []
+
+            # TODO Check the intspec for "SQ" if exist, added at seq_spec
+            #self.seq_spec = []
+            seqspec = []
+            seqspec.append(["bsywnd2", "BSYWND2", 3, ["nlocs"], [-1]])
+            seqspec.append(["pressq03", "PRESSQ03", 3, ["nlocs"], [-1]])
             seqspec.append(["tmslpfsq", "TMSLPFSQ", 3, ["nlocs"], [-1]])
             write_yaml(intspec, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
@@ -447,7 +582,8 @@ def read_table(filename):
     return full_table, part_b
 
 
-def get_spec(mnemonic, part_b, nodesToPurge=None):
+#def get_spec(mnemonic, part_b, nodesToPurge=None):
+def get_spec(mnemonic, part_b, parentsToPurge=[], leavesToPurge=[]):
     """ returns a list of the mnemonics that can be extracted from a BUFR
         file for a specific observation type
 
@@ -463,7 +599,9 @@ def get_spec(mnemonic, part_b, nodesToPurge=None):
     treeTop = Mnemonic(mnemonic, False, None)
 
     buildMnemonicTree(treeTop, part_b)
-    pruneTree(treeTop, nodesToPurge)
+    #pruneTree(treeTop, nodesToPurge)
+    if parentsToPurge or leavesToPurge:
+        megaPruneTree(treeTop, parentsToPurge, leavesToPurge)
     mnemonicList = findSearchableNodes(treeTop)
     #mnemonicList = traverseTree(treeTop)
 
@@ -584,6 +722,49 @@ def pruneTree(root, nodesToPurge):
                 idx += 1
 
     return purged
+
+
+def megaPruneTree(root, parentsToPrune, leavesToPrune):
+
+    pruned = False
+    if root.name in parentsToPrune:
+        # if root is a sequence, prune its children
+        idx = 0
+        while idx < len(root.children):
+            if root.children[idx].seq:
+                # if the child is a sequence, add it to the list of
+                # parents to prune
+                pruned = megaPruneTree(root.children[idx], 
+                                       [x for x in parentsToPrune or
+                                        x in root.children[idx].name],
+                                       leavesToPurge)
+            else:
+                # the child is not a sequence, add it to the list of
+                # leaves to prune
+                pruned = megaPruneTree(root.children[idx], parentsToPrune,
+                                       [x for x in leavesToPrune or
+                                        x in [root.children[idx].name,
+                                              root.name]])
+            if not pruned:
+                idx += 1
+        root.parent.children.remove(root)
+        pruned = True
+    elif root.parent and (root.name, root.parent.name) in \
+         [(x[0], x[1]) for x in leavesToPrune]:
+        # first clause handles when root is the root of the entire tree
+        root.parent.children.remove(root)
+        pruned = True
+    else:
+        # root is not a node that is to be pruned, but if it has children
+        # then process the children
+        idx = 0
+        while idx < len(root.children):
+            pruned = megaPruneTree(root.children[idx], parentsToPrune,
+                                   leavesToPrune)
+            if not pruned:
+                idx += 1
+
+    return pruned
 
 
 ##########################################################################
@@ -884,7 +1065,9 @@ if __name__ == '__main__':
     # Create the observation instance
 
     #Obs = MarineProfileType(BfileType, mnemonic, ObsTable, DictObs)
-    if ObsType == "NC031006":
+    if ObsType == "NC031005":
+        Obs = NC031005ProfileType(BfileType)
+    elif ObsType == "NC031006":
         Obs = NC031006ProfileType(BfileType)
     else:
         Obs = MarineProfileType(BfileType, ObsType, ObsType + ".tbl", 
