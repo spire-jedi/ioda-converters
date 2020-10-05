@@ -111,6 +111,8 @@ all_LocKeyList = {
     'SCCF_chan_wavelen': ('channel_wavelength', 'float'),
     'QI_with_FC': ('satwind_quality_ind_with_fc', 'float'),
     'QI_without_FC': ('satwind_quality_ind_no_fc', 'float'),
+    'Satellite_ID': ('satellite_id','integer');
+    'Generation_center': ('generation_center','integer);
 }
 
 checkuv = {
