@@ -452,6 +452,103 @@ class ObsType(object):
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         Vname = "characteristic_of_pressure_tendency"
+                        nc.createVariable(Vname, "S1", ["nlocs", "nstring"],
+                                          zlib=True, shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "BTOCN":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "depth_below_sea_water_surface"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_temperature_at_specified_depth"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "direction_of_current"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "speed_of_current"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "WNDSQ1":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "quips_quality_mark_for_wind_future?"
+                        nc.createVariable(Vname, "f4", DimNames,
+                                          zlib=True, shuffle=True, complevel=6)
+                        Vname = "type_of_instrumentation_for_wind_measurement"
+                        nc.createVariable(Vname, "f4", DimNames,
+                                          zlib=True, shuffle=True, complevel=6)
+                        Vname = "wind_direction"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "wind_speed"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "WNDSQ2":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "maximum_wind_speed_gusts"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "TMPSQ4":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "quips_quality_mark_for_temperature_future?"
+                        nc.createVariable(Vname, Vtype, DimNames,
+                                          zlib=True, shuffle=True, complevel=6)
+                        Vname = "temperature_dry_bulb_temperature"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "DTPCM":
+                        Vtype = "f4"
+                        DimName = ["nlocs"]
+                        Vname = "duration_and_time_of_current_measurement"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "AVGPDG":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "averaging_periods_for_trackob_parameters"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "LTLONH":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "latitude_high_accuracy"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "longitude_high_accuracy"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "ID1SQ":
+                        Vtype = "S1"
+                        DimNames = ["nlocs", "nstring"]
+                        Vname = "ship_call_sign_8_characters"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "ID2SQ":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "buoy_platform_identifier"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "ID3SQ":
+                        Vtype = "S1"
+                        DimNames = ["nlocs", "nstring"]
+                        Vname = "stationary_buoy_platform_id"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
@@ -474,7 +571,6 @@ class ObsType(object):
                     # Don't specify the chunk size. Since all of the dimensions
                     # are of fixed size, the built-in algorithm for calculating
                     # chunk sizes will do a good job.
-                    #print("Vname = ", Vname)
                     try:
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
@@ -546,55 +642,330 @@ class ObsType(object):
                 if (VarSpec[1] != 'RRSTG'):
                     if VarSpec[1] == "TMSLPFSQ":
                         x = BufrValues[idx][0,:].squeeze()
-                        OutVals["depth_below_sea_water_surface"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][6,:].squeeze()
-                        OutVals["sea_water_temperature"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["sea_water_temperature"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["sea_water_temperature"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0E+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][9,:].squeeze()
-                        OutVals["salinity"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "DOXYPFSQ":
                         x = BufrValues[idx][0,:].squeeze()
-                        OutVals["depth_below_sea_water_surface"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][6,:].squeeze()
-                        OutVals["dissolved_oxygen"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["dissolved_oxygen"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["dissolved_oxygen"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "GLPFDATA":
                         x = BufrValues[idx][0,:].squeeze()
-                        OutVals["water_pressure"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["water_pressure"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["water_pressure"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype='f4',
+                                              #mask=True)
                         x = BufrValues[idx][3,:].squeeze()
-                        OutVals["sea_water_temperature"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["sea_water_temperature"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["sea_water_temperature"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype='f4',
+                                              #mask=True)
                         x = BufrValues[idx][6,:].squeeze()
-                        OutVals["salinity"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype='f4',
+                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "BSYWND2":
                         x = BufrValues[idx][1,:].squeeze()
-                        OutVals["maximum_wind_gust_direction"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["maximum_wind_gust_direction"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["maximum_wind_gust_direction"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
-                        OutVals["maximum_wind_speed_gusts"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["maximum_wind_speed_gusts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["maximum_wind_speed_gusts"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "PRESSQ03":
                         x = BufrValues[idx][0,:].squeeze()
-                        OutVals["pressure"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["pressure"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["pressure"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
-                        OutVals["pressure_reduced_to_mean_sea_level"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["pressure_reduced_to_mean_sea_level"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["pressure_reduced_to_mean_sea_level"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
-                        OutVals["3hour_pressure_change"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["3hour_pressure_change"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["3hour_pressure_change"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
                         x = BufrValues[idx][3,:].squeeze()
-                        OutVals["characteristic_of_pressure_tendency"] \
-                            = BufrFloatToActual(x[:], 3)
+                        try:
+                            OutVals["characteristic_of_pressure_tendency"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["characteristic_of_pressure_tendency"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "BTOCN":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["sea_temperature_at_specified_depth"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["sea_temperature_at_specified_depth"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["salinity"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][3,:].squeeze()
+                        try:
+                            OutVals["direction_of_current"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["direction_of_current"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][4,:].squeeze()
+                        try:
+                            OutVals["speed_of_current"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["speed_of_current"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "WNDSQ1":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["quips_quality_mark_for_wind_future?"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["quips_quality_mark_for_wind_future?"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["type_of_instrumentation_for_wind_measurement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["type_of_instrumentation_for_wind_measurement"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["wind_direction"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["wind_direction"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][3,:].squeeze()
+                        try:
+                            OutVals["wind_speed"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["wind_speed"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "WNDSQ2":
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["maximum_wind_speed_gusts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["maximum_wind_speed_gusts"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "TMPSQ4":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["quips_quality_mark_for_temperature_future?"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["quips_quality_mark_for_temperature_future?"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["temperature_dry_bulb_temperature"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["temperature_dry_bulb_temperature"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1.0e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "DTPCM":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["duration_and_time_of_current_measurement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["duration_and_time_of_current_measurement"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "AVGPDG":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["averaging_periods_for_trackob_parameters"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["averaging_periods_for_trackob_parameters"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "LTLONH":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["latitude_high_accuracy"] \
+                                = BufrFloatToActual(x, 3)
+                        except:
+                            OutVals["latitude_high_accuracy"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1e+11], dtype="f4",
+                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["longitude_high_accuracy"] \
+                                = BufrFloatToActual(x, 3)
+                        except:
+                            OutVals["longitude_high_accuracy"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([1e+11], dtype="f4",
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "ID1SQ":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["ship_call_sign_8_characters"] \
+                                = BufrFloatToActual(x[:], 1)
+                        except:
+                            OutVals["ship_call_sign_8_characters"] \
+                                = BufrFloatToActual(x, 1)
+                                #= np.ma.array([], dtype=np.byte,
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "ID2SQ":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["buoy_platform_identifier"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["buoy_platform_identifier"] \
+                                = BufrFloatToActual(x, 3)
+                                #= np.ma.array([], dtype=np.byte,
+                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "ID3SQ":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["stationary_buoy_platform_id"] \
+                                = BufrFloatToActual(x[:], 1)
+                        except:
+                            OutVals["stationary_buoy_platform_id"] \
+                                = BufrFloatToActual(x, 1)
+                                #= np.ma.array([], dtype=np.byte,
+                                              #mask=True)
                         idx += 1
                     else:
                         OutVals[VarSpec[0]] = BufrFloatToActual(Bval,
@@ -870,9 +1241,8 @@ class ObsType(object):
                     maxLength = 1
                     for k in ActualValues[0].keys():
                         if len(ActualValues[0][k].shape) >= 1 and \
-                           ActualValues[0][k].shape[0] > maxLength:
+                           ActualValues[0][k].shape[0] >= maxLength:
                             maxLength = ActualValues[0][k].shape[0]
-                            theK = k
                     bigCount += maxLength
 
                 for i in range(len(ActualValues)):
