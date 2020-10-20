@@ -11,6 +11,7 @@ import copy
 import re
 
 #sys.path.append("/usr/local/lib/pyiodaconv")
+sys.path.append("/scratch2/NCEPDEV/marineda/Jeffrey.Smith/IODA_FEATURE/build/lib/pyiodaconv")
 import bufr2ncCommon as cm
 from bufr2ncObsTypes_marine import ObsType
 
@@ -245,8 +246,8 @@ class NC031001ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist,
-                                 parentsToPurge=["RAWRPT"],
-                                 leavesToPurge=[])
+                                 parentsToPrune=["RAWRPT"],
+                                 leavesToPrune=[])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -303,13 +304,58 @@ class NC031001ProfileType(ObsType):
             seqspec.append(["wndsq1", "WNDSQ1", 1, ["nlocs"], [-1]])
             seqspec.append(["wndsq2", "WNDSQ2", 1, ["nlocs"], [-1]])
             seqspec.append(["tmpsq4", "TMPSQ4", 1, ["nlocs"], [-1]])
-            seqspec.append(["dtpcm", "DTPCM", 1, ["nlocs"], [-1]])
             seqspec.append(["btocn", "BTOCN", 1, ["nlocs"], [-1]])
             seqspec.append(["id1sq", "ID1SQ", 1, ["nlocs"], [-1]])
             seqspec.append(["id2sq", "ID2SQ", 1, ["nlocs"], [-1]])
             seqspec.append(["id3sq", "ID3SQ", 1, ["nlocs"], [-1]])
             seqspec.append(["ltlonh", "LTLONH", 1, ["nlocs"], [-1]])
-            write_yaml(intspec, Lexicon)
+
+            yamlDict = intspec
+            yamlDict.append(["depth_below_sea_water_surface_ts", "DBSS", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_dbss_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_dbss_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["water_pressure_ts", "WPRES", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["sea_water_temperature_ts", "SST1", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_sst1_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_sst1_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["salinity_ts", "SALNH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_salnh_ts", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_salnh_ts", "GGQF", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["depth_below_sea_water_surface", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["sea_temperature_at_specified_depth", "STMP", 3, ["nlocs"], [-1]])
+            yamlDict.append(["salinity", "SALN", 3, ["nlocs"], [-1]])
+            yamlDict.append(["direction_of_current", "DROC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["speed_of_current", "SPOC", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_wind_future?", "QMWN", 2, ["nlocs"], [-1]])
+            yamlDict.append(["type_of_instrumentation_for_wind_measurement", "TIWM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["wind_direction", "WDIR", 3, ["nlocs"], [-1]])
+            yamlDict.append(["wind_speed", "WSPD", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["latitude_high_accuracy", "CLATH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["longitude_high_accuracy", "CLONH", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_wind_future?", "QMWN", 2, ["nlocs"], [-1]])
+            yamlDict.append(["type_of_instrumentation_for_wind_measurement", "TIWM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["wind_direction", "WDIR", 3, ["nlocs"], [-1]])
+            yamlDict.append(["wind_speed", "WSPD", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["maximum_wind_speed_gusts", "MXGS", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_temperature_future?", "QMAT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["temperature_dry_bulb_temperature", "TMDB", 3,["nlocs"], [-1]])
+
+            yamlDict.append(["ship_call_sign_8_characters", "SHPC8", 1, ["nlocs", "nstring"], [-1, 20]])
+
+            yamlDict.append(["buoy_platform_identifier", "BPID", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["stationary_buoy_platform_id", "SBPI", 1, ["nlocs", "nstring"], [-1, 20]])
+
+
+            write_yaml(yamlDict, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
@@ -360,9 +406,8 @@ class NC031002ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist,
-                                 parentsToPurge=["WNDSQ2", "RAWRPT"],
-                                 leavesToPurge=[])
-                                 #nodesToPurge=["DOXYPFDT"])
+                                 parentsToPrune=["WNDSQ2", "RAWRPT"],
+                                 leavesToPrune=[])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -424,7 +469,49 @@ class NC031002ProfileType(ObsType):
             seqspec.append(["id1sq", "ID1SQ", 3, ["nlocs"], [-1]])
             seqspec.append(["id2sq", "ID2SQ", 3, ["nlocs"], [-1]])
             seqspec.append(["id3sq", "ID3SQ", 3, ["nlocs"], [-1]])
-            write_yaml(intspec, Lexicon)
+
+            yamlDict = intspec
+            yamlDict.append(["depth_below_sea_water_surface", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["sea_temperature_at_specified_depth", "STMP", 3, ["nlocs"], [-1]])
+            yamlDict.append(["salinity", "SALN", 3, ["nlocs"], [-1]])
+            yamlDict.append(["direction_of_current", "DROC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["speed_of_current", "SPOC", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_wind_future?", "QMWN", 2, ["nlocs"], [-1]])
+            yamlDict.append(["type_of_instrumentation_for_wind_measurement", "TIWM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["wind_direction", "WDIR", 3, ["nlocs"], [-1]])
+            yamlDict.append(["wind_speed", "WSPD", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["maximum_wind_speed_gusts", "MXGS", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_temperature_future?", "QMAT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["temperature_dry_bulb_temperature", "TMDB", 3,["nlocs"], [-1]])
+
+            yamlDict.append(["duration_and_time_of_current_measurement", "DTCC", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["latitude_high_accuracy", "CLATH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["longitude_high_accuracy", "CLONH", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_wind_future?", "QMWN", 2, ["nlocs"], [-1]])
+            yamlDict.append(["type_of_instrumentation_for_wind_measurement", "TIWM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["wind_direction", "WDIR", 3, ["nlocs"], [-1]])
+            yamlDict.append(["wind_speed", "WSPD", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["maximum_wind_speed_gusts", "MXGS", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["quips_quality_mark_for_temperature_future?", "QMAT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["temperature_dry_bulb_temperature", "TMDB", 3,["nlocs"], [-1]])
+
+            yamlDict.append(["duration_and_time_of_current_measurement", "DTCC", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["ship_call_sign_8_characters", "SHPC8", 1, ["nlocs", "nstring"], [-1, 20]])
+
+            yamlDict.append(["buoy_platform_identifier", "BPID", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["stationary_buoy_platform_id", "SBPI", 1, ["nlocs", "nstring"], [-1, 20]])
+
+
+            write_yaml(yamlDict, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
@@ -475,9 +562,8 @@ class NC031003ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist,
-                                 parentsToPurge=["RAWRPT"],
-                                 leavesToPurge=[])
-                                 #nodesToPurge=["DOXYPFDT"])
+                                 parentsToPrune=["RAWRPT"],
+                                 leavesToPrune=[])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -533,7 +619,17 @@ class NC031003ProfileType(ObsType):
             seqspec = []
             seqspec.append(["avgpdg", "AVGPDG", 3, ["nlocs"], [-1]])
             seqspec.append(["btocn", "BTOCN", 3, ["nlocs"], [-1]])
-            write_yaml(intspec, Lexicon)
+
+            yamlDict = intspec
+            yamlDict.append(["depth_below_sea_water_surface", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["sea_temperature_at_specified_depth", "STMP", 3, ["nlocs"], [-1]])
+            yamlDict.append(["salinity", "SALN", 3, ["nlocs"], [-1]])
+            yamlDict.append(["direction_of_current", "DROC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["speed_of_current", "SPOC", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["averaging_periods_for_trackob_parameters", "AVGPER", 2, ["nlocs"], [-1]])
+
+            write_yaml(yamlDict, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
@@ -584,15 +680,13 @@ class NC031005ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist,
-                                 parentsToPurge=["RAWRPT"],
-                                 leavesToPurge=[["QFQF", "NC031005"],
+                                 parentsToPrune=["RAWRPT"],
+                                 leavesToPrune=[["QFQF", "NC031005"],
                                                 ["GGQF", "NC031005"],
                                                 ["QFQF", "DOXYPFSQ"],
                                                 ["GGQF", "DOXYPFSQ"],
                                                 ["QFQF", "GLPFDATA"],
-                                                ["GGQF", "GLPFDATA"],
-                                                ["WPRES", "DOXYPFSQ"]])
-                                 #nodesToPurge=["DOXYPFDT"])
+                                                ["GGQF", "GLPFDATA"]])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -648,7 +742,33 @@ class NC031005ProfileType(ObsType):
             seqspec = []
             seqspec.append(["doxypfsq", "DOXYPFSQ", 3, ["nlocs"], [-1]])
             seqspec.append(["glpfdata", "GLPFDATA", 3, ["nlocs"], [-1]])
-            write_yaml(intspec, Lexicon)
+
+            yamlDict = intspec
+            yamlDict.append(["indicator_for_digitization_oxy", "IDGT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["instrument_type_sensor_for_dissolved_oxygen_measurement", "SDOM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["method_of_depth_calculation_oxy", "MDCL", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["depth_below_sea_water_surface_oxy", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_dbss_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_dbss_oxy", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["water_pressure_oxy", "WPRES", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_oxy", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["dissolved_oxygen", "DOXY", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_doxy_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_doxy_oxy", "GGQF", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["water_pressure_gldr", "WPRES", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_gldr", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_gldr", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["sea_water_temperature_gldr", "SSTH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_ssth_gldr", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_ssth_gldr", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["salinity_gldr", "SALNH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_salnh_gldr", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_salnh_gldr", "GGQF", 2, ["nlocs"], [-1]])
+
+            write_yaml(yamlDict, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
@@ -699,29 +819,25 @@ class NC031006ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist, \
-                                 parentsToPurge=["CURRPFDT", "DOXYPFDT", 
-                                                 "TEHUDAT2", "SFCSLNTY", 
-                                                 "SEATEMPH"],
-                                 leavesToPurge=[["DATSIG", "NC031006"],
-                                                ["QFQF", "CURRPFSQ"],
-                                                ["GGQF", "CURRPFSQ"], 
-                                                ["QFQF", "DOYYPFSQ"],
-                                                ["GGQF", "DOXYPFSQ"], 
-                                                ["QFQF", "TMSLPFSQ"],
-                                                ["GGQF", "TMSLPFSQ"], 
-                                                ["HSALG", "NC031006"],
-                                                ["HSAWS", "NC031006"],
-                                                ["TSIG", "NC031006"], 
-                                                ["ISNW", "NC031006"],
-                                                ["TPMI", "NC031006"],
-                                                ["SST1", "NC031006"],
-                                                ["SSTH", "NC031006"]])
-                                 #nodesToPurge=["CURRPFDT", "DOXYPFDT", 
-                                               #"TEHUDAT2", "SFCSLNTY", 
-                                               #"DATSIG", "QFQF", "GGQF", 
-                                               #"HSALG", "HSAWS", "TSIG", 
-                                               #"ISNW", "TPMI", "SST1",
-                                               #"SSTH", "TMSLPFSQ"])
+                                 #parentsToPrune=["CURRPFDT", "DOXYPFDT", 
+                                                 #"TEHUDAT2", "SFCSLNTY", 
+                                                 #"SEATEMPH"],
+                                 parentsToPrune=[],
+                                 leavesToPrune=[["RRSTG", "RAWRPT"]])
+                                 #leavesToPrune=[["DATSIG", "NC031006"],
+                                                #["QFQF", "CURRPFSQ"],
+                                                #["GGQF", "CURRPFSQ"], 
+                                                #["QFQF", "DOYYPFSQ"],
+                                                #["GGQF", "DOXYPFSQ"], 
+                                                #["QFQF", "TMSLPFSQ"],
+                                                #["GGQF", "TMSLPFSQ"], 
+                                                #["HSALG", "NC031006"],
+                                                #["HSAWS", "NC031006"],
+                                                #["TSIG", "NC031006"], 
+                                                #["ISNW", "NC031006"],
+                                                #["TPMI", "NC031006"],
+                                                #["SST1", "NC031006"],
+                                                #["SSTH", "NC031006"]])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -778,7 +894,78 @@ class NC031006ProfileType(ObsType):
             seqspec.append(["bsywnd2", "BSYWND2", 3, ["nlocs"], [-1]])
             seqspec.append(["pressq03", "PRESSQ03", 3, ["nlocs"], [-1]])
             seqspec.append(["tmslpfsq", "TMSLPFSQ", 3, ["nlocs"], [-1]])
-            write_yaml(intspec, Lexicon)
+            seqspec.append(["doxypfdt", "DOXYPFDT", 3, ["nlocs"], [-1]])
+            seqspec.append(["doxypfsq", "DOXYPFSQ", 3, ["nlocs"], [-1]])
+            seqspec.append(["currpfdt", "CURRPFDT", 3, ["nlocs"], [-1]])
+            seqspec.append(["currpfsq", "CURRPFSQ", 3, ["nlocs"], [-1]])
+            #seqspec.append(["tehudat2", "TEHUDAT2", 3, ["nlocs"], [-1]])
+
+            yamlDict = intspec
+            yamlDict.append(["depth_below_sea_water_surface_ts", "DBSS", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_dbss_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_dbss_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["water_pressure_ts", "WPRES", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["sea_water_temperature_ts", "SST1", 3, "nlocs", [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_sst1_ts", "QFQF", 2, "nlocs", [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_sst1_ts", "GGQF", 2, "nlocs", [-1]])
+            yamlDict.append(["salinity_ts", "SALNH", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_salnh_ts", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_salnh_ts", "GGQF", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["indicator_for_digitization_oxy", "IDGT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["instrument_type_sensor_for_dissolved_oxygen_measurement", "SDOM", 2, ["nlocs"], [-1]])
+            yamlDict.append(["method_of_depth_calculation_oxy", "MDCL", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["depth_below_sea_water_surface_oxy", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_dbss_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_dbss_oxy", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["water_pressure_oxy", "WPRES", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_oxy", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["dissolved_oxygen", "DOXY", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_doxy_oxy", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_doxy_oxy", "GGQF", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["indicator_for_digitization_oc", "IDGT", 2, ["nlocs"], [-1]])
+            yamlDict.append(["method_of_sea_water_current_measurement_oc", "MSCM", 3, ["nlocs"], [-1]])
+            yamlDict.append(["duration_and_time_of_current_measurement_oc", "DTCC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["meth_of_rmv_velocity_and_motion_of_platform_from_curren_oc", "MRMV", 2, ["nlocs"], [-1]])
+            yamlDict.append(["direction_of_profile_oc", "DIPR", 3, ["nlocs"], [-1]])
+            yamlDict.append(["method_of_depth_calculation_oc", "MDCL", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["depth_below_sea_water_surface_oc", "DBSS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_dbss_oc", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_dbss_oc", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["water_pressure_oc", "WPRES", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_wpres_oc", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_wpres_oc", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["speed_of_current", "SPOC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_spoc_oc", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_spoc_oc", "GGQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["direction_of_current", "DROC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["qualifier_for_gtspp_quality_flag_droc_oc", "QFQF", 2, ["nlocs"], [-1]])
+            yamlDict.append(["global_gtspp_quality_flag_droc_oc", "GGQF", 2, ["nlocs"], [-1]])
+
+            yamlDict.append(["height_of_sensor_above_local_ground_or_deck_or_marine_shp", "HSALG", 3, ["nlocs"], [-1]])
+            yamlDict.append(["height_of_sensor_above_water_surface_shp", "HSAWS", 3, ["nlocs"], [-1]])
+            yamlDict.append(["temperature_dry_bulb_temperature_shp", "TMDB", 3, ["nlocs"], [-1]])
+            yamlDict.append(["method_of_web_bulb_temperature_measurement_shp", "MWBT", 2
+                             , ["nlocs"], [-1]])
+            yamlDict.append(["wet_bulb_temperature_shp", "TMWB", 3, ["nlocs"], [-1]])
+            yamlDict.append(["dewpoint_temperature_shp", "TMDP", 3, ["nlocs"], [-1]])
+            yamlDict.append(["relative_humidity_shp", "REHU", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["maximum_wind_gust_direction", "MXGD", 3, ["nlocs"], [-1]])
+            yamlDict.append(["maximum_wind_speed_gusts", "MXGS", 3, ["nlocs"], [-1]])
+
+            yamlDict.append(["pressure", "PRES", 3, ["nlocs"], [-1]])
+            yamlDict.append(["pressure_reduced_to_mean_sea_level", "PMSL", 3, ["nlocs"], [-1]])
+            yamlDict.append(["3hour_pressure_change", "3HPC", 3, ["nlocs"], [-1]])
+            yamlDict.append(["characteristic_of_pressure_tendency", "CHPT", 1, ["nlocs", "nstring"], [-1,20]])
+
+            write_yaml(yamlDict, Lexicon)
             self.seq_spec = [seqspec[x:x+1] for x in range(0, len(seqspec))]
 
             self.nrecs = 1  # place holder
@@ -919,8 +1106,7 @@ def read_table(filename):
     return full_table, part_b
 
 
-#def get_spec(mnemonic, part_b, nodesToPurge=None):
-def get_spec(mnemonic, part_b, parentsToPurge=[], leavesToPurge=[]):
+def get_spec(mnemonic, part_b, parentsToPrune=[], leavesToPrune=[]):
     """ returns a list of the mnemonics that can be extracted from a BUFR
         file for a specific observation type
 
@@ -936,9 +1122,8 @@ def get_spec(mnemonic, part_b, parentsToPurge=[], leavesToPurge=[]):
     treeTop = Mnemonic(mnemonic, False, None)
 
     buildMnemonicTree(treeTop, part_b)
-    #pruneTree(treeTop, nodesToPurge)
-    if parentsToPurge or leavesToPurge:
-        megaPruneTree(treeTop, parentsToPurge, leavesToPurge)
+    if parentsToPrune or leavesToPrune:
+        pruneTree(treeTop, parentsToPrune, leavesToPrune)
     mnemonicList = findSearchableNodes(treeTop)
     #mnemonicList = traverseTree(treeTop)
 
@@ -1038,30 +1223,7 @@ def traverseTree(root):
     return nodeList
 
 
-def pruneTree(root, nodesToPurge):
-
-    purged = False
-    if root.name in nodesToPurge:
-        # delete all the children, grandchildren, and so on
-        while len(root.children) > 0:
-            didPurge = pruneTree(root.children[0], 
-                                  [x.name for x in root.children[0].children])
-            del root.children[0]
-        # delete the node from its parent's list of children
-        root.parent.children.remove(root)
-        purged = True
-    else:
-        # continue traversing the tree
-        idx = 0
-        while idx < len(root.children):
-            didPurge = pruneTree(root.children[idx], nodesToPurge)
-            if not didPurge:
-                idx += 1
-
-    return purged
-
-
-def megaPruneTree(root, parentsToPrune, leavesToPrune):
+def pruneTree(root, parentsToPrune, leavesToPrune):
 
     pruned = False
     if root.name in parentsToPrune:
@@ -1071,21 +1233,22 @@ def megaPruneTree(root, parentsToPrune, leavesToPrune):
             if root.children[idx].seq:
                 # if the child is a sequence, add it to the list of
                 # parents to prune
-                pruned = megaPruneTree(root.children[idx], 
-                                       [x for x in parentsToPrune or
-                                        x in root.children[idx].name],
-                                       leavesToPurge)
+                pruned = pruneTree(root.children[idx], 
+                                   [x for x in parentsToPrune or
+                                    x in root.children[idx].name],
+                                   leavesToPrune)
             else:
                 # the child is not a sequence, add it to the list of
                 # leaves to prune
+                #print([x.name for x in root.children])
                 if leavesToPrune:
-                    pruned = megaPruneTree(root.children[idx], parentsToPrune,
-                                           [x for x in leavesToPrune or
-                                            x in [root.children[idx].name,
-                                                  root.name]])
+                    pruned = pruneTree(root.children[idx], parentsToPrune,
+                                       [x for x in leavesToPrune or
+                                        x in [root.children[idx].name,
+                                              root.name]])
                 else:
-                    pruned = megaPruneTree(root.children[idx], parentsToPrune,
-                                           [root.children[idx].name, root.name])
+                    pruned = pruneTree(root.children[idx], parentsToPrune,
+                                       [root.children[idx].name, root.name])
             if not pruned:
                 idx += 1
         root.parent.children.remove(root)
@@ -1100,7 +1263,7 @@ def megaPruneTree(root, parentsToPrune, leavesToPrune):
         # then process the children
         idx = 0
         while idx < len(root.children):
-            pruned = megaPruneTree(root.children[idx], parentsToPrune,
+            pruned = pruneTree(root.children[idx], parentsToPrune,
                                    leavesToPrune)
             if not pruned:
                 idx += 1

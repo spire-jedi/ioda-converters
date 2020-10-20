@@ -395,43 +395,216 @@ class ObsType(object):
                 for var_spec in sub_slist:
                     if var_spec[1] == "TMSLPFSQ":
                         Vtype = "f4"
+                        VtypeQF = "i4"
                         DimNames = ["nlocs"]
-                        Vname = "depth_below_sea_water_surface"
+                        Vname = "depth_below_sea_water_surface_ts"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
-                        Vname = "sea_water_temperature"
+                        Vname = "qualifier_for_gtspp_quality_flag_dbss_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_dbss_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "water_pressure_ts"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
-                        Vname = "salinity"
+                        Vname = "qualifier_for_gtspp_quality_flag_wpres_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_wpres_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_water_temperature_ts"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_sst1_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_sst1_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity_ts"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_salnh_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_salnh_ts"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "DOXYPFDT":
+                        Vtype = "i4"
+                        DimNames = ["nlocs"]
+                        Vname = "indicator_for_digitization_oxy"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "instrument_type_sensor_for_dissolved_oxygen_measurement"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "method_of_depth_calculation_oxy"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
                     elif var_spec[1] == "DOXYPFSQ":
                         Vtype = "f4"
+                        VtypeQF = "i4"
                         DimNames = ["nlocs"]
-                        Vname = "depth_below_sea_water_surface"
+                        Vname = "depth_below_sea_water_surface_oxy"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_dbss_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_dbss_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "water_pressure_oxy"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_wpres_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_wpres_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         Vname = "dissolved_oxygen"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_doxy_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_doxy_oxy"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
                         continue
+                    elif var_spec[1] == "CURRPFDT":
+                        Vtype = "i4"
+                        DimNames = ["nlocs"]
+                        Vname = "indicator_for_digitization_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "method_of_sea_water_current_measurement_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "duration_and_time_of_current_measurement_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "meth_of_rmv_velocity_and_motion_of_platform_from_curren_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "direction_of_profile_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "method_of_depth_calculation_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "CURRPFSQ":
+                        Vtype = "f4"
+                        VtypeQF = "i4"
+                        DimNames = ["nlocs"]
+                        Vname = "depth_below_sea_water_surface_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_dbss_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_dbss_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "water_pressure_oc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_wpres_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_wpres_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "speed_of_current"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_spoc_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_spoc_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "direction_of_current"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_droc_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_droc_oc"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "TEHUDAT2":
+                        Vtype = "f4"
+                        VtypeM = "i4"
+                        DimNames = ["nlocs"]
+                        Vname = "height_of_sensor_above_local_ground_or_deck_or_marine_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "height_of_sensor_above_water_surface_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "temperature_dry_bulb_temperature_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "method_of_web_bulb_temperature_measurement_shp"
+                        nc.createVariable(Vname, VtypeM, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "wet_bulb_temperature_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "dewpoint_temperature_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "relative_humidity_shp"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
                     elif var_spec[1] == "GLPFDATA":
                         Vtype = "f4"
+                        VtypeQF = "i4"
                         DimNames = ["nlocs"]
-                        Vname = "water_pressure"
+                        Vname = "water_pressure_gldr"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
-                        Vname = "sea_water_temperature"
+                        Vname = "qualifier_for_gtspp_quality_flag_wpres_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_wpres_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_water_temperature_gldr"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
-                        Vname = "salinity"
+                        Vname = "qualifier_for_gtspp_quality_flag_ssth_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_ssth_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity_gldr"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "qualifier_for_gtspp_quality_flag_salnh_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "global_gtspp_quality_flag_salnh_gldr"
+                        nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
                     elif var_spec[1] == "BSYWND2":
                         Vtype = "f4"
                         DimNames = ["nlocs"]
+                        Vname = "time_period_or_displacement"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
                         Vname = "maximum_wind_gust_direction"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
@@ -478,10 +651,10 @@ class ObsType(object):
                         Vtype = "f4"
                         DimNames = ["nlocs"]
                         Vname = "quips_quality_mark_for_wind_future?"
-                        nc.createVariable(Vname, "f4", DimNames,
+                        nc.createVariable(Vname, "i4", DimNames,
                                           zlib=True, shuffle=True, complevel=6)
                         Vname = "type_of_instrumentation_for_wind_measurement"
-                        nc.createVariable(Vname, "f4", DimNames,
+                        nc.createVariable(Vname, "i4", DimNames,
                                           zlib=True, shuffle=True, complevel=6)
                         Vname = "wind_direction"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
@@ -497,11 +670,37 @@ class ObsType(object):
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
+                    elif var_spec[1] == "SEATEMPH":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "method_of_water_temperature_and_or_salinity_measurement"
+                        nc.createVariable(Vname, "i4", DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "depth_below_sea_water_surface_cm_st"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "sea_water_temperature_hr"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
+                    elif var_spec[1] == "SFCSLNTY":
+                        Vtype = "f4"
+                        DimNames = ["nlocs"]
+                        Vname = "method_of_salinity_depth_measurement"
+                        nc.createVariable(Vname, "i4", DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "depth_below_sea_water_surface_cm_sln"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        Vname = "salinity_sfc"
+                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
+                                          shuffle=True, complevel=6)
+                        continue
                     elif var_spec[1] == "TMPSQ4":
                         Vtype = "f4"
                         DimNames = ["nlocs"]
                         Vname = "quips_quality_mark_for_temperature_future?"
-                        nc.createVariable(Vname, Vtype, DimNames,
+                        nc.createVariable(Vname, "i4", DimNames,
                                           zlib=True, shuffle=True, complevel=6)
                         Vname = "temperature_dry_bulb_temperature"
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
@@ -571,6 +770,7 @@ class ObsType(object):
                     # Don't specify the chunk size. Since all of the dimensions
                     # are of fixed size, the built-in algorithm for calculating
                     # chunk sizes will do a good job.
+                    #print("Vname = ", Vname)
                     try:
                         nc.createVariable(Vname, Vtype, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
@@ -643,42 +843,134 @@ class ObsType(object):
                     if VarSpec[1] == "TMSLPFSQ":
                         x = BufrValues[idx][0,:].squeeze()
                         try:
-                            OutVals["depth_below_sea_water_surface"] \
+                            OutVals["depth_below_sea_water_surface_ts"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["depth_below_sea_water_surface"] \
+                            OutVals["depth_below_sea_water_surface_ts"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_ts"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_dbss_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_dbss_ts"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][6,:].squeeze()
                         try:
-                            OutVals["sea_water_temperature"] \
+                            OutVals["sea_water_temperature_ts"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["sea_water_temperature"] \
+                            OutVals["sea_water_temperature_ts"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0E+11], dtype="f4",
-                                              #mask=True)
+                        x = BufrValues[idx][7,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_sst1_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_sst1_ts"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][8,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_sst1_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_sst1_ts"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][9,:].squeeze()
                         try:
-                            OutVals["salinity"] \
+                            OutVals["salinity_ts"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["salinity"] \
+                            OutVals["salinity_ts"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
+                        x = BufrValues[idx][10,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_salnh_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_salnh_ts"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_salnh_ts"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_salnh_ts"] \
+                                = BufrFloatToActual(x, 3)
+                        idx += 1
+                    elif VarSpec[1] == "DOXYPFDT":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["indicator_for_digitization_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["indicator_for_digitization_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["instrument_type_sensor_for_dissolved_oxygen_measurement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["instrument_type_sensor_for_dissolved_oxygen_measurement"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["method_of_depth_calculation_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_depth_calculation_oxy"] \
+                                = BufrFloatToActual(x, 3)
                         idx += 1
                     elif VarSpec[1] == "DOXYPFSQ":
                         x = BufrValues[idx][0,:].squeeze()
                         try:
-                            OutVals["depth_below_sea_water_surface"] \
+                            OutVals["depth_below_sea_water_surface_oxy"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["depth_below_sea_water_surface"] \
+                            OutVals["depth_below_sea_water_surface_oxy"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_dbss_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_dbss_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][3,:].squeeze()
+                        try:
+                            OutVals["water_pressure_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["water_pressure_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][4,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][5,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_wpres_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_wpres_oxy"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][6,:].squeeze()
                         try:
                             OutVals["dissolved_oxygen"] \
@@ -686,39 +978,275 @@ class ObsType(object):
                         except:
                             OutVals["dissolved_oxygen"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
+                        x = BufrValues[idx][7,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_doxy_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_doxy_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][8,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_doxy_oxy"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_doxy_oxy"] \
+                                = BufrFloatToActual(x, 3)
+                        idx += 1
+                    elif VarSpec[1] == "CURRPFDT":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["indicator_for_digitization_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["indicator_for_digitization_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["method_of_sea_water_current_measurement_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_sea_water_current_measurement_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["duration_and_time_of_current_measurement_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["duration_and_time_of_current_measurement_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][3,:].squeeze()
+                        try:
+                            OutVals["meth_of_rmv_velocity_and_motion_of_platform_from_curren_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["meth_of_rmv_velocity_and_motion_of_platform_from_curren_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][4,:].squeeze()
+                        try:
+                            OutVals["direction_of_profile_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["direction_of_profile_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][5,:].squeeze()
+                        try:
+                            OutVals["method_of_depth_calculation_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_depth_calculation_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        idx += 1
+                    elif VarSpec[1] == "CURRPFSQ":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["depth_below_sea_water_surface_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_dbss_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_dbss_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_dbss_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][3,:].squeeze()
+                        try:
+                            OutVals["water_pressure_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["water_pressure_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][4,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][5,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_wpres_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_wpres_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][6,:].squeeze()
+                        try:
+                            OutVals["speed_of_current"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["speed_of_current"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][7,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_spoc_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_spoc_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][8,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_spoc_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_spoc_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][9,:].squeeze()
+                        try:
+                            OutVals["direction_of_current"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["direction_of_current"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][10,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_droc_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_droc_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_droc_oc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_droc_oc"] \
+                                = BufrFloatToActual(x, 3)
+                        idx += 1
+                    elif VarSpec[1] == "TEHUDAT2":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["height_of_sensor_above_local_ground_or_deck_or_marine_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["height_of_sensor_above_local_ground_or_deck_or_marine_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["height_of_sensor_above_water_surface_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["height_of_sensor_above_water_surface_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["temperature_dry_bulb_temperature_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["temperature_dry_bulb_temperature_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["method_of_wet_bulb_temperature_measurement_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_web_bulb_temperature_measurement_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["wet_bulb_temperature_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["wet_bulb_temperature_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["dewpoint_temperature_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["dewpoint_temperature_shp"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["relative_humidity_shp"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["relative_humidity_shp"] \
+                                = BufrFloatToActual(x, 3)
                         idx += 1
                     elif VarSpec[1] == "GLPFDATA":
                         x = BufrValues[idx][0,:].squeeze()
                         try:
-                            OutVals["water_pressure"] \
+                            OutVals["water_pressure_gldr"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["water_pressure"] \
+                            OutVals["water_pressure_gldr"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype='f4',
-                                              #mask=True)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_wpres_gldr"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_wpres_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_wpres_gldr"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][3,:].squeeze()
                         try:
-                            OutVals["sea_water_temperature"] \
+                            OutVals["sea_water_temperature_gldr"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["sea_water_temperature"] \
+                            OutVals["sea_water_temperature_gldr"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype='f4',
-                                              #mask=True)
+                        x = BufrValues[idx][4,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_ssth_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_ssth_gldr"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][11,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_ssth_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_ssth_gldr"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][6,:].squeeze()
                         try:
-                            OutVals["salinity"] \
+                            OutVals["salinity_gldr"] \
                                 = BufrFloatToActual(x[:], 3)
                         except:
-                            OutVals["salinity"] \
+                            OutVals["salinity_gldr"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype='f4',
-                                              #mask=True)
+                        x = BufrValues[idx][7,:].squeeze()
+                        try:
+                            OutVals["qualifier_for_gtspp_quality_flag_salnh_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["qualifier_for_gtspp_quality_flag_salnh_gldr"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][8,:].squeeze()
+                        try:
+                            OutVals["global_gtspp_quality_flag_salnh_gldr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["global_gtspp_quality_flag_salnh_gldr"] \
+                                = BufrFloatToActual(x, 3)
                         idx += 1
                     elif VarSpec[1] == "BSYWND2":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["time_period_or_displacement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["time_period_or_displacement"] \
+                                = BufrFloatToActual(x, 3)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["maximum_wind_gust_direction"] \
@@ -726,8 +1254,6 @@ class ObsType(object):
                         except:
                             OutVals["maximum_wind_gust_direction"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
                         try:
                             OutVals["maximum_wind_speed_gusts"] \
@@ -735,8 +1261,6 @@ class ObsType(object):
                         except:
                             OutVals["maximum_wind_speed_gusts"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "PRESSQ03":
                         x = BufrValues[idx][0,:].squeeze()
@@ -746,8 +1270,6 @@ class ObsType(object):
                         except:
                             OutVals["pressure"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["pressure_reduced_to_mean_sea_level"] \
@@ -755,8 +1277,6 @@ class ObsType(object):
                         except:
                             OutVals["pressure_reduced_to_mean_sea_level"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
                         try:
                             OutVals["3hour_pressure_change"] \
@@ -764,8 +1284,6 @@ class ObsType(object):
                         except:
                             OutVals["3hour_pressure_change"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][3,:].squeeze()
                         try:
                             OutVals["characteristic_of_pressure_tendency"] \
@@ -773,8 +1291,6 @@ class ObsType(object):
                         except:
                             OutVals["characteristic_of_pressure_tendency"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "BTOCN":
                         x = BufrValues[idx][0,:].squeeze()
@@ -784,8 +1300,6 @@ class ObsType(object):
                         except:
                             OutVals["depth_below_sea_water_surface"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["sea_temperature_at_specified_depth"] \
@@ -793,8 +1307,6 @@ class ObsType(object):
                         except:
                             OutVals["sea_temperature_at_specified_depth"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
                         try:
                             OutVals["salinity"] \
@@ -802,8 +1314,6 @@ class ObsType(object):
                         except:
                             OutVals["salinity"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][3,:].squeeze()
                         try:
                             OutVals["direction_of_current"] \
@@ -811,8 +1321,6 @@ class ObsType(object):
                         except:
                             OutVals["direction_of_current"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][4,:].squeeze()
                         try:
                             OutVals["speed_of_current"] \
@@ -820,8 +1328,6 @@ class ObsType(object):
                         except:
                             OutVals["speed_of_current"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "WNDSQ1":
                         x = BufrValues[idx][0,:].squeeze()
@@ -831,8 +1337,6 @@ class ObsType(object):
                         except:
                             OutVals["quips_quality_mark_for_wind_future?"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["type_of_instrumentation_for_wind_measurement"] \
@@ -840,8 +1344,6 @@ class ObsType(object):
                         except:
                             OutVals["type_of_instrumentation_for_wind_measurement"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][2,:].squeeze()
                         try:
                             OutVals["wind_direction"] \
@@ -849,8 +1351,6 @@ class ObsType(object):
                         except:
                             OutVals["wind_direction"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][3,:].squeeze()
                         try:
                             OutVals["wind_speed"] \
@@ -858,8 +1358,6 @@ class ObsType(object):
                         except:
                             OutVals["wind_speed"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "WNDSQ2":
                         x = BufrValues[idx][1,:].squeeze()
@@ -869,8 +1367,6 @@ class ObsType(object):
                         except:
                             OutVals["maximum_wind_speed_gusts"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "TMPSQ4":
                         x = BufrValues[idx][0,:].squeeze()
@@ -880,8 +1376,6 @@ class ObsType(object):
                         except:
                             OutVals["quips_quality_mark_for_temperature_future?"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["temperature_dry_bulb_temperature"] \
@@ -889,8 +1383,6 @@ class ObsType(object):
                         except:
                             OutVals["temperature_dry_bulb_temperature"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1.0e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "DTPCM":
                         x = BufrValues[idx][0,:].squeeze()
@@ -900,8 +1392,52 @@ class ObsType(object):
                         except:
                             OutVals["duration_and_time_of_current_measurement"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1e+11], dtype="f4",
-                                              #mask=True)
+                        idx += 1
+                    elif VarSpec[1] == "SEATEMPH":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["method_of_water_temperature_and_or_salinity_measurement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_water_temperature_and_or_salinity_measurement"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["depth_below_sea_water_surface_cm_st"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface_cm_st"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["sea_water_temperature_hr"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["sea_water_temperature_hr"] \
+                                = BufrFloatToActual(x, 3)
+                        idx += 1
+                    elif VarSpec[1] == "SFCSLNTY":
+                        x = BufrValues[idx][0,:].squeeze()
+                        try:
+                            OutVals["method_of_water_temperature_and_or_salinity_measurement"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["method_of_water_temperature_and_or_salinity_measurement"] \
+                                = BufrFloatToActual(x, 3)
+                            x = BufrValues[idx][1,:].squeeze()
+                        try:
+                            OutVals["depth_below_sea_water_surface_cm_sln"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["depth_below_sea_water_surface_cm_sln"] \
+                                = BufrFloatToActual(x, 3)
+                        x = BufrValues[idx][2,:].squeeze()
+                        try:
+                            OutVals["salinity_sfc"] \
+                                = BufrFloatToActual(x[:], 3)
+                        except:
+                            OutVals["salinity_sfc"] \
+                                = BufrFloatToActual(x, 3)
                         idx += 1
                     elif VarSpec[1] == "AVGPDG":
                         x = BufrValues[idx][0,:].squeeze()
@@ -911,8 +1447,6 @@ class ObsType(object):
                         except:
                             OutVals["averaging_periods_for_trackob_parameters"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "LTLONH":
                         x = BufrValues[idx][0,:].squeeze()
@@ -922,8 +1456,6 @@ class ObsType(object):
                         except:
                             OutVals["latitude_high_accuracy"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1e+11], dtype="f4",
-                                              #mask=True)
                         x = BufrValues[idx][1,:].squeeze()
                         try:
                             OutVals["longitude_high_accuracy"] \
@@ -931,8 +1463,6 @@ class ObsType(object):
                         except:
                             OutVals["longitude_high_accuracy"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([1e+11], dtype="f4",
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "ID1SQ":
                         x = BufrValues[idx][0,:].squeeze()
@@ -942,8 +1472,6 @@ class ObsType(object):
                         except:
                             OutVals["ship_call_sign_8_characters"] \
                                 = BufrFloatToActual(x, 1)
-                                #= np.ma.array([], dtype=np.byte,
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "ID2SQ":
                         x = BufrValues[idx][0,:].squeeze()
@@ -953,8 +1481,6 @@ class ObsType(object):
                         except:
                             OutVals["buoy_platform_identifier"] \
                                 = BufrFloatToActual(x, 3)
-                                #= np.ma.array([], dtype=np.byte,
-                                              #mask=True)
                         idx += 1
                     elif VarSpec[1] == "ID3SQ":
                         x = BufrValues[idx][0,:].squeeze()
@@ -964,8 +1490,6 @@ class ObsType(object):
                         except:
                             OutVals["stationary_buoy_platform_id"] \
                                 = BufrFloatToActual(x, 1)
-                                #= np.ma.array([], dtype=np.byte,
-                                              #mask=True)
                         idx += 1
                     else:
                         OutVals[VarSpec[0]] = BufrFloatToActual(Bval,
