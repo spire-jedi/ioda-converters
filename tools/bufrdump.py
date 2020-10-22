@@ -51,10 +51,10 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
 
     # get a list of the mnemonics of all the fields shown for the observation
     # type in the .tbl file
-    mnemonicChains = readAncillary.getMnemonicList(obsType, section2)
+    mnemonicList = readAncillary.getMnemonicListAll(obsType, section2)
 
     # get the user's choice of which field to dump
-    whichField = getMnemonicChoice(mnemonicChains, section1)
+    whichField = getMnemonicChoice(mnemonicList, section1)
 
     # dump the field
     if textFile:
@@ -69,12 +69,12 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     return
 
 
-def getMnemonicChoice(mnemonicChains, section1):
+def getMnemonicChoice(mnemonicList, section1):
     """ gets user's choice of which field to dump
 
         Input:
-            mnemonicChains - list containing the mnemonic names of the fields
-                             in the BUFR file
+            mnemonicList - list containing the mnemonic names of the fields
+                           in the BUFR file
             section1 - first section from a BUFR table
 
         Return:
@@ -82,8 +82,8 @@ def getMnemonicChoice(mnemonicChains, section1):
     """
 
     # separate the fields into sequences and single ("solitary") fields
-    solitaryList = [x for x in mnemonicChains if not x.seq]
-    sequenceList = [x for x in mnemonicChains if x.seq]
+    solitaryList = [x for x in mnemonicList if len(x.children) == 0]
+    sequenceList = [x for x in mnemonicList if len(x.children) > 0]
 
     # post a list of the fields
     idx = 0
@@ -130,14 +130,19 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
             fd - file descriptor of file to write output to
     """
 
-    if whichField.seq:
+    if len(whichField.children) > 0:
+        # I don't know what happens if a sequence contains parents. the 
+        # following 2 statements may cause errors if the parents are not
+        # at the end of the list of children.
         # I've found 1 case so far in which a sequence contains a sequence.
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
-        sequenceLength = len([x for x in whichField.children if not x.seq])
+        #sequenceLength = len([x for x in whichField.children if not x.seq])
+        sequenceLength = len([x for x in whichField.children if 
+                              len(x.children) == 0])
         fd.write("Order of individual fields: {}\n".format(
-            [x.name for x in whichField.children if not x.seq]))
+            [x.name for x in whichField.children if len(x.children) == 0]))
     else:
         sequenceLength = 1
 
@@ -152,8 +157,8 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
         while (bufr.load_subset() == 0):
             isub += 1
             Vals = bufr.read_subset \
-                   (whichField.name, seq=whichField.seq).data.squeeze()
-            if whichField.seq:
+                   (whichField.name, seq=len(whichField.children) > 0).data.squeeze()
+            if len(whichField.children) > 0:
                 try:
                     fd.write(
                         "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
@@ -184,14 +189,15 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
 
     nfd = netCDF4.Dataset(outputFile, 'w')
 
-    if whichField.seq:
+    if len(whichField) > 0:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
         # I've found 1 case so far in which a sequence contains a sequence.
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
-        mnemonics = [x.name for x in whichField.children if not x.seq]
+        mnemonics = [x.name for x in whichField.children
+                     if not len(x.children) > 0]
         for i in range(1, len(mnemonics)):
             while mnemonics[i] in mnemonics[0:i]:
                 mnemonics[i] = mnemonics[i] + '_'
@@ -209,7 +215,7 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
             continue
         while bfd.load_subset() == 0:
             vals = bfd.read_subset \
-                   (whichField.name, seq=whichField.seq).data.squeeze()
+                   (whichField.name, seq=len(whichField.children) > 0).data.squeeze()
 
             if idxSubset == 0:
                 # first time throught create variables

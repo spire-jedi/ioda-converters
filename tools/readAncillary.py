@@ -37,19 +37,19 @@ class YAMLFileError(Exception):
 # class (used like a C struct) for nodes in a tree for mnemonics from
 # a BUFR table
 class MnemonicNode:
-    def __init__(self, name, seq, parent, seqIndex):
+    def __init__(self, name, repl, parent, seqIndex):
         """ contructor
 
             Input:
                 name - mnemonic name
-                seq - True if the mnemonic is a sequence, False otherwise
+                repl - True if the mnemonic has replicatin, False otherwise
                 parent - the MnemonicNode for the current mnemonic's parent
                 seqIndex - if the parent is a sequence mnemonic, the position
                            in the list of children
         """
 
         self.name = name
-        self.seq = seq
+        self.repl = repl
         self.parent = parent
         self.seq_index = seqIndex
         self.children = []
@@ -170,9 +170,48 @@ def readYAMLFile(yamlFile):
     return yamlDict
 
 
-def getMnemonicList(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
-    """ returns a list of the mnemonics that can be extracted from a BUFR
-        file for a specific observation type
+def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
+    """ returns a list of the mnemonics, both leaves and sequences, that can 
+        be used to read fields from a BUFR file for a specific observation type
+
+        Input:
+            obsType - observation type (e.g., "NC031001") or parent key
+            section2 - dictionary containing Section 2 from a .tbl file
+            parentsToPrune - list of mnemonic objects for nodes that
+                             are parents, so that the node and all its
+                             descendents are pruned
+            leavesToPrune - list for pruning mnemonics that are leaves.
+                            Each element is a list that contains the Menomic
+                            objects for the leaf and its parent (so that
+                            mnemonics with duplicate names can be differinated)
+
+        Return:
+            list of mnemonics that will be output
+    """
+
+    # need to create a root node for a tree
+    treeTop = MnemonicNode(obsType, False, None, 0)
+
+    buildMnemonicTree(treeTop, section2)
+    if parentsToPrune or leavesToPrune:
+        status = pruneTree(treeTop, parentsToPrune, leavesToPrune)
+    mnemonicList = findDumpableNodes(treeTop)
+    # There are numerous instances in which leaves from different sequences
+    # have the same mnemonic. For the purposes of this function, these
+    # leaves are deleted.
+    mnemonicList = [x for i,x in enumerate(mnemonicList)
+                    if x.name not in [y.name for y in mnemonicList[:i]] and 
+                    x.name not in [y.name for y in mnemonicList[i+1:]]]
+
+    return mnemonicList
+
+
+def getMnemonicListBase(obsType, section2, parentsToPrune=[],
+                        leavesToPrune=[]):
+    """ returns a minimalist list of the mnemonics that can be extracted from 
+        a BUFR file for a specific observation type. This means that 
+        mnemonics for leaves that are in a sequence are not included because 
+        those fields can be retrieved when the entire sequence is retrieved
 
         Input:
             obsType - observation type (e.g., "NC031001") or parent key
@@ -216,17 +255,18 @@ def buildMnemonicTree(root, section2):
     for m in mnemonicsForID:
         if re.search(DELAYED_REP_PATTERN, m):
             m = m[1:-1]
-            seq = True
+            repl = True
         elif re.search(REGULAR_REP_PATTERN, m):
             m = m[1:-2]
-            seq = True
+            repl = True
         elif m[0] == '.':
             # don't know how to handle mnemonics beginning with a .
             continue
         else:
-            seq = False
+            repl = False
 
-        node = MnemonicNode(m, seq, root, len(root.children))
+        # last argument assigns 0 to 1st child, 1 to 2nd child, etc.
+        node = MnemonicNode(m, repl, root, len(root.children))
 
         if m in section2.keys():
             # if m is a key then it is a parent, so get its members
@@ -260,16 +300,50 @@ def findSearchableNodes(root):
             nodeList.extend(findSearchableNodes(node))
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
-        # in which case its parent is added
-        if root.parent.seq:
+        # in which case its parent is added (unless its parent is the obs type)
+        #if root.parent.repl:
+        if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0 and root.parent.name != "TMSLPFDT":
             nodeList.append(root.parent)
         else:
             nodeList.append(root)
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
-    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]
-                or not x.seq]
+    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
+
+    return nodeList
+
+
+def findDumpableNodes(root):
+    """ finds the nodes that reference a mnemonic that can be retrieved
+        from a BUFR file. These nodes are the leaves except when a node
+        that is a sequence is a parent of 1 or more leaves.
+
+        Input:
+            root - the root node of the tree to search
+
+        Return:
+            a list of nodes that reference mnemonics that can be retrieved
+            from a BUFR file
+    """
+
+    nodeList = []
+
+    if len(root.children) > 0:
+        # root is not a leaf so visit its children
+        for node in root.children:
+            nodeList.extend(findDumpableNodes(node))
+    else:
+        # a leaf, so it is added to the list. Its parent is also added if
+        # its parent is a sequence.
+        nodeList.append(root)
+        #if root.parent.repl:
+        if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0 and root.parent.name != "TMSLPFDT":
+            nodeList.append(root.parent)
+
+    # remove duplicates (will happen if leaf nodes share a parent that is
+    # a sequence)
+    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
 
     return nodeList
 
@@ -322,7 +396,8 @@ def pruneTree(root, parentsToPrune, leavesToPrune):
         idx = 0
         while idx < len(root.children):
             # if the field is a sequence, prune all its children
-            if root.children[idx].seq:
+            #if root.children[idx].seq:
+            if len(root.children[idx].children) > 0:
                 # if the child is a sequence, add its name to the list
                 # of sequences to prune
                 pruned = pruneTree(root.children[idx],
@@ -355,25 +430,3 @@ def pruneTree(root, parentsToPrune, leavesToPrune):
                 idx += 1
         
     return pruned
-
-
-def addNamesForNetCDF(outputVarList, yamlDict):
-    """ changes spaces and slashes in the name field to underscores
-        so that they can be used as netCDF variable names
-
-        Input:
-            outputVarList - list of mnemonics of fields written to output file
-            yamlDict - a dictionary created from reading a .dict file
-
-        Return:
-            dictionary that maps mnemonics of output fields to the netCDF
-            variable names for the fields
-    """
-
-    netCDFNameDict = {}
-    for v in outputVarList:
-        netCDFNameDict[v] = yamlDict[v]["name"].lower()
-        netCDFNameDict[v] = netCDFNameDict[v].replace(' ', '_')
-        netCDFNameDict[v] = netCDFNameDict[v].replace('/', '_')
-
-    return netCDFNameDict
