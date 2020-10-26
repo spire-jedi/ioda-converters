@@ -259,14 +259,14 @@ def buildMnemonicTree(root, section2):
         elif re.search(REGULAR_REP_PATTERN, m):
             m = m[1:-2]
             repl = True
-        elif m[0] == '.':
+        #elif m[0] == '.':
             # don't know how to handle mnemonics beginning with a .
-            continue
+            #continue
         else:
             repl = False
 
         # last argument assigns 0 to 1st child, 1 to 2nd child, etc.
-        node = MnemonicNode(m, repl, root, len(root.children))
+        node = MnemonicNode(m, repl, root, findIndexInSequence(root.children))
 
         if m in section2.keys():
             # if m is a key then it is a parent, so get its members
@@ -301,15 +301,18 @@ def findSearchableNodes(root):
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
-        #if root.parent.repl:
-        if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0 and root.parent.name != "TMSLPFDT":
+        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
+            root.parent.children = [x for x in root.parent.children if x.name[0] != '.']
             nodeList.append(root.parent)
         else:
-            nodeList.append(root)
+            if root.name[0] != '.':
+                nodeList.append(root)
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
-    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
+    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]
+                or len(x.children) == 0]
+                #or not x.repl]
 
     return nodeList
 
@@ -334,16 +337,21 @@ def findDumpableNodes(root):
         for node in root.children:
             nodeList.extend(findDumpableNodes(node))
     else:
-        # a leaf, so it is added to the list. Its parent is also added if
-        # its parent is a sequence.
+        # a leaf, so it is added to the list unless its parent is a sequence,
+        # in which case its parent is added (unless its parent is the obs type)
         nodeList.append(root)
+        #if root.parent.seq:
+        #if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0:
+        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
         #if root.parent.repl:
-        if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0 and root.parent.name != "TMSLPFDT":
             nodeList.append(root.parent)
+            root.parent.children \
+                = [x for x in root.parent.children if x.name[0] != '.']
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
     nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
+                #or not x.seq]
 
     return nodeList
 
@@ -430,3 +438,26 @@ def pruneTree(root, parentsToPrune, leavesToPrune):
                 idx += 1
         
     return pruned
+
+
+def findIndexInSequence(sequenceMnemonics):
+    """ finds the position of a specific mnemonic in the list of 
+        fields returned by a call to read_subset
+
+        Input:
+            sequenceMnemonics - a subtree of MnemonicNode objects that
+                                map the structure of the sequence
+
+       Return:
+           the position of the data for the mnemonic in the list of
+           fields return by a call to read_subset
+    """
+
+    idx = 0
+    for m in sequenceMnemonics:
+        if len(m.children) > 0:
+            idx = idx + findIndexInSequence(m.children)
+        else:
+            idx += 1
+
+    return idx

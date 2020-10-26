@@ -138,13 +138,7 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
-        #sequenceLength = len([x for x in whichField.children if not x.seq])
-        sequenceLength = len([x for x in whichField.children if 
-                              len(x.children) == 0])
-        fd.write("Order of individual fields: {}\n".format(
-            [x.name for x in whichField.children if len(x.children) == 0]))
-    else:
-        sequenceLength = 1
+        leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
 
     # open file and read through contents
     bufr = ncepbufr.open(BUFRFilePath)
@@ -159,13 +153,20 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
             Vals = bufr.read_subset \
                    (whichField.name, seq=len(whichField.children) > 0).data.squeeze()
             if len(whichField.children) > 0:
+                leafValues = []
                 try:
+                    for leaf in leafIndices:
+                        leafValues.append(Vals[leaf][:])
                     fd.write(
                         "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
-                        format(isub, other=Vals[:sequenceLength,:]))
+                        format(isub, other=leafValues))
+                        #format(isub, other=Vals[:sequenceLength,:]))
                 except IndexError:
+                    for leaf in leafIndices:
+                        leafValues.append(Vals[leaf])
                     fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
-                             format(isub, other=Vals[:sequenceLength]))
+                             format(isub, other=leafValues))
+                             #format(isub, other=Vals[:sequenceLength]))
             
             else:
                 fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
@@ -189,13 +190,14 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
 
     nfd = netCDF4.Dataset(outputFile, 'w')
 
-    if len(whichField) > 0:
+    if len(whichField.children) > 0:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
         # I've found 1 case so far in which a sequence contains a sequence.
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
+        leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
         mnemonics = [x.name for x in whichField.children
                      if not len(x.children) > 0]
         for i in range(1, len(mnemonics)):
@@ -237,9 +239,9 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
             for k in vars.keys():
                 if len(vals.shape) == 2:
                     vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
-                        = vals[idxVal,:]
+                        = vals[leafIndices[idxVal],:]
                 elif len(vals.shape) == 1:
-                    vars[k][idxSubset:idxSubset+1] = vals[idxVal]
+                    vars[k][idxSubset:idxSubset+1] = vals[leafIndices[idxVal]]
                 else:
                     vars[k][idxSubset:idxSubset+1] = vals
                 idxVal += 1
