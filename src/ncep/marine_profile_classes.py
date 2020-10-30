@@ -819,25 +819,8 @@ class NC031006ProfileType(ObsType):
                 write_yaml(full_table, dictfile)
 
             spec_list = get_spec(alt_type, blist, \
-                                 #parentsToPrune=["CURRPFDT", "DOXYPFDT", 
-                                                 #"TEHUDAT2", "SFCSLNTY", 
-                                                 #"SEATEMPH"],
                                  parentsToPrune=[],
                                  leavesToPrune=[["RRSTG", "RAWRPT"]])
-                                 #leavesToPrune=[["DATSIG", "NC031006"],
-                                                #["QFQF", "CURRPFSQ"],
-                                                #["GGQF", "CURRPFSQ"], 
-                                                #["QFQF", "DOYYPFSQ"],
-                                                #["GGQF", "DOXYPFSQ"], 
-                                                #["QFQF", "TMSLPFSQ"],
-                                                #["GGQF", "TMSLPFSQ"], 
-                                                #["HSALG", "NC031006"],
-                                                #["HSAWS", "NC031006"],
-                                                #["TSIG", "NC031006"], 
-                                                #["ISNW", "NC031006"],
-                                                #["TPMI", "NC031006"],
-                                                #["SST1", "NC031006"],
-                                                #["SSTH", "NC031006"]])
             #spec_list = get_int_spec(alt_type, blist)
             intspec = []
             intspecDum = []
@@ -898,7 +881,6 @@ class NC031006ProfileType(ObsType):
             seqspec.append(["doxypfsq", "DOXYPFSQ", 3, ["nlocs"], [-1]])
             seqspec.append(["currpfdt", "CURRPFDT", 3, ["nlocs"], [-1]])
             seqspec.append(["currpfsq", "CURRPFSQ", 3, ["nlocs"], [-1]])
-            #seqspec.append(["tehudat2", "TEHUDAT2", 3, ["nlocs"], [-1]])
 
             yamlDict = intspec
             yamlDict.append(["depth_below_sea_water_surface_ts", "DBSS", 3, "nlocs", [-1]])

@@ -542,31 +542,6 @@ class ObsType(object):
                         nc.createVariable(Vname, VtypeQF, DimNames, zlib=True,
                                           shuffle=True, complevel=6)
                         continue
-                    elif var_spec[1] == "TEHUDAT2":
-                        Vtype = "f4"
-                        VtypeM = "i4"
-                        DimNames = ["nlocs"]
-                        Vname = "height_of_sensor_above_local_ground_or_deck_or_marine_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "height_of_sensor_above_water_surface_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "temperature_dry_bulb_temperature_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "method_of_web_bulb_temperature_measurement_shp"
-                        nc.createVariable(Vname, VtypeM, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "wet_bulb_temperature_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "dewpoint_temperature_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
-                        Vname = "relative_humidity_shp"
-                        nc.createVariable(Vname, Vtype, DimNames, zlib=True,
-                                          shuffle=True, complevel=6)
                     elif var_spec[1] == "GLPFDATA":
                         Vtype = "f4"
                         VtypeQF = "i4"
@@ -1121,57 +1096,6 @@ class ObsType(object):
                                 = BufrFloatToActual(x[:], 3)
                         except:
                             OutVals["global_gtspp_quality_flag_droc_oc"] \
-                                = BufrFloatToActual(x, 3)
-                        idx += 1
-                    elif VarSpec[1] == "TEHUDAT2":
-                        x = BufrValues[idx][0,:].squeeze()
-                        try:
-                            OutVals["height_of_sensor_above_local_ground_or_deck_or_marine_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["height_of_sensor_above_local_ground_or_deck_or_marine_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["height_of_sensor_above_water_surface_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["height_of_sensor_above_water_surface_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["temperature_dry_bulb_temperature_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["temperature_dry_bulb_temperature_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["method_of_wet_bulb_temperature_measurement_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["method_of_web_bulb_temperature_measurement_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["wet_bulb_temperature_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["wet_bulb_temperature_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["dewpoint_temperature_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["dewpoint_temperature_shp"] \
-                                = BufrFloatToActual(x, 3)
-                        x = BufrValues[idx][11,:].squeeze()
-                        try:
-                            OutVals["relative_humidity_shp"] \
-                                = BufrFloatToActual(x[:], 3)
-                        except:
-                            OutVals["relative_humidity_shp"] \
                                 = BufrFloatToActual(x, 3)
                         idx += 1
                     elif VarSpec[1] == "GLPFDATA":
