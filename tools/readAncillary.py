@@ -3,7 +3,7 @@
 #=============================================================================
 # functions that support table and YAML usage with BUFR files
 #
-# 08/24/2020   Jeffrey Smith          initial version
+# Author:  Jeffrey Smith   IM Systems Group
 #=============================================================================
 
 import collections
@@ -42,7 +42,7 @@ class MnemonicNode:
 
             Input:
                 name - mnemonic name
-                repl - True if the mnemonic has replicatin, False otherwise
+                repl - True if the mnemonic has replication, False otherwise
                 parent - the MnemonicNode for the current mnemonic's parent
                 seqIndex - if the parent is a sequence mnemonic, the position
                            in the list of children
@@ -257,11 +257,14 @@ def buildMnemonicTree(root, section2):
             m = m[1:-1]
             repl = True
         elif re.search(REGULAR_REP_PATTERN, m):
-            m = m[1:-2]
+            m = m[1:m[1:].index('"') + 1]
             repl = True
         #elif m[0] == '.':
             # don't know how to handle mnemonics beginning with a .
             #continue
+        elif m[0:2] == "20":
+            # mnemonics of the form 20xxxx aren't an actual data field
+            continue
         else:
             repl = False
 
@@ -301,7 +304,10 @@ def findSearchableNodes(root):
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
-        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
+        # the last clause in the if statement ensures that a parent node will
+        # only be added once by only adding it for the first child
+        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT" \
+           and root.parent.children.index(root) == 0:
             root.parent.children = [x for x in root.parent.children if x.name[0] != '.']
             nodeList.append(root.parent)
         else:
@@ -310,9 +316,8 @@ def findSearchableNodes(root):
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
-    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]
-                or len(x.children) == 0]
-                #or not x.repl]
+    #nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]
+                #or len(x.children) == 0]
 
     return nodeList
 
@@ -340,18 +345,15 @@ def findDumpableNodes(root):
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
         nodeList.append(root)
-        #if root.parent.seq:
-        #if root.parent.name[0:2] != "NC" and len(root.parent.children) > 0:
-        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
-        #if root.parent.repl:
+        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT" \
+           and root.parent.children.index(root) == 0:
+            # last clause is so that a parent node won't get entered 
+            # multiple times
             nodeList.append(root.parent)
-            root.parent.children \
-                = [x for x in root.parent.children if x.name[0] != '.']
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
-    nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
-                #or not x.seq]
+    #nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
 
     return nodeList
 
@@ -461,3 +463,4 @@ def findIndexInSequence(sequenceMnemonics):
             idx += 1
 
     return idx
+

@@ -3,7 +3,7 @@
 #==============================================================================
 # Program to dump out the values for 1 field from a BUFR file
 #
-# 08-19-2020   Jeffrey Smith          Initial version
+# Author:   Jeffrey Smith    IM Systems Group
 #==============================================================================
 
 import argparse
@@ -41,7 +41,8 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     # what it is
     execDir = os.path.dirname(sys.argv[0])
     executable = os.path.join(execDir, "bufrtblstruc.py")
-    ts = subprocess.run(args=[executable, BUFRFileName], capture_output=True)
+    ts = subprocess.run(args=[executable, BUFRFileName, obsType],
+                        capture_output=True)
     tblLines = ts.stdout.decode("utf-8").split('\n')
     try:
         (section1, section2, section3) = readAncillary.parseTable(tblLines)
@@ -59,12 +60,12 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     # dump the field
     if textFile:
         fd = open(textFile, 'w')
-        dumpBUFRField(BUFRFileName, whichField, fd)
+        dumpBUFRField(BUFRFileName, obsType, whichField, fd)
         fd.close()
     elif netCDFFile:
-        BUFRField2netCDF(BUFRFileName, whichField, netCDFFile)
+        BUFRField2netCDF(BUFRFileName, obsType, whichField, netCDFFile)
     else:
-        dumpBUFRField(BUFRFileName, whichField, sys.stdout)
+        dumpBUFRField(BUFRFileName, obsType, whichField, sys.stdout)
 
     return
 
@@ -120,12 +121,13 @@ def getMnemonicChoice(mnemonicList, section1):
     return whichField
 
 
-def dumpBUFRField(BUFRFilePath, whichField, fd):
+def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
     """ dumps the field from the BUFR file. The bulk of the code in this
         function was blatantly plagiarized from Steve Herbener's bufrtest.py.
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
+            obsType - the observation type code (NCxxxxxx)
             whichField - MnemonicNode object of the field to dump
             fd - file descriptor of file to write output to
     """
@@ -138,12 +140,22 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
+        #sequenceLength = len([x for x in whichField.children if not x.seq])
+        #sequenceLength = len([x for x in whichField.children if 
+                              #len(x.children) == 0])
         leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
+        fd.write("Order of individual fields: {}\n".format(
+            [x.name for x in whichField.children if len(x.children) == 0]))
+    #else:
+        #sequenceLength = 1
 
     # open file and read through contents
     bufr = ncepbufr.open(BUFRFilePath)
 
     while (bufr.advance() == 0):
+        if bufr.msg_type != obsType:
+            continue
+
         fd.write("  MSG: {0:d} {1:s} {2:d} ({3:d})\n".format(
             bufr.msg_counter,bufr.msg_type,bufr.msg_date,bufr._subsets()))
 
@@ -171,6 +183,7 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
             else:
                 fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
                          format(isub, other=Vals))
+        #sys.exit(0)
 
     # clean up
     bufr.close()
@@ -178,11 +191,12 @@ def dumpBUFRField(BUFRFilePath, whichField, fd):
     return
 
 
-def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
+def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
     """ dumps the field from the BUFR file to a netCDF file.
 
         Input:
             BUFRFilePath - complete pathname of the BUFR file
+            obsType - the observation type code (NCxxxxxx)
             whichField - MnemonicNode object of field to dump
             outputFile - full pathname of the file to write to
     """
@@ -213,6 +227,8 @@ def BUFRField2netCDF(BUFRFilePath, whichField, outputFile):
     # read and write
     idxSubset = 0
     while bfd.advance() == 0:
+        if bfd.msg_type != obsType:
+            continue
         if bfd._subsets() < 1:
             continue
         while bfd.load_subset() == 0:
