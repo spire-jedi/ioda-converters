@@ -1,1 +1,0 @@
-/scratch2/NCEPDEV/marineda/Youlong.Xia/save/ioda-converters/test/testinput/gds2_sst_l3u.nc
