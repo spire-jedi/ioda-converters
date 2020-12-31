@@ -14,7 +14,7 @@
 #include "BufrParser/BufrTypes.h"
 #include "DataObject/DataObject.h"
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Abstract base class for all Exports.
     class Variable
@@ -25,6 +25,6 @@ namespace Ingester
         /// \brief Variable data objects for previously parsed data from BufrDataMap.
         virtual std::shared_ptr<DataObject> exportData(const BufrDataMap& map) = 0;
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

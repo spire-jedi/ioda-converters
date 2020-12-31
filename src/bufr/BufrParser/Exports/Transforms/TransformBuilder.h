@@ -26,4 +26,4 @@ namespace Ingester
         /// \brief Uses makeTransform to loop through the list of transforms in the configuration
         static Transforms makeTransforms(const eckit::Configuration& conf);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

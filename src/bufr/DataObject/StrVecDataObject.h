@@ -13,7 +13,7 @@
 #include <vector>
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Container for data that can be expressed as lists of strings
     class StrVecDataObject : public DataObject
@@ -57,6 +57,6 @@ namespace Ingester
                                                     const std::vector<ioda::Dimensions_t>& chunks,
                                                     int compressionLevel);
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

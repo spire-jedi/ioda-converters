@@ -11,7 +11,7 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
 
 namespace Ingester
@@ -45,4 +45,4 @@ namespace Ingester
             transform->apply(data);
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

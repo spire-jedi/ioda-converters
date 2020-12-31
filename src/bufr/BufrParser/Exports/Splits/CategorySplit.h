@@ -14,7 +14,7 @@
 #include <map>
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Data splitter class that splits data according to a predefined categories.
     /// \details This class sub-divides data into sub-categories depending on the value of a
@@ -66,6 +66,6 @@ namespace Ingester
         /// \param dataMap Data to be split
         void updateNameMap(const BufrDataMap& dataMap);
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

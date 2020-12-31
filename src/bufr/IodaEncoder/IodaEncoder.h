@@ -18,7 +18,7 @@
 #include "IodaDescription.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Uses IodaDescription and parsed data to create IODA data.
     class IodaEncoder
@@ -50,4 +50,4 @@ namespace Ingester
 
         bool isInteger(const std::string& str) const;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

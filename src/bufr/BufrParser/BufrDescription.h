@@ -17,7 +17,7 @@
 #include "Exports/Export.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     class BufrMnemonicSet;
     class Variable;
@@ -53,4 +53,4 @@ namespace Ingester
         /// \brief Map of export strings to Variable classes.
         Export export_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

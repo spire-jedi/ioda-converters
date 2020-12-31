@@ -18,7 +18,7 @@
 #include "Variable.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Exports parsed data as datetimes using speciefied Mnemonics
     class DatetimeVariable final : public Variable
@@ -53,4 +53,4 @@ namespace Ingester
         /// \brief Is it UTC time or not
         const bool isUTC_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

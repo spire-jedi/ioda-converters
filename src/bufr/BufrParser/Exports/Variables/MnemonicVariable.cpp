@@ -7,10 +7,10 @@
 
 #include "MnemonicVariable.h"
 
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     MnemonicVariable::MnemonicVariable(std::string mnemonic, Transforms transforms) :
       mnemonic_(mnemonic),
@@ -25,11 +25,11 @@ namespace Ingester
         return std::make_shared<ArrayDataObject>(data);
     }
 
-    void MnemonicVariable::applyTransforms(IngesterArray& data)
+    void MnemonicVariable::applyTransforms(EncoderArray& data)
     {
         for (auto transform : transforms_)
         {
             transform->apply(data);
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

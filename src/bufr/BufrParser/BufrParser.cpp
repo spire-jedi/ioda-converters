@@ -21,7 +21,7 @@
 #include "Exports/Splits/Split.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     BufrParser::BufrParser(const BufrDescription &description) :
         description_(description),
@@ -182,4 +182,4 @@ namespace Ingester
             std::cout << std::endl;
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

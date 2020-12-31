@@ -13,7 +13,7 @@
 #include "ioda/ObsGroup.h"
 #include "ioda/defs.h"
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Abstract base class for intermediate data object that bridges the Parsers with the
     /// IodaEncoder.
@@ -42,6 +42,6 @@ namespace Ingester
         /// \brief Get number of rows represented in the data.
         virtual size_t nrows() const = 0;
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

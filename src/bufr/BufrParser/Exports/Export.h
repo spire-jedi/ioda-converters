@@ -18,7 +18,7 @@
 #include "Variables/Variable.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Uses configuration to determine all the things needed to be done on export.
     class Export
@@ -51,4 +51,4 @@ namespace Ingester
         /// \brief Create Filters exports from config.
         void addFilters(const eckit::Configuration &conf);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -12,7 +12,7 @@
 
 #include "BufrParser/BufrTypes.h"
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Base class for all Split objects that split data into sub-parts
     class Split
@@ -30,6 +30,6 @@ namespace Ingester
         /// \result map of split data where the category is the key
         virtual std::map<std::string, BufrDataMap> split(const BufrDataMap& dataMap) = 0;
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

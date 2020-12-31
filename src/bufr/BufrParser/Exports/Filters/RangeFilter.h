@@ -15,7 +15,7 @@
 #include "BufrParser/BufrTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Class that filters data accepting data who's value is between (or equal too) given
     ///        extents.
@@ -35,4 +35,4 @@ namespace Ingester
          const std::string mnemonic_;
          const std::vector<float> extents_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

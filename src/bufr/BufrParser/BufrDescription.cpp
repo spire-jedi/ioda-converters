@@ -27,7 +27,7 @@ namespace
     }  // namespace ConfKeys
 }  // namespace
 
-namespace Ingester
+namespace iodaconv
 {
     BufrDescription::BufrDescription(const eckit::Configuration &conf) :
         export_(Export(conf.getSubConfiguration(ConfKeys::Exports)))
@@ -52,4 +52,4 @@ namespace Ingester
     {
         mnemonicSets_.push_back(mnemonicSet);
     }
-}  // namespace Ingester
+}  // namespace iodaconv

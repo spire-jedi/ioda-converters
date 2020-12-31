@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
 namespace Ingester
 {
@@ -26,4 +26,4 @@ namespace Ingester
     };
 
     typedef std::vector <std::shared_ptr<Transform>> Transforms;
-}  // namespace Ingester
+}  // namespace iodaconv

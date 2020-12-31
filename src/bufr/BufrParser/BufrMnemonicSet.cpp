@@ -13,7 +13,7 @@
 #include "BufrMnemonicSet.h"
 #include "BufrTypes.h"
 
-namespace Ingester
+namespace iodaconv
 {
     BufrMnemonicSet::BufrMnemonicSet(const std::vector<std::string>& mnemonics,
                                      const Channels& channels) :
@@ -46,4 +46,4 @@ namespace Ingester
 
         return mnemonicsStrStream.str();
     }
-}  // namespace Ingester
+}  // namespace iodaconv

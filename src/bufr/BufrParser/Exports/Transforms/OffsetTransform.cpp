@@ -20,4 +20,4 @@ namespace Ingester
         array = array + offset_;
     }
 
-}  // namespace Ingester
+}  // namespace iodaconv

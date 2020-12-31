@@ -21,7 +21,7 @@
 #include "BufrDescription.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     class BufrMnemonicSet;
     class DataContainer;
@@ -70,4 +70,4 @@ namespace Ingester
         /// \brief Convenience method to print the Categorical data map to stdout.
         void printMap(const CatDataMap& map);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -8,15 +8,15 @@
 #include "ScalingTransform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     ScalingTransform::ScalingTransform(const double scaling) :
       scaling_(scaling)
     {
     }
 
-    void ScalingTransform::apply(IngesterArray& array)
+    void ScalingTransform::apply(EncoderArray& array)
     {
         array = array * scaling_;
     }
-}  // namespace Ingester
+}  // namespace iodaconv

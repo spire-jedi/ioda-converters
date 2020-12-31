@@ -56,4 +56,4 @@ namespace Ingester
         /// \brief Checks if the input keys are valid. Throws error if not.
         void checkKeys(const BufrDataMap& map);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

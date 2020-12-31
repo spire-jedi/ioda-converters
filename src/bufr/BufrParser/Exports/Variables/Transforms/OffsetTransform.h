@@ -10,7 +10,7 @@
 #include "Transform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Transforms data by adding an offset to it.
     class OffsetTransform : public Transform
@@ -23,9 +23,9 @@ namespace Ingester
 
         /// \brief Modify data according to the rules of the transform.
         /// \param array Array of data to modify.
-        void apply(IngesterArray& array) override;
+        void apply(EncoderArray& array) override;
 
      private:
         const double offset_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

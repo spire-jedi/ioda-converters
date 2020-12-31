@@ -14,7 +14,7 @@
 #include "../RowSlice.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     CategorySplit::CategorySplit(const std::string& mnemonic, const NameMap& nameMap) :
       nameMap_(nameMap),
@@ -41,7 +41,7 @@ namespace Ingester
 
         std::map<std::string, BufrDataMap> dataMaps;
 
-        const IngesterArray& mnemonicArr = dataMap.at(mnemonic_);
+        const EncoderArray& mnemonicArr = dataMap.at(mnemonic_);
 
         for (const auto& mapPair : nameMap_)
         {
@@ -101,4 +101,4 @@ namespace Ingester
             throw eckit::BadParameter(errStr.str());
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -11,12 +11,12 @@
 #include <map>
 #include <memory>
 
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
-namespace Ingester
+namespace iodaconv
 {
     class Variable;
 
     typedef std::set<size_t> Channels;
-    typedef IngesterArrayMap BufrDataMap;
-}  // namespace Ingester
+    typedef EncoderArrayMap BufrDataMap;
+}  // namespace iodaconv

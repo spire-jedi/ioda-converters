@@ -14,7 +14,7 @@
 #include "BufrParser/BufrTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Throws away data associated with a mnemonic where the mnemonic value is greater
     ///        than a given value value. Keeps data that is equal to or less than the given value.
@@ -34,5 +34,5 @@ namespace Ingester
         const std::string mnemonic_;
         const float value_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 

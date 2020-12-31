@@ -25,4 +25,4 @@ namespace Ingester
      private:
         const double offset_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

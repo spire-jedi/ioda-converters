@@ -11,7 +11,7 @@
 #include "eckit/exception/Exceptions.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     BufrAccumulator::BufrAccumulator(Eigen::Index numColumns, Eigen::Index blockSize) :
         dataArray_(blockSize, numColumns),
@@ -28,11 +28,11 @@ namespace Ingester
             dataArray_.conservativeResize(dataArray_.rows() + blockSize_, numColumns_);
         }
 
-        dataArray_.row(numDataRows_) = Eigen::Map<IngesterArray>(newRow.data(), 1, numColumns_);
+        dataArray_.row(numDataRows_) = Eigen::Map<EncoderArray>(newRow.data(), 1, numColumns_);
         numDataRows_++;
     }
 
-    IngesterArray BufrAccumulator::getData(Eigen::Index startCol, const Channels &channels)
+    EncoderArray BufrAccumulator::getData(Eigen::Index startCol, const Channels &channels)
     {
         if (std::find_if(channels.begin(), channels.end(), [](const auto x){ return x < 1; }) \
             != channels.end())
@@ -40,7 +40,7 @@ namespace Ingester
             throw eckit::BadParameter("All channel numbers must be >= 1.");
         }
 
-        IngesterArray resultArr(numDataRows_, channels.size());
+        EncoderArray resultArr(numDataRows_, channels.size());
         unsigned int colIdx = 0;
         for (auto col : channels)
         {
@@ -58,4 +58,4 @@ namespace Ingester
     {
         numDataRows_ = 0;
     }
-}  // namespace Ingester
+}  // namespace iodaconv

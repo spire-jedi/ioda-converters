@@ -13,7 +13,7 @@
 
 #include "../RowSlice.h"
 
-namespace Ingester
+namespace iodaconv
 {
     RangeFilter::RangeFilter(const std::string& mnemonic, const std::vector<float>& extents) :
       mnemonic_(mnemonic),
@@ -51,4 +51,4 @@ namespace Ingester
             }
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

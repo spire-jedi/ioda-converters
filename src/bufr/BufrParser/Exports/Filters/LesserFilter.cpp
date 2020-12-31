@@ -14,7 +14,7 @@
 #include "../RowSlice.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     LesserFilter::LesserFilter(const std::string& mnemonic, float value) :
       mnemonic_(mnemonic),
@@ -51,4 +51,4 @@ namespace Ingester
             }
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

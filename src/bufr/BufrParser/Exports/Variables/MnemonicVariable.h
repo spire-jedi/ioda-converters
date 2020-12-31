@@ -13,12 +13,12 @@
 #include "eckit/config/LocalConfiguration.h"
 
 #include "Variable.h"
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 #include "DataObject/ArrayDataObject.h"
 #include "Transforms/Transform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Exports parsed data associated with a mnemonic (ex: "CLAT")
     class MnemonicVariable final : public Variable
@@ -40,6 +40,6 @@ namespace Ingester
 
         /// \brief Apply the transforms
         /// \param data Eigen Array data to apply the transform to.
-        void applyTransforms(IngesterArray& data);
+        void applyTransforms(EncoderArray& data);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 #include "BufrParser/BufrTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Base class for all the supported filters.
     class Filter
@@ -20,4 +20,4 @@ namespace Ingester
         /// \param dataMap Map to modify by filtering out relevant data.
         virtual void apply(BufrDataMap& dataMap) = 0;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

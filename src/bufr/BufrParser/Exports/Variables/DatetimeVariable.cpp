@@ -27,7 +27,7 @@ namespace
 }  // namespace
 
 
-namespace Ingester
+namespace iodaconv
 {
     DatetimeVariable::DatetimeVariable(const eckit::Configuration& conf) :
       yearKey_(conf.getString(ConfKeys::Year)),
@@ -67,4 +67,4 @@ namespace Ingester
 
         return std::make_shared<StrVecDataObject>(datetimes);
     }
-}  // namespace Ingester
+}  // namespace iodaconv

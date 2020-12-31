@@ -96,4 +96,4 @@ namespace Ingester
             throw eckit::BadParameter(errStr.str());
         }
     }
-}  // namespace Ingester
+}  // namespace iodaconv

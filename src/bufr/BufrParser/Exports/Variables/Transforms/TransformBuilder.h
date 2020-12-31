@@ -14,7 +14,7 @@
 #include "Transform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
 
     /// \brief Convenience class used to make new transforms from config file data.
@@ -29,4 +29,4 @@ namespace Ingester
         /// \param conf ECKit config data for the list of transforms.
         static Transforms makeTransforms(const eckit::Configuration& conf);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -13,7 +13,7 @@
 #include "eckit/config/LocalConfiguration.h"
 
 #include "Export.h"
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 #include "DataObject/ArrayDataObject.h"
 #include "Transforms/Transform.h"
 
@@ -42,4 +42,4 @@ namespace Ingester
         /// \param data Eigen Array data to apply the transform to.
         void applyTransforms(IngesterArray& data);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

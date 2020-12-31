@@ -13,7 +13,7 @@
 #include "BufrParser/BufrTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Collector that uses the BUFR interface ufbrep call to grab data (multi col data).
     class BufrRepCollector : public BufrCollector
@@ -30,4 +30,4 @@ namespace Ingester
         std::vector<double> scratchData_;
         std::vector<FloatType> floatTypeScratchData_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -19,4 +19,4 @@ namespace Ingester
     {
         array = array * scaling_;
     }
-}  // namespace Ingester
+}  // namespace iodaconv

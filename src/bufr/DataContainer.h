@@ -15,10 +15,10 @@
 #include "Eigen/Dense"
 
 #include "DataObject/DataObject.h"
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// List of possible category strings (for splitting data)
     typedef std::vector<std::string> SubCategory;
@@ -92,4 +92,4 @@ namespace Ingester
         /// \param categoryId Subcategory (ie: vector<string>) listing.
         static std::string makeSubCategoryStr(const SubCategory& categoryId);
     };
-}  // namespace Ingester
+}  // namespace iodaconv

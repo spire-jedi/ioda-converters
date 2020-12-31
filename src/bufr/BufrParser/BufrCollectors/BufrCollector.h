@@ -17,7 +17,7 @@
 #include "BufrAccumulator.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Collectors know how to use the BUFR interface to grab data associated with
     /// configured mnemonicSets.
@@ -44,4 +44,4 @@ namespace Ingester
         /// \brief Specifies the mnemonics and channels this collector gets from the BUFR file.
         const BufrMnemonicSet mnemonicSet_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

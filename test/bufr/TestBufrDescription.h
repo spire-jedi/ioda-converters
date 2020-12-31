@@ -28,7 +28,7 @@
 #include "IodaEncoder/IodaDescription.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     namespace test
     {
@@ -45,7 +45,7 @@ namespace Ingester
                         obsConf.getSubConfiguration("obs space").getString("name") == "bufr")
                     {
                         auto bufrConf = obsConf.getSubConfiguration("obs space");
-                        auto description = Ingester::BufrDescription(bufrConf);
+                        auto description = iodaconv::BufrDescription(bufrConf);
 
                         EXPECT(description.getMnemonicSets().size() > 0);
                         EXPECT(description.getExport().getVariables().size() > 0);
@@ -59,7 +59,7 @@ namespace Ingester
                     if (obsConf.has("ioda"))
                     {
                         auto iodaConf = obsConf.getSubConfiguration("ioda");
-                        auto description = Ingester::IodaDescription(iodaConf);
+                        auto description = iodaconv::IodaDescription(iodaConf);
 
                         EXPECT(description.getDims().size() > 0);
                         EXPECT(description.getVariables().size() > 0);
@@ -95,4 +95,4 @@ namespace Ingester
             }
         };
     }  // namespace test
-}  // namespace Ingester
+}  // namespace iodaconv

@@ -25,4 +25,4 @@ namespace Ingester
      private:
         const double scaling_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv

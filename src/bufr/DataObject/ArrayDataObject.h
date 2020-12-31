@@ -8,16 +8,16 @@
 #pragma once
 
 #include "DataObject.h"
-#include "IngesterTypes.h"
+#include "EncoderTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Container for Parser data that is expressed as a Eigen Array of doubles.
     class ArrayDataObject : public DataObject
     {
      public:
-        explicit ArrayDataObject(const IngesterArray& eigArray);
+        explicit ArrayDataObject(const EncoderArray& eigArray);
         ~ArrayDataObject() = default;
 
         /// \brief Makes an ioda::Variable and ads it to the given ioda::ObsGroup
@@ -42,11 +42,11 @@ namespace Ingester
         size_t ncols() const final;
 
         // Getters
-        inline IngesterArray get() const { return eigArray_; }
+        inline EncoderArray get() const { return eigArray_; }
 
      private:
         /// \brief Eigen Array that holds the data
-        const IngesterArray eigArray_;
+        const EncoderArray eigArray_;
 
         /// \brief Create an ioda::VariableCreationParameters for the data.
         /// \param chunks List of integers specifying the chunking dimensions
@@ -55,6 +55,6 @@ namespace Ingester
                                                     const std::vector<ioda::Dimensions_t>& chunks,
                                                     int compressionLevel);
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 
 

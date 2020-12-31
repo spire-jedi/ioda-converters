@@ -3,8 +3,8 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
-list(APPEND _ingester_srcs
-  IngesterTypes.h
+list(APPEND _iodaconv_srcs
+  EncoderTypes.h
   DataContainer.h
   DataContainer.cpp
   Parser.h
@@ -62,7 +62,7 @@ list(APPEND _ingester_srcs
   IodaEncoder/IodaDescription.h
 )
 
-list(APPEND _ingester_deps
+list(APPEND _iodaconv_deps
   Eigen3::Eigen
   eckit
   ${oops_LIBRARIES}
@@ -71,8 +71,8 @@ list(APPEND _ingester_deps
 )
 
 ecbuild_add_library( TARGET   ingester
-                     SOURCES  ${_ingester_srcs}
-                     LIBS     ${_ingester_deps}
+                     SOURCES  ${_iodaconv_srcs}
+                     LIBS     ${_iodaconv_deps}
                      INSTALL_HEADERS LISTED
                      HEADER_DESTINATION ${INSTALL_INCLUDEDIR}/bufr
                      LINKER_LANGUAGE CXX

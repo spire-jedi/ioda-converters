@@ -56,7 +56,7 @@ namespace
     }  // namespace ConfKeys
 }  // namespace
 
-namespace Ingester
+namespace iodaconv
 {
     Export::Export(const eckit::Configuration &conf)
     {
@@ -185,4 +185,4 @@ namespace Ingester
         }
     }
 
-}  // namespace Ingester
+}  // namespace iodaconv

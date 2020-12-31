@@ -8,16 +8,16 @@
 #include "OffsetTransform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     OffsetTransform::OffsetTransform(const double offset) :
       offset_(offset)
     {
     }
 
-    void OffsetTransform::apply(IngesterArray& array)
+    void OffsetTransform::apply(EncoderArray& array)
     {
         array = array + offset_;
     }
 
-}  // namespace Ingester
+}  // namespace iodaconv

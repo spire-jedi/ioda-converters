@@ -12,6 +12,6 @@
 int main(int argc,  char ** argv)
 {
     oops::Run run(argc, argv);
-    Ingester::test::BufrDescription tests;
+    iodaconv::test::BufrDescription tests;
     return run.execute(tests);
 }

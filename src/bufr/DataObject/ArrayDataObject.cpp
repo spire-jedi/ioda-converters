@@ -9,9 +9,9 @@
 
 #include "ArrayDataObject.h"
 
-namespace Ingester
+namespace iodaconv
 {
-    ArrayDataObject::ArrayDataObject(const IngesterArray& eigArray) :
+    ArrayDataObject::ArrayDataObject(const EncoderArray& eigArray) :
         eigArray_(eigArray)
     {
     }
@@ -56,4 +56,4 @@ namespace Ingester
         return params;
     }
 
-}  // namespace Ingester
+}  // namespace iodaconv

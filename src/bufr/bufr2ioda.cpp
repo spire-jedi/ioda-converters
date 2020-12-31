@@ -24,7 +24,7 @@
 #include "ParserFactory.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     void parse(std::string yamlPath)
     {
@@ -59,7 +59,7 @@ namespace Ingester
     {
         ParserFactory::registerParser<BufrParser>("bufr");
     }
-}  // namespace Ingester
+}  // namespace iodaconv
 
 
 int main(int argc, char **argv)
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
         eckit::BadParameter("Missing argument. Must include YAML file path.");
     }
 
-    Ingester::registerParsers();
-    Ingester::parse(std::string(argv[1]));
+    iodaconv::registerParsers();
+    iodaconv::parse(std::string(argv[1]));
 
     return 0;
 }

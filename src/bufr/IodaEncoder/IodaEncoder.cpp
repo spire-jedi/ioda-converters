@@ -12,7 +12,7 @@
 #include "eckit/exception/Exceptions.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     IodaEncoder::IodaEncoder(const eckit::Configuration& conf) :
         description_(IodaDescription(conf))
@@ -247,4 +247,4 @@ namespace Ingester
       return isInt;
   }
 
-}  // namespace Ingester
+}  // namespace iodaconv

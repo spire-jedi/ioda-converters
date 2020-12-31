@@ -16,7 +16,7 @@
 #include "DataContainer.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     DataContainer::DataContainer() :
         categoryMap_({})
@@ -169,4 +169,4 @@ namespace Ingester
 
         return catStr.str();
     }
-}  // namespace Ingester
+}  // namespace iodaconv

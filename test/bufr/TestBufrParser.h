@@ -155,4 +155,4 @@ namespace Ingester
             }
         };
     }  // namespace test
-}  // namespace Ingester
+}  // namespace iodaconv

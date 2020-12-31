@@ -12,7 +12,7 @@
 
 #pragma once
 
-namespace Ingester
+namespace iodaconv
 {
     /// \brief Collector that uses the BUFR interface ufbint call to grab data (single col data).
     class BufrIntCollector: public BufrCollector
@@ -29,5 +29,5 @@ namespace Ingester
         std::vector<double> scratchData_;
         std::vector<FloatType> floatTypeScratchData_;
     };
-}  // namespace Ingester
+}  // namespace iodaconv
 

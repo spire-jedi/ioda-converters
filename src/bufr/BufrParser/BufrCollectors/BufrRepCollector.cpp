@@ -10,7 +10,7 @@
 #include "BufrRepCollector.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
     BufrRepCollector::BufrRepCollector(const int fortranFileId, const BufrMnemonicSet& mnemonicSet):
         BufrCollector(fortranFileId, mnemonicSet)
@@ -38,4 +38,4 @@ namespace Ingester
 
         accumulator_.addRow(floatTypeScratchData_);
     }
-}  // namespace Ingester
+}  // namespace iodaconv
