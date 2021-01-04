@@ -29,71 +29,78 @@ namespace
 }  // namespace
 
 
-namespace Ingester
+namespace iodaconv
 {
-    DatetimeExport::DatetimeExport(const eckit::Configuration& conf) :
-      yearKey_(conf.getString(ConfKeys::Year)),
-      monthKey_(conf.getString(ConfKeys::Month)),
-      dayKey_(conf.getString(ConfKeys::Day)),
-      hourKey_(conf.getString(ConfKeys::Hour)),
-      minuteKey_(conf.getString(ConfKeys::Minute)),
-      secondKey_(conf.getString(ConfKeys::Second)),
-      isUTC_(conf.getBool(ConfKeys::Utc))
+    namespace parser
     {
-    }
-
-    std::shared_ptr<DataObject> DatetimeExport::exportData(const BufrDataMap& map)
-    {
-        checkKeys(map);
-
-        auto datetimes = std::vector<std::string>();
-        datetimes.reserve(map.at(yearKey_).size());
-        for (unsigned int idx = 0; idx < map.at(yearKey_).size(); idx++)
+        namespace bufr
         {
-            // YYYY-MM-DDThh:mm:ssZ
-            std::ostringstream datetimeStr;
-            datetimeStr << std::setfill('0')
-                        << std::setw(4) << map.at(yearKey_)(idx) << "-" \
-                        << std::setw(2) << map.at(monthKey_)(idx) << "-" \
-                        << std::setw(2) << map.at(dayKey_)(idx) << "T" \
-                        << std::setw(2) << map.at(hourKey_)(idx) << ":" \
-                        << std::setw(2) << map.at(minuteKey_)(idx) << ":" \
-                        << std::setw(2) << map.at(secondKey_)(idx);
-
-            if (isUTC_)
+            DatetimeExport::DatetimeExport(const eckit::Configuration& conf) :
+                yearKey_(conf.getString(ConfKeys::Year)),
+                monthKey_(conf.getString(ConfKeys::Month)),
+                dayKey_(conf.getString(ConfKeys::Day)),
+                hourKey_(conf.getString(ConfKeys::Hour)),
+                minuteKey_(conf.getString(ConfKeys::Minute)),
+                secondKey_(conf.getString(ConfKeys::Second)),
+                isUTC_(conf.getBool(ConfKeys::Utc))
             {
-                datetimeStr << "Z";
             }
 
-            datetimes.push_back(datetimeStr.str());
-        }
-
-        return std::make_shared<StrVecDataObject>(datetimes);
-    }
-
-    void DatetimeExport::checkKeys(const BufrDataMap& map)
-    {
-        std::stringstream errStr;
-        errStr << "Mnemonic ";
-
-        auto requiredKeys = {yearKey_, monthKey_, dayKey_, hourKey_, minuteKey_, secondKey_};
-
-        bool isKeyMissing = false;
-        for (auto key : requiredKeys)
-        {
-            if (map.find(key) == map.end())
+            std::shared_ptr<DataObject> DatetimeExport::exportData(const BufrDataMap& map)
             {
-                isKeyMissing = true;
-                errStr << key;
-                break;
+                checkKeys(map);
+
+                auto datetimes = std::vector<std::string>();
+                datetimes.reserve(map.at(yearKey_).size());
+                for (unsigned int idx = 0; idx < map.at(yearKey_).size(); idx++)
+                {
+                    // YYYY-MM-DDThh:mm:ssZ
+                    std::ostringstream datetimeStr;
+                    datetimeStr << std::setfill('0')
+                                << std::setw(4) << map.at(yearKey_)(idx) << "-" \
+                                << std::setw(2) << map.at(monthKey_)(idx) << "-" \
+                                << std::setw(2) << map.at(dayKey_)(idx) << "T" \
+                                << std::setw(2) << map.at(hourKey_)(idx) << ":" \
+                                << std::setw(2) << map.at(minuteKey_)(idx) << ":" \
+                                << std::setw(2) << map.at(secondKey_)(idx);
+
+                    if (isUTC_)
+                    {
+                        datetimeStr << "Z";
+                    }
+
+                    datetimes.push_back(datetimeStr.str());
+                }
+
+                return std::make_shared<StrVecDataObject>(datetimes);
             }
-        }
 
-        errStr << " couldn't be found during export of datetime object.";
+            void DatetimeExport::checkKeys(const BufrDataMap& map)
+            {
+                std::stringstream errStr;
+                errStr << "Mnemonic ";
 
-        if (isKeyMissing)
-        {
-            throw eckit::BadParameter(errStr.str());
-        }
-    }
+                auto requiredKeys = {yearKey_, monthKey_, dayKey_, hourKey_, minuteKey_,
+                                     secondKey_};
+
+                bool isKeyMissing = false;
+                for (auto key : requiredKeys)
+                {
+                    if (map.find(key) == map.end())
+                    {
+                        isKeyMissing = true;
+                        errStr << key;
+                        break;
+                    }
+                }
+
+                errStr << " couldn't be found during export of datetime object.";
+
+                if (isKeyMissing)
+                {
+                    throw eckit::BadParameter(errStr.str());
+                }
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

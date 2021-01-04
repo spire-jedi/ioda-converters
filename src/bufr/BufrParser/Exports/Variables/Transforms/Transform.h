@@ -14,16 +14,22 @@
 
 namespace iodaconv
 {
-    /// \brief Base class of all transform classes. Classes are used to transform data.
-    class Transform
+    namespace parser
     {
-     public:
-        ~Transform() = default;
+        namespace bufr
+        {
+            /// \brief Base class of all transform classes. Classes are used to transform data.
+            class Transform
+            {
+             public:
+                ~Transform() = default;
 
-        /// \brief Modify data according to the rules of the transform.
-        /// \param array Array of data to modify.
-        virtual void apply(EncoderArray& array) = 0;
-    };
+                /// \brief Modify data according to the rules of the transform.
+                /// \param array Array of data to modify.
+                virtual void apply(encoder::Array& array) = 0;
+            };
 
-    typedef std::vector <std::shared_ptr<Transform>> Transforms;
+            typedef std::vector<std::shared_ptr<Transform>> Transforms;
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

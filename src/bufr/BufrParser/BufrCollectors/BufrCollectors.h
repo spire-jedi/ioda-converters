@@ -17,36 +17,43 @@
 
 namespace iodaconv
 {
-    class BufrMnemonicSet;
-    class BufrAccumulator;
-    class BufrCollector;
-
-    /// \brief Manager of collectors.
-    class BufrCollectors
+    namespace parser
     {
-     public:
-        explicit BufrCollectors(unsigned int fortranFileId);
-        ~BufrCollectors() = default;
+        namespace bufr
+        {
+            class BufrMnemonicSet;
+            class BufrAccumulator;
+            class BufrCollector;
 
-        /// \brief Add collectors for mnemonic sets
-        /// \param mnemonicSets list of BufrMnemonicSet to use
-        void addMnemonicSets(const std::vector<BufrMnemonicSet>& mnemonicSets);
+            /// \brief Manager of collectors.
+            class BufrCollectors
+            {
+             public:
+                explicit BufrCollectors(unsigned int fortranFileId);
 
-        /// \brief Add collector for a mnemonic set
-        /// \param mnemonicSet BufrMnemonicSet to use
-        void addMnemonicSet(const BufrMnemonicSet& mnemonicSet);
+                ~BufrCollectors() = default;
 
-        /// \brief Cause all the collectors to grab the next peaces of data from the BUFR file.
-        void collect();
+                /// \brief Add collectors for mnemonic sets
+                /// \param mnemonicSets list of BufrMnemonicSet to use
+                void addMnemonicSets(const std::vector<BufrMnemonicSet>& mnemonicSets);
 
-        /// \brief Finalize all the collectors and assemble the resulting data into a map.
-        BufrDataMap finalize();
+                /// \brief Add collector for a mnemonic set
+                /// \param mnemonicSet BufrMnemonicSet to use
+                void addMnemonicSet(const BufrMnemonicSet& mnemonicSet);
 
-     private:
-        /// \brief Fortran file ID for the open BUFR file
-        unsigned int fortranFileId_;
+                /// \brief Cause all the collectors to grab the next peaces of data from the BUFR file.
+                void collect();
 
-        /// \brief Collection of all the collectors being managed.
-        std::vector<std::shared_ptr<BufrCollector>> collectors_;
-    };
+                /// \brief Finalize all the collectors and assemble the resulting data into a map.
+                BufrDataMap finalize();
+
+             private:
+                /// \brief Fortran file ID for the open BUFR file
+                unsigned int fortranFileId_;
+
+                /// \brief Collection of all the collectors being managed.
+                std::vector<std::shared_ptr<BufrCollector>> collectors_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

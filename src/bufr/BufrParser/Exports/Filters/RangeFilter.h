@@ -17,22 +17,28 @@
 
 namespace iodaconv
 {
-    /// \brief Class that filters data accepting data who's value is between (or equal too) given
-    ///        extents.
-    class RangeFilter : public Filter
+    namespace parser
     {
-     public:
-        /// \brief Constructor
-        /// \param mnemonic BUFR Mnemonic to filter on
-        /// \param extents Min and Max values acceptable
-        RangeFilter(const std::string& mnemonic, const std::vector<float>& extents);
+        namespace bufr
+        {
+            /// \brief Class that filters data accepting data who's value is between (or equal too) given
+            ///        extents.
+            class RangeFilter : public Filter
+            {
+             public:
+                /// \brief Constructor
+                /// \param mnemonic BUFR Mnemonic to filter on
+                /// \param extents Min and Max values acceptable
+                RangeFilter(const std::string& mnemonic, const std::vector<float>& extents);
 
-        /// \brief Apply the filter to the data
-        /// \param dataMap Map to modify by filtering out relevant data.
-        void apply(BufrDataMap& dataMap) final;
+                /// \brief Apply the filter to the data
+                /// \param dataMap Map to modify by filtering out relevant data.
+                void apply(BufrDataMap& dataMap) final;
 
-     private:
-         const std::string mnemonic_;
-         const std::vector<float> extents_;
-    };
+             private:
+                const std::string mnemonic_;
+                const std::vector<float> extents_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

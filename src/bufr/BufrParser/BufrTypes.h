@@ -15,8 +15,14 @@
 
 namespace iodaconv
 {
-    class Variable;
+    namespace parser
+    {
+        namespace bufr
+        {
+            class Variable;
 
-    typedef std::set<size_t> Channels;
-    typedef EncoderArrayMap BufrDataMap;
+            typedef std::set<size_t> Channels;
+            typedef encoder::ArrayMap BufrDataMap;
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

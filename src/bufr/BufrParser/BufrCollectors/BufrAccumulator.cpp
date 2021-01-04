@@ -13,49 +13,57 @@
 
 namespace iodaconv
 {
-    BufrAccumulator::BufrAccumulator(Eigen::Index numColumns, Eigen::Index blockSize) :
-        dataArray_(blockSize, numColumns),
-        numColumns_(numColumns),
-        numDataRows_(0),
-        blockSize_(blockSize)
+    namespace parser
     {
-    }
-
-    void BufrAccumulator::addRow(std::vector<FloatType>& newRow)
-    {
-        if (numDataRows_ + 1 > dataArray_.rows())
+        namespace bufr
         {
-            dataArray_.conservativeResize(dataArray_.rows() + blockSize_, numColumns_);
-        }
+            BufrAccumulator::BufrAccumulator(Eigen::Index numColumns, Eigen::Index blockSize) :
+                dataArray_(blockSize, numColumns),
+                numColumns_(numColumns),
+                numDataRows_(0),
+                blockSize_(blockSize)
+            {
+            }
 
-        dataArray_.row(numDataRows_) = Eigen::Map<EncoderArray>(newRow.data(), 1, numColumns_);
-        numDataRows_++;
-    }
+            void BufrAccumulator::addRow(std::vector<encoder::FloatType>& newRow)
+            {
+                if (numDataRows_ + 1 > dataArray_.rows())
+                {
+                    dataArray_.conservativeResize(dataArray_.rows() + blockSize_, numColumns_);
+                }
 
-    EncoderArray BufrAccumulator::getData(Eigen::Index startCol, const Channels &channels)
-    {
-        if (std::find_if(channels.begin(), channels.end(), [](const auto x){ return x < 1; }) \
-            != channels.end())
-        {
-            throw eckit::BadParameter("All channel numbers must be >= 1.");
-        }
+                dataArray_.row(numDataRows_) = Eigen::Map<encoder::Array>(newRow.data(), 1,
+                                                                          numColumns_);
+                numDataRows_++;
+            }
 
-        EncoderArray resultArr(numDataRows_, channels.size());
-        unsigned int colIdx = 0;
-        for (auto col : channels)
-        {
-            unsigned int offset = startCol + (col - 1);
-            resultArr.block(0, colIdx, numDataRows_, 1) =
-                dataArray_.block(0, offset, numDataRows_, 1);
+            encoder::Array BufrAccumulator::getData(Eigen::Index startCol, const Channels& channels)
+            {
+                if (std::find_if(channels.begin(),
+                                 channels.end(),
+                                 [](const auto x) { return x < 1; }) != channels.end())
+                {
+                    throw eckit::BadParameter("All channel numbers must be >= 1.");
+                }
 
-            colIdx++;
-        }
+                encoder::Array resultArr(numDataRows_, channels.size());
+                unsigned int colIdx = 0;
+                for (auto col : channels)
+                {
+                    unsigned int offset = startCol + (col - 1);
+                    resultArr.block(0, colIdx, numDataRows_, 1) =
+                        dataArray_.block(0, offset, numDataRows_, 1);
 
-        return resultArr;
-    }
+                    colIdx++;
+                }
 
-    void BufrAccumulator::reset()
-    {
-        numDataRows_ = 0;
-    }
+                return resultArr;
+            }
+
+            void BufrAccumulator::reset()
+            {
+                numDataRows_ = 0;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

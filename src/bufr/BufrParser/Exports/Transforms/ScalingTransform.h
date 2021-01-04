@@ -10,19 +10,26 @@
 #include "Transform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
-    /// \brief Multiply a floating point scaling factor to to the data.
-    class ScalingTransform : public Transform
+    namespace parser
     {
-     public:
-        explicit ScalingTransform(const double scaling_);
-        ~ScalingTransform() = default;
+        namespace bufr
+        {
+            /// \brief Multiply a floating point scaling factor to to the data.
+            class ScalingTransform : public Transform
+            {
+             public:
+                explicit ScalingTransform(const double scaling_);
 
-        /// \brief Apply transform to the given data.
-        void apply(IngesterArray& array) override;
+                ~ScalingTransform() = default;
 
-     private:
-        const double scaling_;
-    };
+                /// \brief Apply transform to the given data.
+                void apply(IngesterArray& array) override;
+
+             private:
+                const double scaling_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

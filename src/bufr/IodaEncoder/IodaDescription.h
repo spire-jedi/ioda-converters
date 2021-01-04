@@ -16,71 +16,85 @@
 
 namespace iodaconv
 {
-    struct Range
+    namespace encoder
     {
-        float start;
-        float end;
-    };
+        struct Range
+        {
+            float start;
+            float end;
+        };
 
-    struct DimensionDescription
-    {
-        std::string name;
-        std::string size;
-    };
+        struct DimensionDescription
+        {
+            std::string name;
+            std::string size;
+        };
 
-    struct VariableDescription
-    {
-        std::string name;
-        std::string source;
-        std::vector<std::string> dimensions;
-        std::string longName;
-        std::string units;
-        std::shared_ptr<std::string> coordinates;  // Optional
-        std::shared_ptr<Range> range;  // Optional
-        std::vector<ioda::Dimensions_t> chunks;  // Optional
-        int compressionLevel;  // Optional
-    };
+        struct VariableDescription
+        {
+            std::string name;
+            std::string source;
+            std::vector<std::string> dimensions;
+            std::string longName;
+            std::string units;
+            std::shared_ptr<std::string> coordinates;  // Optional
+            std::shared_ptr<Range> range;  // Optional
+            std::vector<ioda::Dimensions_t> chunks;  // Optional
+            int compressionLevel;  // Optional
+        };
 
-    typedef std::vector<DimensionDescription> DimDescriptions;
-    typedef std::vector<VariableDescription> VariableDescriptions;
+        typedef std::vector<DimensionDescription> DimDescriptions;
+        typedef std::vector<VariableDescription> VariableDescriptions;
 
-    /// \brief Describes how to write data to IODA.
-    class IodaDescription
-    {
-     public:
-        IodaDescription() = default;
-        explicit IodaDescription(const eckit::Configuration& conf);
+        /// \brief Describes how to write data to IODA.
+        class IodaDescription
+        {
+         public:
+            IodaDescription() = default;
 
-        /// \brief Add Dimension defenition
-        void addDimension(const DimensionDescription& scale);
+            explicit IodaDescription(const eckit::Configuration& conf);
 
-        /// \brief Add Variable defenition
-        void addVariable(const VariableDescription& variable);
+            /// \brief Add Dimension defenition
+            void addDimension(const DimensionDescription& scale);
 
-        // Setters
-        inline void setBackend(const ioda::Engines::BackendNames& backend) { backend_ = backend; }
-        inline void setFilepath(const std::string& filepath) { filepath_ = filepath; }
+            /// \brief Add Variable defenition
+            void addVariable(const VariableDescription& variable);
 
-        // Getters
-        inline ioda::Engines::BackendNames getBackend() const { return backend_; }
-        inline std::string getFilepath() const { return filepath_; }
-        inline DimDescriptions getDims() const { return dimensions_; }
-        inline VariableDescriptions getVariables() const { return variables_; }
+            // Setters
+            inline void setBackend(const ioda::Engines::BackendNames& backend)
+            { backend_ = backend; }
 
-     private:
-        /// \brief The backend type to use
-        ioda::Engines::BackendNames backend_;
+            inline void setFilepath(const std::string& filepath)
+            { filepath_ = filepath; }
 
-        /// \brief The relative path of the output file to create
-        std::string filepath_;
+            // Getters
+            inline ioda::Engines::BackendNames getBackend() const
+            { return backend_; }
 
-        /// \brief Collection of defined dimensions
-        DimDescriptions dimensions_;
+            inline std::string getFilepath() const
+            { return filepath_; }
 
-        /// \brief Collection of defined variables
-        VariableDescriptions variables_;
+            inline DimDescriptions getDims() const
+            { return dimensions_; }
 
-        /// \brief Collection of defined variables
-        void setBackend(const std::string& backend);
-    };
+            inline VariableDescriptions getVariables() const
+            { return variables_; }
+
+         private:
+            /// \brief The backend type to use
+            ioda::Engines::BackendNames backend_;
+
+            /// \brief The relative path of the output file to create
+            std::string filepath_;
+
+            /// \brief Collection of defined dimensions
+            DimDescriptions dimensions_;
+
+            /// \brief Collection of defined variables
+            VariableDescriptions variables_;
+
+            /// \brief Collection of defined variables
+            void setBackend(const std::string& backend);
+        };
+    }  // namespace encoder
 }  // namespace iodaconv

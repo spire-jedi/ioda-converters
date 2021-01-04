@@ -12,24 +12,31 @@
 
 namespace iodaconv
 {
-    MnemonicVariable::MnemonicVariable(std::string mnemonic, Transforms transforms) :
-      mnemonic_(mnemonic),
-      transforms_(transforms)
+    namespace parser
     {
-    }
-
-    std::shared_ptr<DataObject> MnemonicVariable::exportData(const BufrDataMap& map)
-    {
-        auto data = map.at(mnemonic_);
-        applyTransforms(data);
-        return std::make_shared<ArrayDataObject>(data);
-    }
-
-    void MnemonicVariable::applyTransforms(EncoderArray& data)
-    {
-        for (auto transform : transforms_)
+        namespace bufr
         {
-            transform->apply(data);
-        }
-    }
+            MnemonicVariable::MnemonicVariable(std::string mnemonic, Transforms transforms) :
+                mnemonic_(mnemonic),
+                transforms_(transforms)
+            {
+            }
+
+            std::shared_ptr<encoder::DataObject>
+                MnemonicVariable::exportData(const BufrDataMap& map)
+            {
+                auto data = map.at(mnemonic_);
+                applyTransforms(data);
+                return std::make_shared<encoder::ArrayDataObject>(data);
+            }
+
+            void MnemonicVariable::applyTransforms(encoder::Array& data)
+            {
+                for (auto transform : transforms_)
+                {
+                    transform->apply(data);
+                }
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

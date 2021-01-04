@@ -13,48 +13,53 @@
 
 namespace iodaconv
 {
-    /// \brief Container for Parser data that is expressed as a Eigen Array of doubles.
-    class ArrayDataObject : public DataObject
+    namespace encoder
     {
-     public:
-        explicit ArrayDataObject(const EncoderArray& eigArray);
-        ~ArrayDataObject() = default;
+        /// \brief Container for Parser data that is expressed as a Eigen Array of doubles.
+        class ArrayDataObject : public DataObject
+        {
+         public:
+            explicit ArrayDataObject(const Array& eigArray);
 
-        /// \brief Makes an ioda::Variable and ads it to the given ioda::ObsGroup
-        /// \param obsGroup Obsgroup were to add the variable
-        /// \param name The name to associate with the variable (ex "latitude@MetaData")
-        /// \param dimensions List of Variables to use as the dimensions for this new variable
-        /// \param chunks List of integers specifying the chunking dimensions
-        /// \param compressionLevel The GZip compression level to use, must be 0-9
-        ioda::Variable createVariable(ioda::ObsGroup& obsGroup,
-                                      const std::string& name,
-                                      const std::vector<ioda::Variable>& dimensions,
-                                      const std::vector<ioda::Dimensions_t>& chunks,
-                                      int compressionLevel) final;
+            ~ArrayDataObject() = default;
 
-        /// \brief Print data to stdout for debug purposes.
-        void print() const final;
+            /// \brief Makes an ioda::Variable and ads it to the given ioda::ObsGroup
+            /// \param obsGroup Obsgroup were to add the variable
+            /// \param name The name to associate with the variable (ex "latitude@MetaData")
+            /// \param dimensions List of Variables to use as the dimensions for this new variable
+            /// \param chunks List of integers specifying the chunking dimensions
+            /// \param compressionLevel The GZip compression level to use, must be 0-9
+            ioda::Variable createVariable(ioda::ObsGroup& obsGroup,
+                                          const std::string& name,
+                                          const std::vector<ioda::Variable>& dimensions,
+                                          const std::vector<ioda::Dimensions_t>& chunks,
+                                          int compressionLevel) final;
 
-        /// \brief Get number of rows represented in the data
-        size_t nrows() const final;
+            /// \brief Print data to stdout for debug purposes.
+            void print() const final;
 
-        /// \brief Get number of columns represented in the data
-        size_t ncols() const final;
+            /// \brief Get number of rows represented in the data
+            size_t nrows() const final;
 
-        // Getters
-        inline EncoderArray get() const { return eigArray_; }
+            /// \brief Get number of columns represented in the data
+            size_t ncols() const final;
 
-     private:
-        /// \brief Eigen Array that holds the data
-        const EncoderArray eigArray_;
+            // Getters
+            inline Array get() const
+            { return eigArray_; }
 
-        /// \brief Create an ioda::VariableCreationParameters for the data.
-        /// \param chunks List of integers specifying the chunking dimensions
-        /// \param compressionLevel The GZip compression level to use, must be 0-9
-        static ioda::VariableCreationParameters makeCreationParams(
-                                                    const std::vector<ioda::Dimensions_t>& chunks,
-                                                    int compressionLevel);
-    };
+         private:
+            /// \brief Eigen Array that holds the data
+            const Array eigArray_;
+
+            /// \brief Create an ioda::VariableCreationParameters for the data.
+            /// \param chunks List of integers specifying the chunking dimensions
+            /// \param compressionLevel The GZip compression level to use, must be 0-9
+            static ioda::VariableCreationParameters makeCreationParams(
+                const std::vector<ioda::Dimensions_t>& chunks,
+                int compressionLevel);
+        };
+    }  // namespace encoder
 }  // namespace iodaconv
 
 

@@ -14,20 +14,29 @@
 
 namespace iodaconv
 {
-    /// \brief Collector that uses the BUFR interface ufbint call to grab data (single col data).
-    class BufrIntCollector: public BufrCollector
+    namespace parser
     {
-     public:
-        explicit BufrIntCollector(const int fortranFileId, const BufrMnemonicSet& mnemonicSet);
-        ~BufrIntCollector() = default;
+        namespace bufr
+        {
+            /// \brief Collector that uses the BUFR interface ufbint call to grab data (single col
+            ///        data).
+            class BufrIntCollector : public BufrCollector
+            {
+             public:
+                explicit BufrIntCollector(const int fortranFileId,
+                                          const BufrMnemonicSet& mnemonicSet);
 
-        /// \brief Grab the next section of data
-        void collect() final;
+                ~BufrIntCollector() = default;
 
-     private:
-        /// \brief Pre-allocated buffer to hand to the Fortran interface.
-        std::vector<double> scratchData_;
-        std::vector<FloatType> floatTypeScratchData_;
-    };
+                /// \brief Grab the next section of data
+                void collect() final;
+
+             private:
+                /// \brief Pre-allocated buffer to hand to the Fortran interface.
+                std::vector<double> scratchData_;
+                std::vector<encoder::FloatType> floatTypeScratchData_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv
 

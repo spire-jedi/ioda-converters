@@ -10,19 +10,26 @@
 #include "Transform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
-    /// \brief Add a floating point offset to to the data.
-    class OffsetTransform : public Transform
+    namespace parser
     {
-     public:
-        explicit OffsetTransform(const double offset);
-        ~OffsetTransform() = default;
+        namespace bufr
+        {
+            /// \brief Add a floating point offset to to the data.
+            class OffsetTransform : public Transform
+            {
+             public:
+                explicit OffsetTransform(const double offset);
 
-        /// \brief Apply transform to the given data.
-        void apply(IngesterArray& array) override;
+                ~OffsetTransform() = default;
 
-     private:
-        const double offset_;
-    };
+                /// \brief Apply transform to the given data.
+                void apply(IngesterArray& array) override;
+
+             private:
+                const double offset_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

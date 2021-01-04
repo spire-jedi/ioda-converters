@@ -20,35 +20,46 @@
 
 namespace iodaconv
 {
-    /// \brief Uses configuration to determine all the things needed to be done on export.
-    class Export
+    namespace parser
     {
-     public:
-        typedef std::map<std::string, std::shared_ptr<Split>> Splits;
-        typedef std::map<std::string, std::shared_ptr<Variable>> Variables;
-        typedef std::vector<std::shared_ptr<Filter>> Filters;
+        namespace bufr
+        {
+            /// \brief Uses configuration to determine all the things needed to be done on export.
+            class Export
+            {
+             public:
+                typedef std::map<std::string, std::shared_ptr<Split>> Splits;
+                typedef std::map<std::string, std::shared_ptr<Variable>> Variables;
+                typedef std::vector<std::shared_ptr<Filter>> Filters;
 
-        /// \brief Constructor
-        /// \param conf Config data/
-        explicit Export(const eckit::Configuration &conf);
+                /// \brief Constructor
+                /// \param conf Config data/
+                explicit Export(const eckit::Configuration& conf);
 
-        // Getters
-        inline Splits getSplits() const { return splits_; }
-        inline Variables getVariables() const { return variables_; }
-        inline Filters getFilters() const { return filters_; }
+                // Getters
+                inline Splits getSplits() const
+                { return splits_; }
 
-     private:
-        Splits splits_;
-        Variables  variables_;
-        Filters filters_;
+                inline Variables getVariables() const
+                { return variables_; }
 
-        /// \brief Create Variables exports from config.
-        void addVariables(const eckit::Configuration &conf);
+                inline Filters getFilters() const
+                { return filters_; }
 
-        /// \brief Create Splits exports from config.
-        void addSplits(const eckit::Configuration &conf);
+             private:
+                Splits splits_;
+                Variables variables_;
+                Filters filters_;
 
-        /// \brief Create Filters exports from config.
-        void addFilters(const eckit::Configuration &conf);
-    };
+                /// \brief Create Variables exports from config.
+                void addVariables(const eckit::Configuration& conf);
+
+                /// \brief Create Splits exports from config.
+                void addSplits(const eckit::Configuration& conf);
+
+                /// \brief Create Filters exports from config.
+                void addFilters(const eckit::Configuration& conf);
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

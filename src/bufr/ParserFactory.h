@@ -27,77 +27,81 @@ namespace
 
 namespace iodaconv
 {
-    /// \brief Base class for all ParserMakers. Makes it possible to store all types of parsers
-    /// inside a std data structure like a map.
-    class ParserMakerBase
+    namespace parser
     {
-     public:
-        /// \brief Instantiate a Parser instance
-        /// \param conf Configuration to base the Parser on (obs space)
-        virtual std::shared_ptr<Parser> make(const eckit::Configuration &conf) = 0;
-    };
-
-    /// \brief ParserMaker class template definition
-    /// \tparam T The Parser class this Maker will make
-    template <class T>
-    class ParserMaker : public ParserMakerBase
-    {
-     public:
-        std::shared_ptr<Parser> make(const eckit::Configuration &conf) override
+        /// \brief Base class for all ParserMakers. Makes it possible to store all types of parsers
+        /// inside a std data structure like a map.
+        class ParserMakerBase
         {
-            return std::make_shared<T>(conf);
-        }
-    };
+         public:
+            /// \brief Instantiate a Parser instance
+            /// \param conf Configuration to base the Parser on (obs space)
+            virtual std::shared_ptr<Parser> make(const eckit::Configuration& conf) = 0;
+        };
 
-    /// \brief Factory that is used to create Parsers
-    class ParserFactory
-    {
-     public:
-        /// \brief Create a Parser
-        /// \param conf Provides the name of the parser we want to create
-        static std::shared_ptr<Parser> create(const eckit::Configuration &conf)
-        {
-            if (!conf.has(ConfKeys::ParserName))
-            {
-                throw eckit::BadParameter("Parser configuration has no \"name\".");
-            }
-            else if (getMakers().find(conf.getString(ConfKeys::ParserName)) == getMakers().end())
-            {
-                std::ostringstream errStr;
-                errStr << "Trying to use unregistered parser named ";
-                errStr << conf.getString(ConfKeys::ParserName);
-                throw eckit::BadParameter(errStr.str());
-            }
-
-            return getMakers()[conf.getString(ConfKeys::ParserName)]->make(conf);
-        }
-
-        /// \brief Register a new Parser type we want to be able to create
-        /// \tparam T The Parser class
-        /// \param name The name to associate with the parser class.
+        /// \brief ParserMaker class template definition
+        /// \tparam T The Parser class this Maker will make
         template<class T>
-        static void registerParser(const std::string& name)
+        class ParserMaker : public ParserMakerBase
         {
-            if (getMakers().find(name) != getMakers().end())
+         public:
+            std::shared_ptr<Parser> make(const eckit::Configuration& conf) override
             {
-                std::ostringstream errStr;
-                errStr << "Trying to add parser with a duplicate name ";
-                errStr << name;
-                errStr << ". Name must be unique.";
+                return std::make_shared<T>(conf);
+            }
+        };
 
-                throw eckit::BadParameter(errStr.str());
+        /// \brief Factory that is used to create Parsers
+        class ParserFactory
+        {
+         public:
+            /// \brief Create a Parser
+            /// \param conf Provides the name of the parser we want to create
+            static std::shared_ptr<Parser> create(const eckit::Configuration& conf)
+            {
+                if (!conf.has(ConfKeys::ParserName))
+                {
+                    throw eckit::BadParameter("Parser configuration has no \"name\".");
+                }
+                else if (getMakers().find(conf.getString(ConfKeys::ParserName)) ==
+                         getMakers().end())
+                {
+                    std::ostringstream errStr;
+                    errStr << "Trying to use unregistered parser named ";
+                    errStr << conf.getString(ConfKeys::ParserName);
+                    throw eckit::BadParameter(errStr.str());
+                }
+
+                return getMakers()[conf.getString(ConfKeys::ParserName)]->make(conf);
             }
 
-            getMakers().insert({name, std::make_shared<ParserMaker<T>>()});
-        }
+            /// \brief Register a new Parser type we want to be able to create
+            /// \tparam T The Parser class
+            /// \param name The name to associate with the parser class.
+            template<class T>
+            static void registerParser(const std::string& name)
+            {
+                if (getMakers().find(name) != getMakers().end())
+                {
+                    std::ostringstream errStr;
+                    errStr << "Trying to add parser with a duplicate name ";
+                    errStr << name;
+                    errStr << ". Name must be unique.";
 
-     private:
-        /// \brief Internal method that returns a map of Parser Makers that were registered
-        /// with registerParser
-        static std::map<std::string, std::shared_ptr<ParserMakerBase>>& getMakers()
-        {
-            static std::map<std::string, std::shared_ptr<ParserMakerBase>> makers;
-            return makers;
-        }
-    };
+                    throw eckit::BadParameter(errStr.str());
+                }
+
+                getMakers().insert({name, std::make_shared<ParserMaker<T>>()});
+            }
+
+         private:
+            /// \brief Internal method that returns a map of Parser Makers that were registered
+            /// with registerParser
+            static std::map<std::string, std::shared_ptr<ParserMakerBase>>& getMakers()
+            {
+                static std::map<std::string, std::shared_ptr<ParserMakerBase>> makers;
+                return makers;
+            }
+        };
+    }  // namespace parser
 }  // namespace iodaconv

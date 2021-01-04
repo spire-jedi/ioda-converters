@@ -29,27 +29,35 @@ namespace
 
 namespace iodaconv
 {
-    BufrDescription::BufrDescription(const eckit::Configuration &conf) :
-        export_(Export(conf.getSubConfiguration(ConfKeys::Exports)))
+    namespace parser
     {
-        setFilepath(conf.getString(ConfKeys::Filename));
-
-        for (const auto& mnemonicSetConf : conf.getSubConfigurations(ConfKeys::MnemonicSets))
+        namespace bufr
         {
-            Channels channels = {1};
-            if (mnemonicSetConf.has(ConfKeys::Channels))
+            BufrDescription::BufrDescription(const eckit::Configuration& conf) :
+                export_(Export(conf.getSubConfiguration(ConfKeys::Exports)))
             {
-                auto intChannels = oops::parseIntSet(mnemonicSetConf.getString(ConfKeys::Channels));
-                channels = Channels(intChannels.begin(), intChannels.end());
+                setFilepath(conf.getString(ConfKeys::Filename));
+
+                for (const auto& mnemonicSetConf : conf.getSubConfigurations(
+                    ConfKeys::MnemonicSets))
+                {
+                    Channels channels = {1};
+                    if (mnemonicSetConf.has(ConfKeys::Channels))
+                    {
+                        auto intChannels = oops::parseIntSet(
+                            mnemonicSetConf.getString(ConfKeys::Channels));
+                        channels = Channels(intChannels.begin(), intChannels.end());
+                    }
+
+                    addMnemonicSet(BufrMnemonicSet(
+                        mnemonicSetConf.getStringVector(ConfKeys::Mnemonics), channels));
+                }
             }
 
-            addMnemonicSet(BufrMnemonicSet(
-                mnemonicSetConf.getStringVector(ConfKeys::Mnemonics), channels));
+            void BufrDescription::addMnemonicSet(const BufrMnemonicSet& mnemonicSet)
+            {
+                mnemonicSets_.push_back(mnemonicSet);
+            }
         }
-    }
-
-    void BufrDescription::addMnemonicSet(const BufrMnemonicSet& mnemonicSet)
-    {
-        mnemonicSets_.push_back(mnemonicSet);
     }
 }  // namespace iodaconv

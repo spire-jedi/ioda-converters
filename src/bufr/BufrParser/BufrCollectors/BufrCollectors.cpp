@@ -17,49 +17,57 @@
 
 namespace iodaconv
 {
-    BufrCollectors::BufrCollectors(unsigned int fortranFileId) :
-        fortranFileId_(fortranFileId)
+    namespace parser
     {
-    }
-
-    void BufrCollectors::addMnemonicSets(const std::vector <BufrMnemonicSet> &mnemonicSets)
-    {
-        for (const auto &set : mnemonicSets)
+        namespace bufr
         {
-            addMnemonicSet(set);
-        }
-    }
+            BufrCollectors::BufrCollectors(unsigned int fortranFileId) :
+                fortranFileId_(fortranFileId)
+            {
+            }
 
-    void BufrCollectors::addMnemonicSet(const BufrMnemonicSet &mnemonicSet)
-    {
-        if (mnemonicSet.getMaxColumn() == 1)
-        {
-            collectors_.push_back(std::make_shared<BufrIntCollector>(fortranFileId_, mnemonicSet));
-        }
-        else
-        {
-            collectors_.push_back(std::make_shared<BufrRepCollector>(fortranFileId_, mnemonicSet));
-        }
-    }
+            void BufrCollectors::addMnemonicSets(const std::vector<BufrMnemonicSet>& mnemonicSets)
+            {
+                for (const auto& set : mnemonicSets)
+                {
+                    addMnemonicSet(set);
+                }
+            }
 
-    void BufrCollectors::collect()
-    {
-        for (const auto &collector : collectors_)
-        {
-            collector->collect();
-        }
-    }
+            void BufrCollectors::addMnemonicSet(const BufrMnemonicSet& mnemonicSet)
+            {
+                if (mnemonicSet.getMaxColumn() == 1)
+                {
+                    collectors_.push_back(
+                        std::make_shared<BufrIntCollector>(fortranFileId_, mnemonicSet));
+                }
+                else
+                {
+                    collectors_.push_back(
+                        std::make_shared<BufrRepCollector>(fortranFileId_, mnemonicSet));
+                }
+            }
 
-    BufrDataMap BufrCollectors::finalize()
-    {
-        auto dataMap = BufrDataMap();
+            void BufrCollectors::collect()
+            {
+                for (const auto& collector : collectors_)
+                {
+                    collector->collect();
+                }
+            }
 
-        for (const auto &collector : collectors_)
-        {
-            EncoderArrayMap collectorDataMap = collector->finalize();
-            dataMap.insert(collectorDataMap.begin(), collectorDataMap.end());
-        }
+            BufrDataMap BufrCollectors::finalize()
+            {
+                auto dataMap = BufrDataMap();
 
-        return dataMap;
-    }
+                for (const auto& collector : collectors_)
+                {
+                    encoder::ArrayMap collectorDataMap = collector->finalize();
+                    dataMap.insert(collectorDataMap.begin(), collectorDataMap.end());
+                }
+
+                return dataMap;
+            }
+        } // namespace bufr
+    } // namespace parser
 }  // namespace iodaconv

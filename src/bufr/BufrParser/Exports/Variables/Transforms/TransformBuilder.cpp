@@ -19,37 +19,44 @@ static const char* SCALE_KEY = "scale";
 
 namespace iodaconv
 {
-    std::shared_ptr<Transform> TransformBuilder::makeTransform(const eckit::Configuration& conf)
+    namespace parser
     {
-        std::shared_ptr <Transform> transform;
-        if (conf.has(OFFSET_KEY))
+        namespace bufr
         {
-            transform = std::make_shared<OffsetTransform>(conf.getFloat(OFFSET_KEY));
-        }
-        else if (conf.has(SCALE_KEY))
-        {
-            transform = std::make_shared<ScalingTransform>(conf.getFloat(SCALE_KEY));
-        }
-        else
-        {
-            throw eckit::BadParameter("Tried to create unknown export transform type. "
-                                      "Check your configuration.");
-        }
-
-        return transform;
-    }
-
-    Transforms TransformBuilder::makeTransforms(const eckit::Configuration& conf)
-    {
-        Transforms transforms;
-        if (conf.has(TRANSFORMS_SECTION))
-        {
-            for (const auto& transformConf : conf.getSubConfigurations(TRANSFORMS_SECTION))
+            std::shared_ptr<Transform>
+            TransformBuilder::makeTransform(const eckit::Configuration& conf)
             {
-                transforms.push_back(makeTransform(transformConf));
-            }
-        }
+                std::shared_ptr<Transform> transform;
+                if (conf.has(OFFSET_KEY))
+                {
+                    transform = std::make_shared<OffsetTransform>(conf.getFloat(OFFSET_KEY));
+                }
+                else if (conf.has(SCALE_KEY))
+                {
+                    transform = std::make_shared<ScalingTransform>(conf.getFloat(SCALE_KEY));
+                }
+                else
+                {
+                    throw eckit::BadParameter("Tried to create unknown export transform type. "
+                                              "Check your configuration.");
+                }
 
-        return transforms;
-    }
+                return transform;
+            }
+
+            Transforms TransformBuilder::makeTransforms(const eckit::Configuration& conf)
+            {
+                Transforms transforms;
+                if (conf.has(TRANSFORMS_SECTION))
+                {
+                    for (const auto& transformConf : conf.getSubConfigurations(TRANSFORMS_SECTION))
+                    {
+                        transforms.push_back(makeTransform(transformConf));
+                    }
+                }
+
+                return transforms;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

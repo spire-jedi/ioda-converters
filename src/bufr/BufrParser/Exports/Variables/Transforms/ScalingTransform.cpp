@@ -10,13 +10,19 @@
 
 namespace iodaconv
 {
-    ScalingTransform::ScalingTransform(const double scaling) :
-      scaling_(scaling)
+    namespace parser
     {
-    }
+        namespace bufr
+        {
+            ScalingTransform::ScalingTransform(const double scaling) :
+                scaling_(scaling)
+            {
+            }
 
-    void ScalingTransform::apply(EncoderArray& array)
-    {
-        array = array * scaling_;
-    }
+            void ScalingTransform::apply(encoder::Array& array)
+            {
+                array = array * scaling_;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

@@ -15,7 +15,10 @@
 
 namespace iodaconv
 {
-    typedef float FloatType;
-    typedef Eigen::Array<FloatType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EncoderArray;
-    typedef std::map<std::string, EncoderArray> EncoderArrayMap;
+    namespace encoder
+    {
+        typedef float FloatType;
+        typedef Eigen::Array<FloatType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Array;
+        typedef std::map<std::string, Array> ArrayMap;
+    }
 }  // namespace iodaconv

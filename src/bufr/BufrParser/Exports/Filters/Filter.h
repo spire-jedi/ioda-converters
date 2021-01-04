@@ -12,12 +12,18 @@
 
 namespace iodaconv
 {
-    /// \brief Base class for all the supported filters.
-    class Filter
+    namespace parser
     {
-     public:
-        /// \brief Apply the filter to the data
-        /// \param dataMap Map to modify by filtering out relevant data.
-        virtual void apply(BufrDataMap& dataMap) = 0;
-    };
+        namespace bufr
+        {
+            /// \brief Base class for all the supported filters.
+            class Filter
+            {
+             public:
+                /// \brief Apply the filter to the data
+                /// \param dataMap Map to modify by filtering out relevant data.
+                virtual void apply(BufrDataMap& dataMap) = 0;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

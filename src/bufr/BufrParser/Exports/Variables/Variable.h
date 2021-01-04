@@ -16,15 +16,21 @@
 
 namespace iodaconv
 {
-    /// \brief Abstract base class for all Exports.
-    class Variable
+    namespace parser
     {
-     public:
-        virtual ~Variable() = default;
+        namespace bufr
+        {
+            /// \brief Abstract base class for all Exports.
+            class Variable
+            {
+             public:
+                virtual ~Variable() = default;
 
-        /// \brief Variable data objects for previously parsed data from BufrDataMap.
-        virtual std::shared_ptr<DataObject> exportData(const BufrDataMap& map) = 0;
-    };
+                /// \brief Variable data objects for previously parsed data from BufrDataMap.
+                virtual std::shared_ptr<encoder::DataObject> exportData(const BufrDataMap& map) = 0;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv
 
 

@@ -10,29 +10,37 @@
 
 namespace iodaconv
 {
-    BufrCollector::BufrCollector(const int fortranFileId, const BufrMnemonicSet mnemonicSet) :
-        fortranFileId_(fortranFileId),
-        accumulator_(BufrAccumulator(mnemonicSet.getSize() * mnemonicSet.getMaxColumn())),
-        mnemonicSet_(mnemonicSet)
+    namespace parser
     {
-    }
-
-    BufrDataMap BufrCollector::finalize()
-    {
-        EncoderArrayMap dataMap;
-        size_t fieldIdx = 0;
-        for (const auto &fieldName : mnemonicSet_.getMnemonics())
+        namespace bufr
         {
-            EncoderArray dataArr = accumulator_.getData(fieldIdx * mnemonicSet_.getMaxColumn(),
-                                                        mnemonicSet_.getChannels());
+            BufrCollector::BufrCollector(const int fortranFileId, const BufrMnemonicSet mnemonicSet)
+                :
+                fortranFileId_(fortranFileId),
+                accumulator_(BufrAccumulator(mnemonicSet.getSize() * mnemonicSet.getMaxColumn())),
+                mnemonicSet_(mnemonicSet)
+            {
+            }
 
-            dataMap.insert({fieldName, dataArr});
-            fieldIdx++;
-        }
+            BufrDataMap BufrCollector::finalize()
+            {
+                encoder::ArrayMap dataMap;
+                size_t fieldIdx = 0;
+                for (const auto& fieldName : mnemonicSet_.getMnemonics())
+                {
+                    encoder::Array dataArr = accumulator_.getData(
+                        fieldIdx * mnemonicSet_.getMaxColumn(),
+                        mnemonicSet_.getChannels());
 
-        accumulator_.reset();
+                    dataMap.insert({fieldName, dataArr});
+                    fieldIdx++;
+                }
 
-        return dataMap;
-    }
+                accumulator_.reset();
+
+                return dataMap;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv
 

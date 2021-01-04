@@ -15,35 +15,42 @@
 
 namespace iodaconv
 {
-    BufrMnemonicSet::BufrMnemonicSet(const std::vector<std::string>& mnemonics,
-                                     const Channels& channels) :
-        mnemonics_(mnemonics),
-        mnemonicsStr_(makeMnemonicsStr(mnemonics)),
-        channels_(channels),
-        maxColumn_(*std::max_element(channels.begin(), channels.end()))
+    namespace parser
     {
-        if (std::find_if(channels.begin(), channels.end(), [](const auto x){ return x < 1; }) \
-            != channels.end())
+        namespace bufr
         {
-            throw eckit::BadParameter("All channel numbers must be >= 1.");
-        }
-    }
-
-    std::string BufrMnemonicSet::makeMnemonicsStr(std::vector<std::string> mnemonics)
-    {
-        std::ostringstream mnemonicsStrStream;
-        for (auto mnemonicsIt = mnemonics.begin();
-             mnemonicsIt < mnemonics.end();
-             mnemonicsIt++)
-        {
-            mnemonicsStrStream << *mnemonicsIt;
-
-            if (mnemonicsIt != mnemonics.end() - 1)
+            BufrMnemonicSet::BufrMnemonicSet(const std::vector<std::string>& mnemonics,
+                                             const Channels& channels) :
+                mnemonics_(mnemonics),
+                mnemonicsStr_(makeMnemonicsStr(mnemonics)),
+                channels_(channels),
+                maxColumn_(*std::max_element(channels.begin(), channels.end()))
             {
-                mnemonicsStrStream << " ";
+                if (std::find_if(channels.begin(), channels.end(), [](const auto x)
+                { return x < 1; }) \
+ != channels.end())
+                {
+                    throw eckit::BadParameter("All channel numbers must be >= 1.");
+                }
             }
-        }
 
-        return mnemonicsStrStream.str();
-    }
+            std::string BufrMnemonicSet::makeMnemonicsStr(std::vector<std::string> mnemonics)
+            {
+                std::ostringstream mnemonicsStrStream;
+                for (auto mnemonicsIt = mnemonics.begin();
+                     mnemonicsIt < mnemonics.end();
+                     mnemonicsIt++)
+                {
+                    mnemonicsStrStream << *mnemonicsIt;
+
+                    if (mnemonicsIt != mnemonics.end() - 1)
+                    {
+                        mnemonicsStrStream << " ";
+                    }
+                }
+
+                return mnemonicsStrStream.str();
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

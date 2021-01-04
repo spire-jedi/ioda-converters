@@ -23,51 +23,58 @@
 
 namespace iodaconv
 {
-    class BufrMnemonicSet;
-    class DataContainer;
-
-    /// \brief Uses a BufrDescription and helper classes to parse the contents of a BUFR file.
-    class BufrParser final : public Parser
+    namespace parser
     {
-     public:
-        explicit BufrParser(const BufrDescription& description);
-        explicit BufrParser(const eckit::Configuration& conf);
+        namespace bufr
+        {
+            class BufrMnemonicSet;
+            class DataContainer;
 
-        ~BufrParser();
+            /// \brief Uses a BufrDescription and helper classes to parse the contents of a BUFR file.
+            class BufrParser final : public Parser
+            {
+             public:
+                explicit BufrParser(const BufrDescription& description);
 
-        /// \brief Uses the provided description to parse the buffer file.
-        /// \param maxMsgsToParse Messages to parse (0 for everything)
-        std::shared_ptr<DataContainer> parse(const size_t maxMsgsToParse = 0) final;
+                explicit BufrParser(const eckit::Configuration& conf);
 
-        /// \brief Start over from beginning of the BUFR file
-        void reset() final;
+                ~BufrParser();
 
-     private:
-        typedef std::map<std::vector<std::string>, BufrDataMap> CatDataMap;
+                /// \brief Uses the provided description to parse the buffer file.
+                /// \param maxMsgsToParse Messages to parse (0 for everything)
+                std::shared_ptr<encoder::DataContainer> parse(const size_t maxMsgsToParse = 0) final;
 
-        /// \brief The description the defines what to parse from the BUFR file
-        BufrDescription description_;
+                /// \brief Start over from beginning of the BUFR file
+                void reset() final;
 
-        /// \brief The Fortran file ID to an open BUFR file (0 when no file open)
-        unsigned int fortranFileId_;
+             private:
+                typedef std::map<std::vector<std::string>, BufrDataMap> CatDataMap;
 
-        /// \brief Exports collected data into a DataContainer
-        std::shared_ptr<DataContainer> exportData(const BufrDataMap& sourceData);
+                /// \brief The description the defines what to parse from the BUFR file
+                BufrDescription description_;
 
-        /// \brief Function responsible for dividing the data into subcategories.
-        /// \details This function is intended to be called over and over for each specified Split
-        ///          object, sub-splitting the data given into all the possible subcategories.
-        /// \param splitMaps Pre-split map of data.
-        /// \param split Object that knows how to split data.
-        CatDataMap splitData(CatDataMap& splitMaps, Split& split);
+                /// \brief The Fortran file ID to an open BUFR file (0 when no file open)
+                unsigned int fortranFileId_;
 
-        /// \brief Opens a BUFR file using the Fortran BUFR interface.
-        void openBufrFile(const std::string& filepath);
+                /// \brief Exports collected data into a DataContainer
+                std::shared_ptr<encoder::DataContainer> exportData(const BufrDataMap& sourceData);
 
-        /// \brief Closes the open BUFR file.
-        void closeBufrFile();
+                /// \brief Function responsible for dividing the data into subcategories.
+                /// \details This function is intended to be called over and over for each specified Split
+                ///          object, sub-splitting the data given into all the possible subcategories.
+                /// \param splitMaps Pre-split map of data.
+                /// \param split Object that knows how to split data.
+                CatDataMap splitData(CatDataMap& splitMaps, Split& split);
 
-        /// \brief Convenience method to print the Categorical data map to stdout.
-        void printMap(const CatDataMap& map);
-    };
+                /// \brief Opens a BUFR file using the Fortran BUFR interface.
+                void openBufrFile(const std::string& filepath);
+
+                /// \brief Closes the open BUFR file.
+                void closeBufrFile();
+
+                /// \brief Convenience method to print the Categorical data map to stdout.
+                void printMap(const CatDataMap& map);
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

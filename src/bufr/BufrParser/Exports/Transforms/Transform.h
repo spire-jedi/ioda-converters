@@ -12,18 +12,25 @@
 
 #include "EncoderTypes.h"
 
-namespace Ingester
+namespace iodaconv
 {
-    /// \brief Base class for Transforms which are used to transform data. Transforms are useful
-    ///        for getting data into the right units (for example you can convert Kelvin to Celsius)
-    class Transform
+    namespace parser
     {
-     public:
-        ~Transform() = default;
+        namespace bufr
+        {
+            /// \brief Base class for Transforms which are used to transform data. Transforms are
+            ///        useful for getting data into the right units (for example you can convert
+            ///        Kelvin to Celsius)
+            class Transform
+            {
+             public:
+                ~Transform() = default;
 
-        /// \brief Apply transform to the given data.
-        virtual void apply(IngesterArray& array) = 0;
-    };
+                /// \brief Apply transform to the given data.
+                virtual void apply(IngesterArray& array) = 0;
+            };
 
-    typedef std::vector <std::shared_ptr<Transform>> Transforms;
+            typedef std::vector<std::shared_ptr<Transform>> Transforms;
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

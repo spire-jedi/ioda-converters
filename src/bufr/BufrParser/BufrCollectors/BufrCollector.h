@@ -19,29 +19,37 @@
 
 namespace iodaconv
 {
-    /// \brief Collectors know how to use the BUFR interface to grab data associated with
-    /// configured mnemonicSets.
-    class BufrCollector
+    namespace parser
     {
-     public:
-        BufrCollector(const int fortranFileId, const BufrMnemonicSet mnemonicSet);
-        virtual ~BufrCollector() = default;
+        namespace bufr
+        {
+            /// \brief Collectors know how to use the BUFR interface to grab data associated with
+            ///        configured mnemonicSets.
+            class BufrCollector
+            {
+             public:
+                BufrCollector(const int fortranFileId, const BufrMnemonicSet mnemonicSet);
 
-        /// \brief Grab the data
-        virtual void collect() = 0;
+                virtual ~BufrCollector() = default;
 
-        /// \brief Get the data we want from the accumulator and make our data map. Resets
-        /// the accumulator.
-        BufrDataMap finalize();
+                /// \brief Grab the data
+                virtual void collect() = 0;
 
-     protected:
-        /// \brief Fortran file ID for the open BUFR file
-        const int fortranFileId_;
+                /// \brief Get the data we want from the accumulator and make our data map. Resets
+                ///        the accumulator.
+                BufrDataMap finalize();
 
-        /// \brief Accumulator to collect the data we are collecting
-        BufrAccumulator accumulator_;
+             protected:
+                /// \brief Fortran file ID for the open BUFR file
+                const int fortranFileId_;
 
-        /// \brief Specifies the mnemonics and channels this collector gets from the BUFR file.
-        const BufrMnemonicSet mnemonicSet_;
-    };
+                /// \brief Accumulator to collect the data we are collecting
+                BufrAccumulator accumulator_;
+
+                /// \brief Specifies the mnemonics and channels this collector gets from the BUFR
+                ///        file.
+                const BufrMnemonicSet mnemonicSet_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

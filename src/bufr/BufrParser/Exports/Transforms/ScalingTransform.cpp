@@ -10,13 +10,19 @@
 
 namespace Ingester
 {
-    ScalingTransform::ScalingTransform(const double scaling) :
-      scaling_(scaling)
+    namespace parser
     {
-    }
+        namespace bufr
+        {
+            ScalingTransform::ScalingTransform(const double scaling) :
+                scaling_(scaling)
+            {
+            }
 
-    void ScalingTransform::apply(IngesterArray& array)
-    {
-        array = array * scaling_;
-    }
+            void ScalingTransform::apply(IngesterArray& array)
+            {
+                array = array * scaling_;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

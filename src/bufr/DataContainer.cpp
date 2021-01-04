@@ -18,155 +18,160 @@
 
 namespace iodaconv
 {
-    DataContainer::DataContainer() :
-        categoryMap_({})
+    namespace encoder
     {
-        makeDataSets();
-    }
-
-    DataContainer::DataContainer(const CategoryMap& categoryMap) :
-        categoryMap_(categoryMap)
-    {
-        makeDataSets();
-    }
-
-    void DataContainer::add(const std::string& fieldName,
-                            const std::shared_ptr<DataObject> data,
-                            const SubCategory& categoryId)
-    {
-        if (hasKey(fieldName, categoryId))
+        DataContainer::DataContainer() :
+            categoryMap_({})
         {
-            std::ostringstream errorStr;
-            errorStr << "ERROR: Field called " << fieldName << " already exists ";
-            errorStr << "for subcategory " << makeSubCategoryStr(categoryId) << std::endl;
-            throw eckit::BadParameter(errorStr.str());
+            makeDataSets();
         }
 
-        dataSets_.at(categoryId).insert({fieldName, data});
-    }
-
-    std::shared_ptr<DataObject> DataContainer::get(const std::string& fieldName,
-                                                   const SubCategory& categoryId) const
-    {
-        if (!hasKey(fieldName, categoryId))
+        DataContainer::DataContainer(const CategoryMap& categoryMap) :
+            categoryMap_(categoryMap)
         {
-            std::ostringstream errStr;
-            errStr << "ERROR: Either field called " << fieldName;
-            errStr << " or category " << makeSubCategoryStr(categoryId);
-            errStr << " doesn't exists.";
-
-            throw eckit::BadParameter(errStr.str());
+            makeDataSets();
         }
 
-        return dataSets_.at(categoryId).at(fieldName);
-    }
-
-    bool DataContainer::hasKey(const std::string& fieldName,
-                               const SubCategory& categoryId) const
-    {
-        bool hasKey = false;
-        if (dataSets_.find(categoryId) != dataSets_.end() &&
-            dataSets_.at(categoryId).find(fieldName) != dataSets_.at(categoryId).end())
+        void DataContainer::add(const std::string& fieldName,
+                                const std::shared_ptr<DataObject> data,
+                                const SubCategory& categoryId)
         {
-            hasKey = true;
-        }
-
-        return hasKey;
-    }
-
-    size_t DataContainer::size(const SubCategory &categoryId) const
-    {
-        if (dataSets_.find(categoryId) == dataSets_.end())
-        {
-            std::ostringstream errStr;
-            errStr << "ERROR: Category called " << makeSubCategoryStr(categoryId);
-            errStr << " doesn't exists.";
-
-            throw eckit::BadParameter(errStr.str());
-        }
-
-        return  dataSets_.at(categoryId).begin()->second->nrows();
-    }
-
-    std::vector<SubCategory> DataContainer::allSubCategories() const
-    {
-        std::vector<SubCategory> allCategories;
-
-        for (const auto &dataSetPair : dataSets_)
-        {
-            allCategories.push_back(dataSetPair.first);
-        }
-
-        return allCategories;
-    }
-
-    void DataContainer::makeDataSets()
-    {
-        std::function<void(std::vector<size_t>&, const std::vector<size_t>&, size_t)> incIdx;
-        incIdx = [&incIdx](std::vector<size_t>& indicies,
-                    const std::vector<size_t>& lengths,
-                    size_t idx)
-        {
-            if (indicies[idx] + 1 >= lengths[idx])
+            if (hasKey(fieldName, categoryId))
             {
-                if (idx + 1 < indicies.size())
+                std::ostringstream errorStr;
+                errorStr << "ERROR: Field called " << fieldName << " already exists ";
+                errorStr << "for subcategory " << makeSubCategoryStr(categoryId) << std::endl;
+                throw eckit::BadParameter(errorStr.str());
+            }
+
+            dataSets_.at(categoryId).insert({fieldName, data});
+        }
+
+        std::shared_ptr<DataObject> DataContainer::get(const std::string& fieldName,
+                                                       const SubCategory& categoryId) const
+        {
+            if (!hasKey(fieldName, categoryId))
+            {
+                std::ostringstream errStr;
+                errStr << "ERROR: Either field called " << fieldName;
+                errStr << " or category " << makeSubCategoryStr(categoryId);
+                errStr << " doesn't exists.";
+
+                throw eckit::BadParameter(errStr.str());
+            }
+
+            return dataSets_.at(categoryId).at(fieldName);
+        }
+
+        bool DataContainer::hasKey(const std::string& fieldName,
+                                   const SubCategory& categoryId) const
+        {
+            bool hasKey = false;
+            if (dataSets_.find(categoryId) != dataSets_.end() &&
+                dataSets_.at(categoryId).find(fieldName) != dataSets_.at(categoryId).end())
+            {
+                hasKey = true;
+            }
+
+            return hasKey;
+        }
+
+        size_t DataContainer::size(const SubCategory& categoryId) const
+        {
+            if (dataSets_.find(categoryId) == dataSets_.end())
+            {
+                std::ostringstream errStr;
+                errStr << "ERROR: Category called " << makeSubCategoryStr(categoryId);
+                errStr << " doesn't exists.";
+
+                throw eckit::BadParameter(errStr.str());
+            }
+
+            return dataSets_.at(categoryId).begin()->second->nrows();
+        }
+
+        std::vector<SubCategory> DataContainer::allSubCategories() const
+        {
+            std::vector<SubCategory> allCategories;
+
+            for (const auto& dataSetPair : dataSets_)
+            {
+                allCategories.push_back(dataSetPair.first);
+            }
+
+            return allCategories;
+        }
+
+        void DataContainer::makeDataSets()
+        {
+            std::function<void(std::vector<size_t>&, const std::vector<size_t>&, size_t)> incIdx;
+            incIdx = [&incIdx](std::vector<size_t>& indicies,
+                               const std::vector<size_t>& lengths,
+                               size_t idx)
+            {
+                if (indicies[idx] + 1 >= lengths[idx])
                 {
-                    indicies[idx] = 0;
-                    incIdx(indicies, lengths, idx + 1);
+                    if (idx + 1 < indicies.size())
+                    {
+                        indicies[idx] = 0;
+                        incIdx(indicies, lengths, idx + 1);
+                    }
+                }
+                else
+                {
+                    indicies[idx]++;
+                }
+            };
+
+            size_t numCombos = 1;
+            std::vector<size_t> indicies;
+            std::vector<size_t> lengths;
+            for (const auto& category : categoryMap_)
+            {
+                indicies.push_back(0);
+                lengths.push_back(category.second.size());
+                numCombos = numCombos * category.second.size();
+            }
+
+            if (!indicies.empty())
+            {
+                for (size_t idx = 0; idx < numCombos; idx++)
+                {
+                    size_t catIdx = 0;
+                    std::vector<std::string> subsets;
+                    for (const auto& category : categoryMap_)
+                    {
+                        subsets.push_back(category.second[indicies[catIdx]]);
+                        catIdx++;
+                    }
+
+                    dataSets_.insert({subsets, DataSetMap()});
+                    incIdx(indicies, lengths, 0);
                 }
             }
             else
             {
-                indicies[idx]++;
-            }
-        };
-
-        size_t numCombos = 1;
-        std::vector<size_t> indicies;
-        std::vector<size_t> lengths;
-        for (const auto& category : categoryMap_)
-        {
-            indicies.push_back(0);
-            lengths.push_back(category.second.size());
-            numCombos = numCombos * category.second.size();
-        }
-
-        if (!indicies.empty())
-        {
-            for (size_t idx = 0; idx < numCombos; idx++) {
-                size_t catIdx = 0;
-                std::vector<std::string> subsets;
-                for (const auto &category : categoryMap_) {
-                    subsets.push_back(category.second[indicies[catIdx]]);
-                    catIdx++;
-                }
-
-                dataSets_.insert({subsets, DataSetMap()});
-                incIdx(indicies, lengths, 0);
+                dataSets_.insert({{}, DataSetMap()});
             }
         }
-        else
-        {
-            dataSets_.insert({{}, DataSetMap()});
-        }
-    }
 
-    std::string DataContainer::makeSubCategoryStr(const SubCategory &categoryId)
-    {
-        std::ostringstream catStr;
-
-        if (!categoryId.empty())
+        std::string DataContainer::makeSubCategoryStr(const SubCategory& categoryId)
         {
-            for (const auto &subCategory : categoryId)
+            std::ostringstream catStr;
+
+            if (!categoryId.empty())
             {
-                catStr << subCategory << "_";
+                for (const auto& subCategory : categoryId)
+                {
+                    catStr << subCategory << "_";
+                }
             }
-        }
-        else
-        {
-            catStr << "__MAIN__";
-        }
+            else
+            {
+                catStr << "__MAIN__";
+            }
 
-        return catStr.str();
+            return catStr.str();
+        }
     }
 }  // namespace iodaconv

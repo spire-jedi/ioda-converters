@@ -18,42 +18,49 @@
 #include "Export.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
-    /// \brief Exports parsed data as datetimes using speciefied Mnemonics
-    class DatetimeExport final : public Export
+    namespace parser
     {
-     public:
-        explicit DatetimeExport(const eckit::Configuration& conf);
-        ~DatetimeExport() final = default;
+        namespace bufr
+        {
+            /// \brief Exports parsed data as datetimes using speciefied Mnemonics
+            class DatetimeExport final : public Export
+            {
+             public:
+                explicit DatetimeExport(const eckit::Configuration& conf);
 
-        /// \brief Get the configured mnemonics and turn them into datetime strings
-        /// \param map BufrDataMap that contains the parsed data for each mnemonic
-        std::shared_ptr<DataObject> exportData(const BufrDataMap& map) final;
+                ~DatetimeExport() final = default;
 
-     private:
-        /// \brief Mnemonic for year
-        const std::string yearKey_;
+                /// \brief Get the configured mnemonics and turn them into datetime strings
+                /// \param map BufrDataMap that contains the parsed data for each mnemonic
+                std::shared_ptr<DataObject> exportData(const BufrDataMap& map) final;
 
-        /// \brief Mnemonic for month
-        const std::string monthKey_;
+             private:
+                /// \brief Mnemonic for year
+                const std::string yearKey_;
 
-        /// \brief Mnemonic for day
-        const std::string dayKey_;
+                /// \brief Mnemonic for month
+                const std::string monthKey_;
 
-        /// \brief Mnemonic for hour
-        const std::string hourKey_;
+                /// \brief Mnemonic for day
+                const std::string dayKey_;
 
-        /// \brief Mnemonic for minute
-        const std::string minuteKey_;
+                /// \brief Mnemonic for hour
+                const std::string hourKey_;
 
-        /// \brief Mnemonic for second
-        const std::string secondKey_;
+                /// \brief Mnemonic for minute
+                const std::string minuteKey_;
 
-        /// \brief Is it UTC time or not
-        const bool isUTC_;
+                /// \brief Mnemonic for second
+                const std::string secondKey_;
 
-        /// \brief Checks if the input keys are valid. Throws error if not.
-        void checkKeys(const BufrDataMap& map);
-    };
+                /// \brief Is it UTC time or not
+                const bool isUTC_;
+
+                /// \brief Checks if the input keys are valid. Throws error if not.
+                void checkKeys(const BufrDataMap& map);
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

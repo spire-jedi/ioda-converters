@@ -16,24 +16,30 @@
 
 namespace iodaconv
 {
-    /// \brief Throws away data associated with a mnemonic where the mnemonic value is less than
-    ///        than a given value. Keeps data that is equal to or greater than the given value.
-    class GreaterFilter : public Filter
+    namespace parser
     {
-     public:
-        /// \brief Constructor
-        /// \param mnemonic BUFR Mnemonic to filter on
-        /// \param value to compare against
-        GreaterFilter(const std::string& mnemonic, float value);
+        namespace bufr
+        {
+            /// \brief Throws away data associated with a mnemonic where the mnemonic value is less than
+            ///        than a given value. Keeps data that is equal to or greater than the given value.
+            class GreaterFilter : public Filter
+            {
+             public:
+                /// \brief Constructor
+                /// \param mnemonic BUFR Mnemonic to filter on
+                /// \param value to compare against
+                GreaterFilter(const std::string& mnemonic, float value);
 
-        /// \brief Apply the filter to the data
-        /// \param dataMap Map to modify by filtering out relevant data.
-        void apply(BufrDataMap& dataMap) final;
+                /// \brief Apply the filter to the data
+                /// \param dataMap Map to modify by filtering out relevant data.
+                void apply(BufrDataMap& dataMap) final;
 
-     private:
-        const std::string mnemonic_;
-        const float value_;
-    };
+             private:
+                const std::string mnemonic_;
+                const float value_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv
 
 

@@ -43,123 +43,128 @@ namespace
 
 namespace iodaconv
 {
-    IodaDescription::IodaDescription(const eckit::Configuration& conf)
+    namespace encoder
     {
-        if (conf.has(ConfKeys::Backend))
+        IodaDescription::IodaDescription(const eckit::Configuration& conf)
         {
-            setBackend(conf.getString(ConfKeys::Backend));
-        }
-        else
-        {
-            throw eckit::BadParameter("Forgot to specify the ioda::backend.");
-        }
-
-        if (conf.has(ConfKeys::Filename))
-        {
-            filepath_ = conf.getString(ConfKeys::Filename);
-        }
-        else
-        {
-            if (backend_ == ioda::Engines::BackendNames::ObsStore)
+            if (conf.has(ConfKeys::Backend))
             {
-                filepath_ = "";
+                setBackend(conf.getString(ConfKeys::Backend));
             }
             else
             {
-                throw eckit::BadParameter("Filename is required with the configured backend.");
+                throw eckit::BadParameter("Forgot to specify the ioda::backend.");
             }
-        }
 
-        for (const auto& scaleConf : conf.getSubConfigurations(ConfKeys::Dimensions))
-        {
-            DimensionDescription scale;
-            scale.name = scaleConf.getString(ConfKeys::Dimension::Name);
-            scale.size = scaleConf.getString(ConfKeys::Dimension::Size);
-
-            addDimension(scale);
-        }
-
-        for (const auto& varConf : conf.getSubConfigurations(ConfKeys::Variables))
-        {
-            VariableDescription variable;
-            variable.name = varConf.getString(ConfKeys::Variable::Name);
-            variable.source = varConf.getString(ConfKeys::Variable::Source);
-            variable.dimensions = varConf.getStringVector(ConfKeys::Variable::Dimensions);
-            variable.longName = varConf.getString(ConfKeys::Variable::LongName);
-            variable.units = varConf.getString(ConfKeys::Variable::Units);
-
-            if (varConf.has(ConfKeys::Variable::Coords))
+            if (conf.has(ConfKeys::Filename))
             {
-                variable.coordinates =
-                    std::make_shared<std::string> (varConf.getString(ConfKeys::Variable::Coords));
+                filepath_ = conf.getString(ConfKeys::Filename);
             }
             else
             {
-                variable.coordinates = nullptr;
-            }
-
-            variable.range = nullptr;
-            if (varConf.has(ConfKeys::Variable::Range))
-            {
-                auto range = std::make_shared<Range>();
-                range->start = std::stoi(varConf.getStringVector(ConfKeys::Variable::Range)[0]);
-                range->end = std::stoi(varConf.getStringVector(ConfKeys::Variable::Range)[1]);
-                variable.range = range;
-            }
-
-            variable.chunks = {};
-            if (varConf.has(ConfKeys::Variable::Chunks))
-            {
-                auto chunks = std::vector<ioda::Dimensions_t>();
-
-                for (const auto& chunkStr : varConf.getStringVector(ConfKeys::Variable::Chunks))
+                if (backend_ == ioda::Engines::BackendNames::ObsStore)
                 {
-                    chunks.push_back(std::stoi(chunkStr));
+                    filepath_ = "";
+                }
+                else
+                {
+                    throw eckit::BadParameter("Filename is required with the configured backend.");
+                }
+            }
+
+            for (const auto& scaleConf : conf.getSubConfigurations(ConfKeys::Dimensions))
+            {
+                DimensionDescription scale;
+                scale.name = scaleConf.getString(ConfKeys::Dimension::Name);
+                scale.size = scaleConf.getString(ConfKeys::Dimension::Size);
+
+                addDimension(scale);
+            }
+
+            for (const auto& varConf : conf.getSubConfigurations(ConfKeys::Variables))
+            {
+                VariableDescription variable;
+                variable.name = varConf.getString(ConfKeys::Variable::Name);
+                variable.source = varConf.getString(ConfKeys::Variable::Source);
+                variable.dimensions = varConf.getStringVector(ConfKeys::Variable::Dimensions);
+                variable.longName = varConf.getString(ConfKeys::Variable::LongName);
+                variable.units = varConf.getString(ConfKeys::Variable::Units);
+
+                if (varConf.has(ConfKeys::Variable::Coords))
+                {
+                    variable.coordinates =
+                        std::make_shared<std::string>(
+                            varConf.getString(ConfKeys::Variable::Coords));
+                }
+                else
+                {
+                    variable.coordinates = nullptr;
                 }
 
-                variable.chunks = chunks;
-            }
-
-            variable.compressionLevel = 6;
-            if (varConf.has(ConfKeys::Variable::CompressionLevel))
-            {
-                int compressionLevel = varConf.getInt(ConfKeys::Variable::CompressionLevel);
-                if (compressionLevel < 0 || compressionLevel > 9)
+                variable.range = nullptr;
+                if (varConf.has(ConfKeys::Variable::Range))
                 {
-                    throw eckit::BadParameter("GZip compression level must be a number 0-9");
+                    auto range = std::make_shared<Range>();
+                    range->start = std::stoi(varConf.getStringVector(ConfKeys::Variable::Range)[0]);
+                    range->end = std::stoi(varConf.getStringVector(ConfKeys::Variable::Range)[1]);
+                    variable.range = range;
                 }
 
-                variable.compressionLevel = varConf.getInt(ConfKeys::Variable::CompressionLevel);
+                variable.chunks = {};
+                if (varConf.has(ConfKeys::Variable::Chunks))
+                {
+                    auto chunks = std::vector<ioda::Dimensions_t>();
+
+                    for (const auto& chunkStr : varConf.getStringVector(ConfKeys::Variable::Chunks))
+                    {
+                        chunks.push_back(std::stoi(chunkStr));
+                    }
+
+                    variable.chunks = chunks;
+                }
+
+                variable.compressionLevel = 6;
+                if (varConf.has(ConfKeys::Variable::CompressionLevel))
+                {
+                    int compressionLevel = varConf.getInt(ConfKeys::Variable::CompressionLevel);
+                    if (compressionLevel < 0 || compressionLevel > 9)
+                    {
+                        throw eckit::BadParameter("GZip compression level must be a number 0-9");
+                    }
+
+                    variable.compressionLevel = varConf.getInt(
+                        ConfKeys::Variable::CompressionLevel);
+                }
+
+                addVariable(variable);
             }
-
-            addVariable(variable);
         }
-    }
 
-    void IodaDescription::addDimension(const DimensionDescription& scale)
-    {
-        dimensions_.push_back(scale);
-    }
-
-    void IodaDescription::addVariable(const VariableDescription& variable)
-    {
-        variables_.push_back(variable);
-    }
-
-    void IodaDescription::setBackend(const std::string& backend)
-    {
-        auto backend_lowercase = boost::algorithm::to_lower_copy(backend);
-        if (backend_lowercase == "netcdf")
+        void IodaDescription::addDimension(const DimensionDescription& scale)
         {
-            setBackend(ioda::Engines::BackendNames::Hdf5File);
+            dimensions_.push_back(scale);
         }
-        else if (backend_lowercase == "inmemory" || backend_lowercase == "in-memory")
+
+        void IodaDescription::addVariable(const VariableDescription& variable)
         {
-            setBackend(ioda::Engines::BackendNames::ObsStore);
+            variables_.push_back(variable);
         }
-        else
+
+        void IodaDescription::setBackend(const std::string& backend)
         {
-            throw eckit::BadParameter("Unknown ioda::backend specified.");
+            auto backend_lowercase = boost::algorithm::to_lower_copy(backend);
+            if (backend_lowercase == "netcdf")
+            {
+                setBackend(ioda::Engines::BackendNames::Hdf5File);
+            }
+            else if (backend_lowercase == "inmemory" || backend_lowercase == "in-memory")
+            {
+                setBackend(ioda::Engines::BackendNames::ObsStore);
+            }
+            else
+            {
+                throw eckit::BadParameter("Unknown ioda::backend specified.");
+            }
         }
-    }
+    } // namespace encoder
 }  // namespace iodaconv

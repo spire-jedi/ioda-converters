@@ -8,16 +8,21 @@
 #include "OffsetTransform.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
-    OffsetTransform::OffsetTransform(const double offset) :
-      offset_(offset)
+    namespace parser
     {
-    }
+        namespace bufr
+        {
+            OffsetTransform::OffsetTransform(const double offset) :
+                offset_(offset)
+            {
+            }
 
-    void OffsetTransform::apply(IngesterArray& array)
-    {
-        array = array + offset_;
-    }
-
+            void OffsetTransform::apply(IngesterArray& array)
+            {
+                array = array + offset_;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

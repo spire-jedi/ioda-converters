@@ -13,20 +13,24 @@
 
 namespace iodaconv
 {
-    /// \brief Base class for all input Parsers
-    class Parser
+    namespace parser
     {
-     public:
-        Parser() = default;
-        explicit Parser(const eckit::Configuration& conf);
+        /// \brief Base class for all input Parsers
+        class Parser
+        {
+         public:
+            Parser() = default;
 
-        virtual ~Parser() = default;
+            explicit Parser(const eckit::Configuration& conf);
 
-        /// \brief Parse the input.
-        /// \param maxMsgsToParse Messages to parse (0 for everything)
-        virtual std::shared_ptr<DataContainer> parse(const size_t maxMsgsToParse = 0) = 0;
+            virtual ~Parser() = default;
 
-        /// \brief Start over from the beginning
-        virtual void reset() = 0;
-    };
+            /// \brief Parse the input.
+            /// \param maxMsgsToParse Messages to parse (0 for everything)
+            virtual std::shared_ptr<encoder::DataContainer> parse(const size_t maxMsgsToParse = 0) = 0;
+
+            /// \brief Start over from the beginning
+            virtual void reset() = 0;
+        };
+    }  // namespace parser
 }  // namespace iodaconv

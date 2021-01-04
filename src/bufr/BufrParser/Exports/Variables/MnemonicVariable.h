@@ -20,26 +20,33 @@
 
 namespace iodaconv
 {
-    /// \brief Exports parsed data associated with a mnemonic (ex: "CLAT")
-    class MnemonicVariable final : public Variable
+    namespace parser
     {
-     public:
-        explicit MnemonicVariable(std::string mnemonicStr, Transforms transforms);
-        ~MnemonicVariable() final = default;
+        namespace bufr
+        {
+            /// \brief Exports parsed data associated with a mnemonic (ex: "CLAT")
+            class MnemonicVariable final : public Variable
+            {
+             public:
+                explicit MnemonicVariable(std::string mnemonicStr, Transforms transforms);
 
-        /// \brief Gets the requested data, applies transforms, and returns the requested data
-        /// \param map BufrDataMap that contains the parsed data for each mnemonic
-        std::shared_ptr<DataObject> exportData(const BufrDataMap& map) final;
+                ~MnemonicVariable() final = default;
 
-     private:
-        /// \brief The BUFR mnemonic of interest
-        std::string mnemonic_;
+                /// \brief Gets the requested data, applies transforms, and returns the requested data
+                /// \param map BufrDataMap that contains the parsed data for each mnemonic
+                std::shared_ptr<encoder::DataObject> exportData(const BufrDataMap& map) final;
 
-        /// \brief Collection of transforms to apply to the data during export
-        Transforms transforms_;
+             private:
+                /// \brief The BUFR mnemonic of interest
+                std::string mnemonic_;
 
-        /// \brief Apply the transforms
-        /// \param data Eigen Array data to apply the transform to.
-        void applyTransforms(EncoderArray& data);
-    };
+                /// \brief Collection of transforms to apply to the data during export
+                Transforms transforms_;
+
+                /// \brief Apply the transforms
+                /// \param data Eigen Array data to apply the transform to.
+                void applyTransforms(encoder::Array& data);
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

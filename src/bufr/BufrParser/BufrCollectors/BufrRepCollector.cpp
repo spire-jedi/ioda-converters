@@ -12,30 +12,37 @@
 
 namespace iodaconv
 {
-    BufrRepCollector::BufrRepCollector(const int fortranFileId, const BufrMnemonicSet& mnemonicSet):
-        BufrCollector(fortranFileId, mnemonicSet)
+    namespace parser
     {
-        scratchData_.resize(accumulator_.getNumColumns());
-        floatTypeScratchData_.resize(accumulator_.getNumColumns());
-    }
-
-    void BufrRepCollector::collect()
-    {
-        double* scratchDataPtr = scratchData_.data();
-
-        int result;
-        ufbrep_f(fortranFileId_,
-                 reinterpret_cast<void**>(&scratchDataPtr),
-                 mnemonicSet_.getSize(),
-                 mnemonicSet_.getMaxColumn(),
-                 &result,
-                 mnemonicSet_.getMnemonicsStr().c_str());
-
-        for (Eigen::Index colIdx = 0; colIdx < accumulator_.getNumColumns(); colIdx++)
+        namespace bufr
         {
-            floatTypeScratchData_[colIdx] = static_cast<FloatType>(scratchData_[colIdx]);
-        }
+            BufrRepCollector::BufrRepCollector(const int fortranFileId,
+                                               const BufrMnemonicSet& mnemonicSet) :
+                BufrCollector(fortranFileId, mnemonicSet)
+            {
+                scratchData_.resize(accumulator_.getNumColumns());
+                floatTypeScratchData_.resize(accumulator_.getNumColumns());
+            }
 
-        accumulator_.addRow(floatTypeScratchData_);
-    }
+            void BufrRepCollector::collect()
+            {
+                double* scratchDataPtr = scratchData_.data();
+
+                int result;
+                ufbrep_f(fortranFileId_,
+                         reinterpret_cast<void**>(&scratchDataPtr),
+                         mnemonicSet_.getSize(),
+                         mnemonicSet_.getMaxColumn(),
+                         &result,
+                         mnemonicSet_.getMnemonicsStr().c_str());
+
+                for (Eigen::Index colIdx = 0; colIdx < accumulator_.getNumColumns(); colIdx++)
+                {
+                    floatTypeScratchData_[colIdx] = static_cast<encoder::FloatType>(scratchData_[colIdx]);
+                }
+
+                accumulator_.addRow(floatTypeScratchData_);
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

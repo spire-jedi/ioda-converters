@@ -42,10 +42,11 @@ namespace iodaconv
                         "Incomplete obs found. All obs must have a obs space and ioda.");
                 }
 
-                auto parser = ParserFactory::create(obsConf.getSubConfiguration("obs space"));
+                auto parser =
+                    parser::ParserFactory::create(obsConf.getSubConfiguration("obs space"));
                 auto data = parser->parse();
 
-                auto encoder = IodaEncoder(obsConf.getSubConfiguration("ioda"));
+                auto encoder = encoder::IodaEncoder(obsConf.getSubConfiguration("ioda"));
                 encoder.encode(data);
             }
         }
@@ -57,7 +58,7 @@ namespace iodaconv
 
     void registerParsers()
     {
-        ParserFactory::registerParser<BufrParser>("bufr");
+        parser::ParserFactory::registerParser<parser::bufr::BufrParser>("bufr");
     }
 }  // namespace iodaconv
 

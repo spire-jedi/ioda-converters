@@ -16,39 +16,45 @@
 
 namespace iodaconv
 {
-    GreaterFilter::GreaterFilter(const std::string& mnemonic, float value) :
-      mnemonic_(mnemonic),
-      value_(value)
+    namespace parser
     {
-    }
-
-    void GreaterFilter::apply(BufrDataMap& dataMap)
-    {
-        std::vector<size_t> validRows;
-
-        if (dataMap.find(mnemonic_) == dataMap.end())
+        namespace bufr
         {
-            std::ostringstream errStr;
-            errStr << "Unknown mnemonic " << mnemonic_ << " found in greater than filter.";
-            throw eckit::BadParameter(errStr.str());
-        }
-
-        const auto& array = dataMap.at(mnemonic_);
-
-        for (size_t rowIdx = 0; rowIdx < static_cast<size_t>(array.rows()); rowIdx++)
-        {
-            if ((array.row(rowIdx) >= value_).all())
+            GreaterFilter::GreaterFilter(const std::string& mnemonic, float value) :
+                mnemonic_(mnemonic),
+                value_(value)
             {
-                validRows.push_back(rowIdx);
             }
-        }
 
-        if (validRows.size() != static_cast<size_t>(array.rows()))
-        {
-            for (const auto& dataPair : dataMap)
+            void GreaterFilter::apply(BufrDataMap& dataMap)
             {
-                dataMap[dataPair.first] = rowSlice(dataPair.second, validRows);
+                std::vector<size_t> validRows;
+
+                if (dataMap.find(mnemonic_) == dataMap.end())
+                {
+                    std::ostringstream errStr;
+                    errStr << "Unknown mnemonic " << mnemonic_ << " found in greater than filter.";
+                    throw eckit::BadParameter(errStr.str());
+                }
+
+                const auto& array = dataMap.at(mnemonic_);
+
+                for (size_t rowIdx = 0; rowIdx < static_cast<size_t>(array.rows()); rowIdx++)
+                {
+                    if ((array.row(rowIdx) >= value_).all())
+                    {
+                        validRows.push_back(rowIdx);
+                    }
+                }
+
+                if (validRows.size() != static_cast<size_t>(array.rows()))
+                {
+                    for (const auto& dataPair : dataMap)
+                    {
+                        dataMap[dataPair.first] = rowSlice(dataPair.second, validRows);
+                    }
+                }
             }
-        }
-    }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

@@ -12,20 +12,27 @@
 
 namespace iodaconv
 {
-    /// \brief Transforms data by adding an offset to it.
-    class OffsetTransform : public Transform
+    namespace parser
     {
-     public:
-        /// \brief Constructor
-        /// \param offset The value to add.
-        explicit OffsetTransform(const double offset);
-        ~OffsetTransform() = default;
+        namespace bufr
+        {
+            /// \brief Transforms data by adding an offset to it.
+            class OffsetTransform : public Transform
+            {
+             public:
+                /// \brief Constructor
+                /// \param offset The value to add.
+                explicit OffsetTransform(const double offset);
 
-        /// \brief Modify data according to the rules of the transform.
-        /// \param array Array of data to modify.
-        void apply(EncoderArray& array) override;
+                ~OffsetTransform() = default;
 
-     private:
-        const double offset_;
-    };
+                /// \brief Modify data according to the rules of the transform.
+                /// \param array Array of data to modify.
+                void apply(encoder::Array& array) override;
+
+             private:
+                const double offset_;
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

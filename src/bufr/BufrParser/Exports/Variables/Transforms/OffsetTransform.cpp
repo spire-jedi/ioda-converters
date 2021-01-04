@@ -10,14 +10,19 @@
 
 namespace iodaconv
 {
-    OffsetTransform::OffsetTransform(const double offset) :
-      offset_(offset)
+    namespace parser
     {
-    }
+        namespace bufr
+        {
+            OffsetTransform::OffsetTransform(const double offset) :
+                offset_(offset)
+            {
+            }
 
-    void OffsetTransform::apply(EncoderArray& array)
-    {
-        array = array + offset_;
-    }
-
+            void OffsetTransform::apply(encoder::Array& array)
+            {
+                array = array + offset_;
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

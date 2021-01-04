@@ -11,49 +11,51 @@
 
 namespace iodaconv
 {
-    ArrayDataObject::ArrayDataObject(const EncoderArray& eigArray) :
-        eigArray_(eigArray)
+    namespace encoder
     {
-    }
+        ArrayDataObject::ArrayDataObject(const Array& eigArray) :
+            eigArray_(eigArray)
+        {
+        }
 
-    ioda::Variable ArrayDataObject::createVariable(ioda::ObsGroup& obsGroup,
-                                                   const std::string& name,
-                                                   const std::vector<ioda::Variable>& dimensions,
-                                                   const std::vector<ioda::Dimensions_t>& chunks,
-                                                   int compressionLevel)
-    {
-        auto params = makeCreationParams(chunks, compressionLevel);
-        auto var = obsGroup.vars.createWithScales<FloatType>(name, dimensions, params);
-        var.writeWithEigenRegular(eigArray_);
-        return var;
-    }
+        ioda::Variable ArrayDataObject::createVariable(ioda::ObsGroup& obsGroup,
+                                                       const std::string& name,
+                                                       const std::vector<ioda::Variable>& dimensions,
+                                                       const std::vector<ioda::Dimensions_t>& chunks,
+                                                       int compressionLevel)
+        {
+            auto params = makeCreationParams(chunks, compressionLevel);
+            auto var = obsGroup.vars.createWithScales<FloatType>(name, dimensions, params);
+            var.writeWithEigenRegular(eigArray_);
+            return var;
+        }
 
-    void ArrayDataObject::print() const
-    {
-        std::cout << eigArray_ << std::endl;
-    }
+        void ArrayDataObject::print() const
+        {
+            std::cout << eigArray_ << std::endl;
+        }
 
-    size_t ArrayDataObject::nrows() const
-    {
-        return eigArray_.rows();
-    }
+        size_t ArrayDataObject::nrows() const
+        {
+            return eigArray_.rows();
+        }
 
-    size_t ArrayDataObject::ncols() const
-    {
-        return eigArray_.cols();
-    }
+        size_t ArrayDataObject::ncols() const
+        {
+            return eigArray_.cols();
+        }
 
-    ioda::VariableCreationParameters ArrayDataObject::makeCreationParams(
-                                                    const std::vector<ioda::Dimensions_t>& chunks,
-                                                    int compressionLevel)
-    {
-        ioda::VariableCreationParameters params;
-        params.chunk = true;
-        params.chunks = chunks;
-        params.compressWithGZIP(compressionLevel);
-        params.setFillValue<FloatType>(-999);
+        ioda::VariableCreationParameters ArrayDataObject::makeCreationParams(
+            const std::vector<ioda::Dimensions_t>& chunks,
+            int compressionLevel)
+        {
+            ioda::VariableCreationParameters params;
+            params.chunk = true;
+            params.chunks = chunks;
+            params.compressWithGZIP(compressionLevel);
+            params.setFillValue<FloatType>(-999);
 
-        return params;
-    }
-
+            return params;
+        }
+    }  // namespace encoder
 }  // namespace iodaconv

@@ -16,14 +16,21 @@
 
 namespace Ingester
 {
-    /// \brief Convenience class used to create transforms from configuration data.
-    class TransformBuilder
+    namespace parser
     {
-     public:
-        /// \brief Create transform given the configuration
-        static std::shared_ptr<Transform> makeTransform(const eckit::Configuration& conf);
+        namespace bufr
+        {
+            /// \brief Convenience class used to create transforms from configuration data.
+            class TransformBuilder
+            {
+             public:
+                /// \brief Create transform given the configuration
+                static std::shared_ptr<Transform> makeTransform(const eckit::Configuration& conf);
 
-        /// \brief Uses makeTransform to loop through the list of transforms in the configuration
-        static Transforms makeTransforms(const eckit::Configuration& conf);
-    };
+                /// \brief Uses makeTransform to loop through the list of transforms in the
+                ///        configuration
+                static Transforms makeTransforms(const eckit::Configuration& conf);
+            };
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv

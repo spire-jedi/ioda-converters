@@ -14,35 +14,41 @@
 #include "EncoderTypes.h"
 
 
-namespace Ingester
+namespace iodaconv
 {
-    MnemonicExport::MnemonicExport(std::string mnemonic, Transforms transforms) :
-      mnemonic_(mnemonic),
-      transforms_(transforms)
+    namespace parser
     {
-    }
-
-    std::shared_ptr<DataObject> MnemonicExport::exportData(const BufrDataMap& map)
-    {
-        if (map.find(mnemonic_) == map.end())
+        namespace bufr
         {
-            std::stringstream errStr;
-            errStr << "Mnemonic " << mnemonic_;
-            errStr << " couldn't be found during export.";
+            MnemonicExport::MnemonicExport(std::string mnemonic, Transforms transforms) :
+                mnemonic_(mnemonic),
+                transforms_(transforms)
+            {
+            }
 
-            eckit::BadParameter(errStr.str());
-        }
+            std::shared_ptr<DataObject> MnemonicExport::exportData(const BufrDataMap& map)
+            {
+                if (map.find(mnemonic_) == map.end())
+                {
+                    std::stringstream errStr;
+                    errStr << "Mnemonic " << mnemonic_;
+                    errStr << " couldn't be found during export.";
 
-        auto data = map.at(mnemonic_);
-        applyTransforms(data);
-        return std::make_shared<ArrayDataObject>(data);
-    }
+                    eckit::BadParameter(errStr.str());
+                }
 
-    void MnemonicExport::applyTransforms(IngesterArray& data)
-    {
-        for (auto transform : transforms_)
-        {
-            transform->apply(data);
-        }
-    }
+                auto data = map.at(mnemonic_);
+                applyTransforms(data);
+                return std::make_shared<ArrayDataObject>(data);
+            }
+
+            void MnemonicExport::applyTransforms(IngesterArray& data)
+            {
+                for (auto transform : transforms_)
+                {
+                    transform->apply(data);
+                }
+            }
+        }  // namespace bufr
+    }  // namespace parser
 }  // namespace iodaconv
