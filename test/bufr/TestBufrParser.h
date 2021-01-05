@@ -25,8 +25,8 @@
 #include "BufrParser/BufrMnemonicSet.h"
 #include "BufrParser/BufrParser.h"
 #include "BufrParser/BufrTypes.h"
-#include "DataContainer.h"
-#include "ParserFactory.h"
+#include "IodaEncoder/DataContainer.h"
+#include "Parsers/ParserFactory.h"
 
 #include "DataObject/ArrayDataObject.h"
 #include "DataObject/StrVecDataObject.h"

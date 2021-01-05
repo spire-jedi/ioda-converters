@@ -1,0 +1,194 @@
+/*
+ * (C) Copyright 2020 NOAA/NWS/NCEP/EMC
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ */
+
+#include "BufrParser.h"
+
+#include <map>
+#include <ostream>
+#include <iostream>
+
+#include "eckit/exception/Exceptions.h"
+
+#include "bufr.interface.h"
+#include "Parsers/BufrParser/BufrCollectors/BufrCollectors.h"
+#include "BufrMnemonicSet.h"
+#include "IodaEncoder/DataContainer.h"
+#include "Parsers/BufrParser/Exports/Export.h"
+#include "Parsers/BufrParser/Exports/Splits/Split.h"
+
+
+namespace iodaconv
+{
+    namespace parser
+    {
+        namespace bufr
+        {
+            BufrParser::BufrParser(const BufrDescription& description) :
+                description_(description),
+                fortranFileId_(0)
+            {
+                reset();
+            }
+
+            BufrParser::BufrParser(const eckit::Configuration& conf) :
+                description_(BufrDescription(conf)),
+                fortranFileId_(0)
+            {
+                reset();
+            }
+
+            BufrParser::~BufrParser()
+            {
+                closeBufrFile();
+            }
+
+            std::shared_ptr<encoder::DataContainer> BufrParser::parse(const size_t maxMsgsToParse)
+            {
+                const unsigned int SubsetStringLength = 25;
+
+                if (fortranFileId_ <= 10)
+                {
+                    throw eckit::BadValue("Fortran File ID is an invalid "
+                                              "number (must be > 10).");
+                }
+
+                auto collectors = BufrCollectors(fortranFileId_);
+                collectors.addMnemonicSets(description_.getMnemonicSets());
+
+                char subset[SubsetStringLength];
+                int iddate;
+
+                unsigned int messageNum = 0;
+                while (ireadmg_f(fortranFileId_, subset, &iddate, SubsetStringLength) == 0)
+                {
+                    while (ireadsb_f(fortranFileId_) == 0)
+                    {
+                        collectors.collect();
+                    }
+
+                    if (maxMsgsToParse > 0 && ++messageNum >= maxMsgsToParse) break;
+                }
+
+                return exportData(collectors.finalize());
+            }
+
+            std::shared_ptr<encoder::DataContainer>
+                BufrParser::exportData(const BufrDataMap& dataData)
+            {
+                auto exportDescription = description_.getExport();
+
+                auto filters = exportDescription.getFilters();
+                auto splitMap = exportDescription.getSplits();
+                auto varMap = exportDescription.getVariables();
+
+                // Filter
+                BufrDataMap srcData = dataData;  // make mutable copy
+                for (const auto& filter : filters)
+                {
+                    filter->apply(srcData);
+                }
+
+                // Split
+                encoder::CategoryMap catMap;
+                for (const auto& splitPair : splitMap)
+                {
+                    std::ostringstream catName;
+                    catName << "splits/" << splitPair.first;
+                    catMap.insert({catName.str(), splitPair.second->subCategories(srcData)});
+                }
+
+                BufrParser::CatDataMap splitDataMaps;
+                splitDataMaps.insert({std::vector<std::string>(), srcData});
+                for (const auto& splitPair : splitMap)
+                {
+                    splitDataMaps = splitData(splitDataMaps, *splitPair.second);
+                }
+
+                // Export
+                auto exportData = std::make_shared<encoder::DataContainer>(catMap);
+                for (const auto& dataPair : splitDataMaps)
+                {
+                    for (const auto& varPair : varMap)
+                    {
+                        std::ostringstream pathStr;
+                        pathStr << "variables/" << varPair.first;
+
+                        exportData->add(pathStr.str(),
+                                        varPair.second->exportData(dataPair.second),
+                                        dataPair.first);
+                    }
+                }
+
+                return exportData;
+            }
+
+            BufrParser::CatDataMap
+            BufrParser::splitData(BufrParser::CatDataMap& splitMaps, Split& split)
+            {
+                CatDataMap splitDataMap;
+
+                for (const auto& splitMapPair : splitMaps)
+                {
+                    auto newData = split.split(splitMapPair.second);
+
+                    for (const auto& newDataPair : newData)
+                    {
+                        auto catVect = splitMapPair.first;
+                        catVect.push_back(newDataPair.first);
+                        splitDataMap.insert({catVect, newDataPair.second});
+                    }
+                }
+
+                return splitDataMap;
+            }
+
+            void BufrParser::openBufrFile(const std::string& filepath)
+            {
+                fortranFileId_ = 11;  // Fortran file id must be a integer > 10
+                open_f(fortranFileId_, filepath.c_str());
+                openbf_f(fortranFileId_, "IN", fortranFileId_);
+            }
+
+            void BufrParser::closeBufrFile()
+            {
+                closbf_f(fortranFileId_);
+                close_f(fortranFileId_);
+                fortranFileId_ = 0;
+            }
+
+            void BufrParser::reset()
+            {
+                if (fortranFileId_ != 0)
+                {
+                    closeBufrFile();
+                }
+
+                openBufrFile(description_.filepath());
+            }
+
+            void BufrParser::printMap(const BufrParser::CatDataMap& map)
+            {
+                for (const auto& mp : map)
+                {
+                    std::cout << " keys: ";
+                    for (const auto& s : mp.first)
+                    {
+                        std::cout << s;
+                    }
+
+                    std::cout << " subkeys: ";
+                    for (const auto& m2p : mp.second)
+                    {
+                        std::cout << m2p.first << " " << m2p.second.rows() << " ";
+                    }
+
+                    std::cout << std::endl;
+                }
+            }
+        }  // namespace bufr
+    }  // namespace parser
+}  // namespace iodaconv
