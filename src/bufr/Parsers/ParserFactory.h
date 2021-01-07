@@ -22,8 +22,8 @@ namespace
     namespace ConfKeys
     {
         const char* ParserName = "name";
-    }
-}
+    }  // namespace ConfKeys
+}  // namespace
 
 namespace iodaconv
 {

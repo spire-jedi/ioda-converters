@@ -203,7 +203,8 @@ namespace iodaconv
         }
 
         std::string IodaEncoder::makeStrWithSubstitions(const std::string& prototype,
-                                                        const std::map<std::string, std::string>& subMap)
+                                                        const std::map<std::string,
+                                                        std::string>& subMap)
         {
             auto resultStr = prototype;
             auto subIdxs = findSubIdxs(prototype);

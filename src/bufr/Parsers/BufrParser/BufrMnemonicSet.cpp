@@ -26,9 +26,9 @@ namespace iodaconv
                 channels_(channels),
                 maxColumn_(*std::max_element(channels.begin(), channels.end()))
             {
-                if (std::find_if(channels.begin(), channels.end(), [](const auto x)
-                { return x < 1; }) \
- != channels.end())
+                if (std::find_if(channels.begin(),
+                                 channels.end(),
+                                 [](const auto x) { return x < 1; }) != channels.end())
                 {
                     throw eckit::BadParameter("All channel numbers must be >= 1.");
                 }
