@@ -27,7 +27,6 @@ namespace iodaconv
         {
          public:
             explicit IodaEncoder(const eckit::Configuration& conf);
-
             explicit IodaEncoder(const IodaDescription& description);
 
             /// \brief Encode the data into an ioda::ObsGroup object
@@ -52,6 +51,13 @@ namespace iodaconv
             findSubIdxs(const std::string& str);
 
             bool isInteger(const std::string& str) const;
+
+            // Todo: Delete with USE_OLD_LAYOUT
+            std::string fixCoordinatesStr(const std::string& coordStr,
+                                          std::map<std::string, std::string> varMap);
+
+            // Todo: Delete with USE_OLD_LAYOUT
+            std::pair<std::string, std::string> splitVar(const std::string& varNameStr);
         };
     }  // namespace encoder
 }  // namespace iodaconv
