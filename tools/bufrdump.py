@@ -2,8 +2,6 @@
 
 #==============================================================================
 # Program to dump out the values for 1 field from a BUFR file
-#
-# Author:   Jeffrey Smith    IM Systems Group
 #==============================================================================
 
 import argparse
@@ -19,7 +17,7 @@ import subprocess
 import sys
 
 sys.path.append(os.path.dirname(sys.argv[0]))
-import readAncillary
+import bufrTableTools
 
 
 def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
@@ -45,14 +43,15 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
                         capture_output=True)
     tblLines = ts.stdout.decode("utf-8").split('\n')
     try:
-        (section1, section2, section3) = readAncillary.parseTable(tblLines)
-    except readAncillary.BUFRTableError as bte:
+        (section1, section2, section3) = bufrTableTools.parseTable(tblLines)
+    except bufrTableTools.BUFRTableError as bte:
         print(bte.message)
         sys.exit(-1)
 
     # get a list of the mnemonics of all the fields shown for the observation
     # type in the .tbl file
-    mnemonicList = readAncillary.getMnemonicListAll(obsType, section2)
+    mnemonicList = bufrTableTools.getMnemonicListAll(obsType, section2)
+    #mnemonicList = bufrTableTools.getMnemonicListBase(obsType, section2)
 
     # get the user's choice of which field to dump
     whichField = getMnemonicChoice(mnemonicList, section1)
