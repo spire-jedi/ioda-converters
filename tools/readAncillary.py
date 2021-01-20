@@ -1,16 +1,15 @@
 #!/usr/bin/python
 
 #=============================================================================
-# functions that support table and YAML usage with BUFR files
+# functions that support table and .cict usage with BUFR files
 #
-# Author:  Jeffrey Smith   IM Systems Group
+# 08/24/2020   Jeffrey Smith          initial version
 #=============================================================================
 
 import collections
 import os.path
 import re
 import sys
-import yaml
 
 #from marineprofile_consts import *
 
@@ -29,9 +28,9 @@ class BUFRTableError(Exception):
         return
 
 # exception for .dict files
-class YAMLFileError(Exception):
+class DictFileError(Exception):
     def __init__(self, message):
-        self.message = "YAMLFileError: %s" % (message,)
+        self.message = "DictFileError: %s" % (message,)
         return
 
 # class (used like a C struct) for nodes in a tree for mnemonics from
@@ -149,7 +148,7 @@ def parseTable(tblLines):
     return (section1, section2, section3)
 
 
-def readYAMLFile(yamlFile):
+def readDictFile(dictFile):
     """ reads a .dict file
 
     Input:
@@ -157,17 +156,18 @@ def readYAMLFile(yamlFile):
 
     Return:
         a dictionary containing the information from the .dict file. The
-        mnemonics are the keys in the dictionary
+        mnemonics are the keys in the dictionary. (This routine might only
+        be used for working with Marine Data Assimilation BUFR files.)
     """
 
-    if os.path.isfile(yamlFile):
-        with open(yamlFile, 'r') as fd:
-            yamlDict = yaml.safe_load(fd)
+    if os.path.isfile(dictFile):
+        with open(dictFile, 'r') as fd:
+            dictDict = dict.safe_load(fd)
     else:
-        yamlDict = None
-        raise YAMLFileError("YAML file %s could not be read." % (yamlFile,))
+        dictDict = None
+        raise YAMLFileError("Dict file %s could not be read." % (dictFile,))
 
-    return yamlDict
+    return dictDict
 
 
 def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
@@ -239,6 +239,27 @@ def getMnemonicListBase(obsType, section2, parentsToPrune=[],
     return mnemonicList
 
 
+def getMnemonicListLeaves(obsType, section2):
+    """ returns a list of the mnemonics that are leaves in a Mnemonic tree
+        for a file
+
+        Input:
+            obsType - observation type (e.g., "NC031001") or parent key
+            section2 - dictionary containing Section 2 from a .tbl file
+
+        Return:
+            list of mnemonics that will be output
+    """
+
+    # need to create a root node for a tree
+    treeTop = MnemonicNode(obsType, False, None, 0)
+
+    buildMnemonicTree(treeTop, section2)
+    mnemonicList = traverseMnemonicTree(treeTop)
+
+    return mnemonicList
+
+
 def buildMnemonicTree(root, section2):
     """ builds a hierarchical tree for the mnemonics for a given observation 
         type
@@ -285,7 +306,8 @@ def buildMnemonicTree(root, section2):
 def findSearchableNodes(root):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
-        that is a sequence is a parent of 1 or more leaves.
+        that is a sequence is a parent of 1 or more leaves. Leaves are not
+        included if they are part of a sequence.
 
         Input:
             root - the root node of the tree to search
@@ -304,8 +326,7 @@ def findSearchableNodes(root):
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
-        # the last clause in the if statement ensures that a parent node will
-        # only be added once by only adding it for the first child
+        #if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
         if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT" \
            and root.parent.children.index(root) == 0:
             root.parent.children = [x for x in root.parent.children if x.name[0] != '.']
@@ -325,7 +346,9 @@ def findSearchableNodes(root):
 def findDumpableNodes(root):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
-        that is a sequence is a parent of 1 or more leaves.
+        that is a sequence is a parent of 1 or more leaves. If a node is
+        a leaf that is part of a sequence, both the node and its parent
+        are included in the list of nodes that is returned.
 
         Input:
             root - the root node of the tree to search
@@ -350,6 +373,8 @@ def findDumpableNodes(root):
             # last clause is so that a parent node won't get entered 
             # multiple times
             nodeList.append(root.parent)
+            #root.parent.children \
+                #= [x for x in root.parent.children if x.name[0] != '.']
 
     # remove duplicates (will happen if leaf nodes share a parent that is
     # a sequence)
