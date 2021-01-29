@@ -43,7 +43,8 @@ YAML_FILES = {"NC005024":"satwnds_old_subset_template.yaml",
               "NC005070":"satwnds_old_subset_template.yaml",
               "NC005071":"satwnds_old_subset_template.yaml",
               "NC005080":"satwnds_old_subset_template.yaml",
-              "NC005091":"satwnds_new_subset_template.yaml"}
+              "NC005091":"satwnds_new_subset_template.yaml",
+              "NC012122":"breezy.yaml"}
 
 DATETIME_MNEMONICS = ["YEAR", "MNTH", "DAYS", "HOUR", "MINU", "SECO"]
 
@@ -126,7 +127,7 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
 
     # an increment for assigning errors to random elements for testing ths 
     # program. Comment out while actually using the program
-    #step = random.randrange(1000, 20000)
+    #step = random.randrange(10000, 200000)
 
     # Read the BUFR fields associated with the date and time
     datetimeSearchString = ' '.join(DATETIME_MNEMONICS)
@@ -150,7 +151,7 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
                 # Comment out the next 3 lines when not testing the program
                 #if (len(bufrDatetime) % step) == 0:
                     #dateTimeFields[0] += 1.0
-                    #print(len(bufrDatetime))
+                    #print("changed year at ", len(bufrDatetime))
 
                 bufrDatetime.append(f'{float(dateTimeFields[0]):04.0f}-{float(dateTimeFields[1]):02.0f}-{float(dateTimeFields[2]):02.0f}T{float(dateTimeFields[3]):02.0f}:{float(dateTimeFields[4]):02.0f}:{float(dateTimeFields[5]):02.0f}Z')
     fd.close()
@@ -159,19 +160,17 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
     #iodaDatetime = iodaDataset.groups["MetaData"].variables["datetime"][:]
     iodaDatetime = iodaDataset.variables["datetime@MetaData"][:]
 
+    msg = f"IODA date/time                {iodaDatetime.size:10d}  BUFR date/tim{len(bufrDatetime):12d}"
+
     # Compare the BUFR and IODA dates/times
     if iodaDatetime.size != len(bufrDatetime):
-        msg = "Incorrect number of date/time stamps\n"
+        msg += "Incorrect number of date/time stamps\n"
     else:
         differCount = 0
         for i in range(len(bufrDatetime)):
             if bufrDatetime[i] != iodaDatetime[i]:
                 differCount += 1
-        if differCount == 0:
-            msg = "The date/time stamps matched\n"
-        else:
-            msg = "The date/time stamps differed in {} records\n" \
-                             .format(differCount)
+        msg += f"{differCount:12d}\n"
 
     return msg
 
@@ -192,7 +191,7 @@ def compareVariables(iodaDataset, bufrFile, obsType, varPairs):
 
     bufrValues = retrvFromBufr(bufrFile, obsType, varPairs.values())
 
-    msg = ''
+    msg = "         IODA Variable         IODA Size  BUFR Mnemonic   BUFR Size  Difference\n"
     for iodaVar in varPairs.keys():
         msg += checkVariable(iodaDataset, iodaVar, varPairs[iodaVar], 
                              bufrValues[varPairs[iodaVar]])
@@ -228,30 +227,40 @@ def checkVariable(iodaDataset, iodaVar, bufrMnemonic, bufrValues):
             # in BUFR files, so only compare as many columns as there
             # are in the IODA file
             try:
-                bufrValues = bufrValues[:,:iodaValues.shape[1]]
-                msg += f"IODA variable {iodaVar} compared to first {iodaValues.shape[1]} columns from BUFR variable {bufrMnemonic}\n"
+                if bufrValues.shape[1] > iodaValues.shape[1]:
+                    bufrValues = bufrValues[:,:iodaValues.shape[1]]
+                    iodaValues = np.transpose(iodaValues).flatten()
+                else:
+                    iodaValues \
+                        = iodaValues[:,:bufrValues.shape[1]]
+                    iodaValues = iodaValues.flatten()
+                #msg += f"{iodaVar:30s}{iodaValues.size:10d}  {bufrMnemonic:15s}{bufrValues.shape:10d}"
             except IndexError:
                 bufrValues = bufrValues[:,0]
                 msg += f"IODA variable {iodaVar} compared to first column from BUFR variable {bufrMnemonic}\n"
 
         bufrValues = bufrValues.flatten()
-        iodaValues = np.transpose(iodaValues).flatten()
+
+    #else:
+        #msg += f"{iodaVar:30s}{iodaValues.size:10d}  {bufrMnemonic:15s}{bufrValues.size:10d}"
+    msg += f"{iodaVar[:30]:30s}{iodaValues.size:10d}  {bufrMnemonic:15s}{bufrValues.size:10d}"
 
     # Perform the comparison
     if iodaValues.size != bufrValues.size:
-        msg += f"Length of {iodaVar} doesn't match the length of {bufrMnemonic}\n{iodaValues.shape} vs {bufrValues.shape}\n\n"
+        msg += "lengths differ"
     else:
         if iodaValues.dtype == np.float32:
+            diffMeasure = max([0.00001, 0.00001*min(min(abs(iodaValues)),
+                                                    min(abs(bufrValues)))])
             differCount = 0
-            diffArray = np.where(abs(iodaValues - bufrValues) > 0.00001,
+            diffArray = np.where(abs(iodaValues - bufrValues) > diffMeasure,
                                  True, False)
             differCount = len(np.extract(diffArray == True, diffArray))
-            if differCount == 0:
-                msg += "IODA variable {} completely matches BUFR variable {}\n\n".format(iodaVar, bufrMnemonic)
-            else:
-                msg += "IODA variable {} differed from BUFR variable {} in {} elements\n\n".format(iodaVar, bufrMnemonic, differCount)
+            msg += f"{differCount:12d}"
+
         else:
-            msg += f"{iodsVar} is not a floating point variable\n\n"
+            msg += f"{iodaVar} is not a floating point variable"
+    msg += "\n"
 
     return msg
 
@@ -393,7 +402,7 @@ def retrvBufrData(bufrFile, obsType, soloList, seqList):
     # Comment out while actually using the program
     #steps = {}
     #for s in soloList:
-        #steps[s.name] = random.randrange(1000, 20000)
+        #steps[s.name] = random.randrange(10000, 200000)
 
     tmpArrays = {}
 
