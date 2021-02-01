@@ -1,0 +1,61 @@
+bufrtest.py - prints the values of 1 or more BUFR mnemonics to the terminal. 
+              The script must be editted for the mnemonics to be retrieved.
+
+  Usage:
+    bufrtest.py <BUFR file>
+
+    <BUFR file> is the full pathname of the BUFR file to retrieve data from
+
+  Example:
+    bufrtest.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d
+
+
+bufrpeek.py - outputs the values for a single mnemonic or sequence for a
+              subset type to stdout. Optionally writes the output to an
+              ASCII (text) file or a netCDF file (can only choose 1 option).
+              Requires bufrtblstruc.py and bufrTableTools.py
+
+  Usage:
+    bufrpeek.py <BUFR file> <subset type> [-o <ASCII file> | -n <netCDF file>]
+    If -o and -n are both specified, -o will override -n
+
+    <BUFR file> is the full pathname of the BUFR file to retrieve data from
+    <subset type> is the subset (or observation) type to retrieve data for
+    <ASCII file> (optional) is the name of an ASCII (text) file to write the
+                            output to
+    <netCDF file> (optional) is the name of an netCDF file to write the
+                             output to
+
+  Example:
+    bufrtest.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
+
+
+validateSatwndsConv.py - compares the values for all fields in an IODA
+                         netCDF file with the values in the BUFR file that
+                         it was created from and writes a report. Requires
+                         the YAML file that was used to create the IODA file.
+                         Requires bufrtblstruc.py and bufrTableTools.py
+
+  Usage:
+    validateSatwndsConv.py <BUFR file> <subset type> <IODA netCDF file> [-y <YAML directory>]
+
+    <BUFR file> is the full pathname of the BUFR file to retrieve data from
+    <subset type> is the subset (or observation) type to retrieve data for
+    <IODA netCDF file> is the full pathname of the IODA netCDF file
+    <YAML directory> (optional) is the directory that the YAML file used to create the IODA netCDF file is in. Default is the current working directory.
+
+  Example:
+    validateSatwndsConv.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044 /home/Jeffrey.Smith/ioda_check/NC005044.nc -y /home/Jeffrey.Smith/ioda_check/yaml_files
+
+
+bufrtblstruc.py - writes the tables for the specified subset type from a
+                  BUFR file to stdout
+
+  Usage:
+    bufrtablstruc.py <BUFR file> <subset type>
+
+      <BUFR file> is the full pathname of a BUFR file
+      <subset type> is the subset (observation) type to retrieve the tables for
+
+  Example:
+    bufrtblstruc.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
