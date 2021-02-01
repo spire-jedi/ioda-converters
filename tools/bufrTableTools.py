@@ -199,9 +199,9 @@ def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
     # There are numerous instances in which leaves from different sequences
     # have the same mnemonic. For the purposes of this function, these
     # leaves are deleted.
-    mnemonicList = [x for i,x in enumerate(mnemonicList)
-                    if x.name not in [y.name for y in mnemonicList[:i]] and 
-                    x.name not in [y.name for y in mnemonicList[i+1:]]]
+    #mnemonicList = [x for i,x in enumerate(mnemonicList)
+                    #if x.name not in [y.name for y in mnemonicList[:i]] and 
+                    #x.name not in [y.name for y in mnemonicList[i+1:]]]
 
     return mnemonicList
 
@@ -403,6 +403,21 @@ def traverseMnemonicTree(root):
         leafList.append(root)
 
     return leafList
+
+
+def removeDuplicates(mnemonicList):
+    """ Removes all instances of mnemonics that occur more than once
+
+        Input/Output:
+            mnemonicList - list of mnemonics in the BUFR file. Returned
+                           with all occurrences of duplicate mnemonics
+                           removed
+    """
+    mnemonicList = [x for i,x in enumerate(mnemonicList)
+                    if x.name not in [y.name for y in mnemonicList[:i]] and 
+                    x.name not in [y.name for y in mnemonicList[i+1:]]]
+
+    return mnemonicList
 
 
 def pruneTree(root, parentsToPrune, leavesToPrune):
