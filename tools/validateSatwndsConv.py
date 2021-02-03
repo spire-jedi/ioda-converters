@@ -13,6 +13,7 @@ import yaml
 
 sys.path.append(os.path.dirname(sys.argv[0]))
 import bufrTableTools
+from BUFRMsgTypeToYAML import YAML_FILES
 
 import random
 
@@ -22,29 +23,6 @@ class ValidateSatwndsConvError(Exception):
         self.message \
             = f"{message}\nProgram validateSatwndsConv exiting due to fatal error\n"
         return
-
-YAML_FILES = {"NC005024":"satwnds_old_subset_template.yaml",
-              "NC005025":"satwnds_old_subset_template.yaml",
-              "NC005026":"satwnds_old_subset_template.yaml",
-              "NC005030":"satwnds_new_subset_template.yaml",
-              "NC005031":"satwnds_new_subset_template.yaml",
-              "NC005032":"satwnds_new_subset_template.yaml",
-              "NC005034":"satwnds_new_subset_template.yaml",
-              "NC005039":"satwnds_new_subset_template.yaml",
-              "NC005044":"satwnds_old_subset_template.yaml",
-              "NC005045":"satwnds_old_subset_template.yaml",
-              "NC005046":"satwnds_old_subset_template.yaml",
-              "NC005064":"satwnds_old_subset_template.yaml",
-              "NC005065":"satwnds_old_subset_template.yaml",
-              "NC005066":"satwnds_old_subset_template.yaml",
-              #"NC005070":"satwnds_new_subset_template.yaml",
-              #"NC005071":"satwnds_new_subset_template.yaml",
-              #"NC005080":"satwnds_new_subset_template.yaml",
-              "NC005070":"satwnds_old_subset_template.yaml",
-              "NC005071":"satwnds_old_subset_template.yaml",
-              "NC005080":"satwnds_old_subset_template.yaml",
-              "NC005091":"satwnds_new_subset_template.yaml",
-              "NC012122":"breezy.yaml"}
 
 DATETIME_MNEMONICS = ["YEAR", "MNTH", "DAYS", "HOUR", "MINU", "SECO"]
 
