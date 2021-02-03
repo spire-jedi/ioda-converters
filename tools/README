@@ -34,7 +34,10 @@ validateSatwndsConv.py - compares the values for all fields in an IODA
                          netCDF file with the values in the BUFR file that
                          it was created from and writes a report. Requires
                          the YAML file that was used to create the IODA file.
-                         Requires bufrtblstruc.py and bufrTableTools.py
+                         Requires bufrtblstruc.py, bufrTableTools.py, and
+                         BUFRMsgTypeToYAML.py. BUFRMsgTypeToYAML.py
+                         needs to be editted when validateSatwndsConv.py
+                         is used on different BUFR message types.
 
   Usage:
     validateSatwndsConv.py <BUFR file> <subset type> <IODA netCDF file> [-y <YAML directory>]
