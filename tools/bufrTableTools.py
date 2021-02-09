@@ -405,8 +405,24 @@ def traverseMnemonicTree(root):
     return leafList
 
 
-def removeDuplicates(mnemonicList):
-    """ Removes all instances of mnemonics that occur more than once
+def firstMnemonicOccurrence(mnemonicList):
+    """ Returns a list of mnemonics with only the first occurrence of
+        mnemonics that appear more than once
+
+        Input/Output:
+            mnemonicList - list of mnemonics in the BUFR file. Returned
+                           with all occurrences of duplicate mnemonics
+                           removed
+    """
+    mnemonicList = [x for i,x in enumerate(mnemonicList)
+                    if x.name not in [y.name for y in mnemonicList[:i]]]
+
+    return mnemonicList
+
+
+def removeDuplicateMnemonics(mnemonicList):
+    """ From a list of mnemonics, removes all occurrences of mnemonics that
+        appear more than once in the list
 
         Input/Output:
             mnemonicList - list of mnemonics in the BUFR file. Returned
