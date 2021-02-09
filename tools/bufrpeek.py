@@ -50,9 +50,10 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
 
     # get a list of the mnemonics of all the fields shown for the observation
     # type in the .tbl file
-    #mnemonicList = bufrTableTools.removeDuplicates \
+    #mnemonicList = bufrTableTools.removeDuplicateMnemonics \
                    #(bufrTableTools.getMnemonicListAll(obsType, section2))
-    mnemonicList = bufrTableTools.getMnemonicListBase(obsType, section2)
+    mnemonicList = bufrTableTools.firstMnemonicOccurrence \
+                   (bufrTableTools.getMnemonicListBase(obsType, section2))
 
     # get the user's choice of which field to dump
     whichField = getMnemonicChoice(mnemonicList, section1)
