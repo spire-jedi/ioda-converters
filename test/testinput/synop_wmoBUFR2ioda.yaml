@@ -54,8 +54,6 @@ observations:
       dimensions:
         - name: "nlocs"
           size: variables/air_temperature.nrows
-        - name: "temp_ncols"
-          size: variables/air_temperature.ncols
 
       variables:
         - name: "datetime@MetaData"
