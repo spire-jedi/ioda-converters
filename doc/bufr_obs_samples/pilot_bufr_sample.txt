@@ -1,0 +1,311 @@
+
+Found BUFR message #      1
+  
+        Message length:         507
+      Section 0 length:           8
+          BUFR edition:           4
+  
+      Section 1 length:          22
+          Master table:           0
+    Originating center:           0 (= WMO Secretariat)
+ Originating subcenter:           0
+ Update sequence numbr:           0
+    Section 2 present?: No
+         Data category:           2 (= Vertical soundings (other than satellite))
+     Local subcategory:         255
+ Internatl subcategory:           1 (= Upper-wind reports from fixed-land stations (PILOT))
+  Master table version:          26
+   Local table version:           0
+                  Year:        2021
+                 Month:           2
+                   Day:           1
+                  Hour:          12
+                Minute:           0
+                Second:           0
+  
+ Number of data subsets:           1
+     Data are observed?: Yes
+   Data are compressed?: No
+  Number of descriptors:          10
+        1: 309051
+        2: 001081
+        3: 001082
+        4: 002017
+        5: 002067
+        6: 002095
+        7: 002096
+        8: 002097
+        9: 002191
+       10: 025061
+
+BUFR message #      1 of type MSTTB001 and date 2021020112 contains      1 subsets:
+
+MESSAGE TYPE MSTTB001  
+
+001001  WMOB                        71.0  NUMERIC                       WMO block number                                
+001002  WMOS                       909.0  NUMERIC                       WMO station number                              
+001011  SMID                              ( 9)CCITT IA5                 Ship or mobile land station identifier          
+002011  RATP                        17.0  CODE TABLE                    Radiosonde type                                 
+                                     17 = Graw G. (Germany)
+002014  TTSS                         8.0  CODE TABLE                    Tracking technique/status of system used        
+                                      8 = Automatic satellite navigation
+002003  A4ME                         7.0  CODE TABLE                    Type of measuring equipment used                
+                                      7 = Satellite navigation
+008021  TSIG                        18.0  CODE TABLE                    Time significance                               
+                                     18 = Radiosonde launch time
+004001  YEAR                      2021.0  YEAR                          Year                                            
+004002  MNTH                         2.0  MONTH                         Month                                           
+004003  DAYS                         1.0  DAY                           Day                                             
+004004  HOUR                        11.0  HOUR                          Hour                                            
+004005  MINU                        15.0  MINUTE                        Minute                                          
+004006  SECO                         0.0  S                             Second                                          
+005001  CLATH                   63.74657  DEGREE                        Latitude (high accuracy)                        
+006001  CLONH                  -68.54511  DEGREE                        Longitude (high accuracy)                       
+007030  HSMSL                       22.0  M                             Height of station ground above mean sea level   
+007031  HBMSL                    MISSING  M                             Height of barometer above mean sea level        
+007007  HEIT                        22.0  M                             Height                                          
+033024  QCEVR                    MISSING  CODE TABLE                    Station elevation quality mark (for mobile stati
+           (WDHLRAOB)    23 REPLICATIONS
+    ++++++  WDHLRAOB  REPLICATION #     1  ++++++
+004086  LTDS                         0.0  S                             Long time period or displacement                
+008042  VSIGX                   145408.0  FLAG TABLE(1,5,6,7)           Extended vertical sounding significance         
+                                      1 = Surface
+                                      5 = Significant temperature level
+                                      6 = Significant humidity level
+                                      7 = Significant wind level
+007009  GPHTST                      22.0  GPM                           Geopotential height                             
+005015  LATDH                    0.00000  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.00000  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       339.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                         7.7  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     2  ++++++
+004086  LTDS                        44.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                     300.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.00425  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.00700  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       328.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        13.1  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     3  ++++++
+004086  LTDS                        95.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                     600.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.00929  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.01690  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       317.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        15.0  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     4  ++++++
+004086  LTDS                       130.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                     800.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.01198  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.02408  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       306.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        11.9  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     5  ++++++
+004086  LTDS                       147.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                     900.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.01314  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.02738  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       309.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        11.4  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     6  ++++++
+004086  LTDS                       190.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    1138.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.01620  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.03576  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       307.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        12.8  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     7  ++++++
+004086  LTDS                       230.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    1344.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.01963  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.04372  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       315.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        13.5  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     8  ++++++
+004086  LTDS                       384.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    2100.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.03681  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.08380  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       311.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        20.7  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #     9  ++++++
+004086  LTDS                       410.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    2225.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.03963  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.09269  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       303.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        20.8  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    10  ++++++
+004086  LTDS                       530.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    2868.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.05375  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.13514  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       305.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        22.7  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    11  ++++++
+004086  LTDS                       570.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    3034.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.05849  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.15120  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       301.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        24.1  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    12  ++++++
+004086  LTDS                       650.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    3334.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.06682  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.18384  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       297.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        22.7  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    13  ++++++
+004086  LTDS                       730.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    3645.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.07454  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.21763  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       296.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        22.6  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    14  ++++++
+004086  LTDS                       844.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    4200.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.08518  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.26608  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       294.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        23.1  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    15  ++++++
+004086  LTDS                       910.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    4562.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.09149  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.29603  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       293.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        25.5  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    16  ++++++
+004086  LTDS                       970.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    4871.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.09847  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.32885  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       298.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        32.1  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    17  ++++++
+004086  LTDS                      1070.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    5358.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.11192  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.39368  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       295.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        37.9  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    18  ++++++
+004086  LTDS                      1230.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    6117.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.13268  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.50382  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       291.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        36.3  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    19  ++++++
+004086  LTDS                      1350.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    6715.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.14762  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.58707  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       291.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        37.5  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    20  ++++++
+004086  LTDS                      1430.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    7088.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.15969  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.64717  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       294.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        42.8  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    21  ++++++
+004086  LTDS                      1750.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    8689.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.20047  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.87055  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       288.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        31.9  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    22  ++++++
+004086  LTDS                      1810.0  S                             Long time period or displacement                
+008042  VSIGX                     2048.0  FLAG TABLE(7)                 Extended vertical sounding significance         
+                                      7 = Significant wind level
+007009  GPHTST                    8994.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.20510  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    0.90651  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       284.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        30.6  M S⁻¹                      Wind speed                                      
+    ++++++  WDHLRAOB  REPLICATION #    23  ++++++
+004086  LTDS                      2052.0  S                             Long time period or displacement                
+008042  VSIGX                    14336.0  FLAG TABLE(5,6,7)             Extended vertical sounding significance         
+                                      5 = Significant temperature level
+                                      6 = Significant humidity level
+                                      7 = Significant wind level
+007009  GPHTST                   10126.0  GPM                           Geopotential height                             
+005015  LATDH                   -0.22635  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    1.04829  DEGREE                        Longitude displacement (high accuracy)          
+011001  WDIR                       290.0  DEGREE TRUE                   Wind direction                                  
+011002  WSPD                        29.4  M S⁻¹                      Wind speed                                      
+           {WSHLRAOB}     1 REPLICATIONS
+004086  LTDS                     MISSING  S                             Long time period or displacement                
+008042  VSIGX                    MISSING  FLAG TABLE                    Extended vertical sounding significance         
+007009  GPHTST                   MISSING  GPM                           Geopotential height                             
+005015  LATDH                    MISSING  DEGREE                        Latitude displacement (high accuracy)           
+006015  LONDH                    MISSING  DEGREE                        Longitude displacement (high accuracy)          
+011061  AWSB                     MISSING  M S⁻¹                      Absolute wind shear in 1 km layer below         
+011062  AWSA                     MISSING  M S⁻¹                      Absolute wind shear in 1 km layer above         
+001081  RSERL                   19025323  (20)CCITT IA5                 Radiosonde serial number                        
+001082  RASCN                    MISSING  NUMERIC                       Radiosonde ascension number                     
+002017  CAHM                         3.0  CODE TABLE                    Correction algorithms for humidity measurements 
+                                      3 = Solar radiation and time lag correction provided by the manufacturer
+002067  RFREQ                402000000.0  HZ                            Radiosonde operating frequency                  
+002095  PSENS                        1.0  CODE TABLE                    Type of pressure sensor                         
+                                      1 = Derived from GPS
+002096  TSENS                        5.0  CODE TABLE                    Type of temperature sensor                      
+                                      5 = Chip thermistor
+002097  RHSENS                       4.0  CODE TABLE                    Type of humidity sensor                         
+                                      4 = Capacitance sensor
+002191  GHTC                         1.0  CODE TABLE                    Geopotential height calculation                 
+                                      1 = Geopotential height calculated from GPS height
+025061  SOFTV                  5.14.10.8  (12)CCITT IA5                 Software identification and version number      
+
+ >>> END OF SUBSET <<< 
+
+
+End of BUFR message #      1
+
+------------------------------------------------------------------------------------------------------------------------
+
+Reached end of BUFR file; it contained a total of      1 messages and        1 subsets

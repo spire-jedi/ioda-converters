@@ -1,0 +1,184 @@
+# (C) Copyright 2021 NOAA/NWS/NCEP/EMC
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+observations:
+  - obs space:
+      name: bufr
+      obsdatain: "./testinput/sonde_wmo_single.bufr"
+      isStdFormat: true
+      tablepath: "./testinput/bufr_tables"
+
+      mnemonicSets:
+        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, SECO, CLATH, CLONH, WMOB, WMOS, SMID, HSMSL, HBMSL, HEIT]
+        - mnemonics: [RSERL, CAHM, SOFTV, SIRC]
+        - mnemonics: [TMDB, TMDP, WDIR, WSPD, GPH10, PRLC, LTDS, LATDH, LONDH]
+
+      exports:
+        variables:
+          timestamp:
+            datetime:
+              year: YEAR
+              month: MNTH
+              day: DAYS
+              hour: HOUR
+              minute: MINU
+          timestamp:
+            sondeLaunchTime:
+              year: YEAR
+              month: MNTH
+              day: DAYS
+              hour: HOUR
+              minute: MINU
+          stationIdWMOblock:
+            mnemonic: WMOB
+          stationIdWMOstation:
+            mnemonic: WMOS
+          stationLongName:
+            mnemonic: SMID
+          latitude:
+            mnemonic: CLATH
+          longitude:
+            mnemonic: CLONH
+          stationElevation:
+            mnemonic: HBMSL
+          temperatureAir:
+            mnemonic: TMDB
+          temperatureDewpoint:
+            mnemonic: TMDP
+          windDirection:
+            mnemonic: WDIR
+          windSpeed:
+            mnemonic: WSPD
+          altitude:
+            mnemonic: GPH10
+          pressureAir:
+            mnemonic: PRLC
+          timeDisplacement:
+            mnemonic: LTDS
+          latitudeDisplacement:
+            mnemonic: LATDH
+          longitudeDisplacement:
+            mnemonic: LONDH
+          instrumentSerialNum:
+            mnemonic: RSERL
+          instrumentSoftwareVersion:
+            mnemonic: SOFTV
+          instrumentCorrectionInfo:
+            mnemonic: CAHM
+
+    ioda:
+      backend: netcdf
+      obsdataout: "./testrun/sonde_single.nc"
+
+      dimensions:
+        - name: "nlocs"
+          size: variables/temperatureAir.nrows
+
+      variables:
+        - name: "datetime@MetaData"
+          source: variables/timestamp
+          dimensions: [ "nlocs" ]
+          longName: "Datetime"
+          units: "datetime"
+
+        - name: "latitude@MetaData"
+          source: variables/latitude
+          dimensions: [ "nlocs" ]
+          longName: "Latitude"
+          units: "degrees_north"
+
+        - name: "longitude@MetaData"
+          source: variables/longitude
+          dimensions: [ "nlocs" ]
+          longName: "Longitude"
+          units: "degrees_east"
+
+        - name: "stationIdWMOblock@MetaData"
+          source: variables/stationIdWMOblock
+          dimensions: [ "nlocs" ]
+          longName: "Station Identification WMO block number"
+          units: ""
+
+        - name: "stationIdWMOstation@MetaData"
+          source: variables/stationIdWMOstation
+          dimensions: [ "nlocs" ]
+          longName: "Station Identification WMO station number"
+          units: ""
+
+        - name: "stationLongName@MetaData"
+          source: variables/stationLongName
+          dimensions: [ "nlocs" ]
+          longName: "Station long name"
+          units: ""
+
+        - name: "stationElevation@MetaData"
+          source: variables/stationElevation
+          dimensions: [ "nlocs" ]
+          longName: "Station Elevation"
+          units: "m"
+
+        - name: "timeDisplacement@MetaData"
+          source: variables/timeDisplacement
+          dimensions: [ "nlocs" ]
+          longName: "Time displacement from reference"
+          units: "s"
+
+        - name: "latitudeDisplacement@MetaData"
+          source: variables/latitudeDisplacement
+          dimensions: [ "nlocs" ]
+          longName: "Latitude displacement from reference"
+          units: "deg"
+
+        - name: "longitudeDisplacement@MetaData"
+          source: variables/longitudeDisplacement
+          dimensions: [ "nlocs" ]
+          longName: "Longitude displacement from reference"
+          units: "deg"
+
+        - name: "instrumentSerialNum@MetaData"
+          source: variables/instrumentSerialNum
+          dimensions: [ "nlocs" ]
+          longName: "Instrument serial number"
+          units: ""
+
+        - name: "instrumentSoftwareVersion@MetaData"
+          source: variables/instrumentoftwareVersion
+          dimensions: [ "nlocs" ]
+          longName: "Instrument software version number"
+          units: ""
+
+        - name: "instrumentCorrectionInfo@MetaData"
+          source: variables/instrumentCorrectionInfo
+          dimensions: [ "nlocs" ]
+          longName: "Instrument correction info"
+          units: ""
+
+        - name: "pressureAir@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/pressureAir
+          dimensions: [ "nlocs" ]
+          longName: "Pressure"
+          units: "Pa"
+
+        - name: "altitude@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/altitude
+          dimensions: [ "nlocs" ]
+          longName: "Altitude"
+          units: "m"
+
+        - name: "windDirection@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windDirection
+          dimensions: [ "nlocs" ]
+          longName: "Wind Direction"
+          units: "degrees true"
+
+        - name: "windSpeed@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windSpeed
+          dimensions: [ "nlocs" ]
+          longName: "Wind Speed"
+          units: "m s-1"
