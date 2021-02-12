@@ -32,8 +32,8 @@ namespace Ingester
         std::shared_ptr<DataObject> exportData(const BufrDataMap& map) final;
 
      private:
-        /// \brief The BUFR mnemonic of interest
-        std::string mnemonic_;
+        /// \brief The BUFR mnemonic(s) of interest
+        std::vector<std::string> mnemonics_;
 
         /// \brief Collection of transforms to apply to the data during export
         Transforms transforms_;

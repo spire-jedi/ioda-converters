@@ -16,26 +16,41 @@
 
 namespace Ingester
 {
-    MnemonicVariable::MnemonicVariable(const std::string& mnemonic, const Transforms& transforms) :
-      mnemonic_(mnemonic),
+    MnemonicVariable::MnemonicVariable(const std::vector<std::string>& mnemonics, const Transforms& transforms) :
+      mnemonics_(mnemonics),
       transforms_(transforms)
     {
     }
 
     std::shared_ptr<DataObject> MnemonicVariable::exportData(const BufrDataMap& map)
     {
-        if (map.find(mnemonic_) == map.end())
-        {
-            std::stringstream errStr;
-            errStr << "Mnemonic " << mnemonic_;
-            errStr << " could not be found during export.";
+        bool allAreMissing = true;
+        std::string keysStr("");
+        std::string comma(", ");
+        const float missingValue = 1.E11
+        const float epsilon = 1.E-09
 
-            eckit::BadParameter(errStr.str());
+        for (auto mnemonic : mnemonics_) {
+          if (map.find(mnemonic) == map.end()) {
+            keysStr = comma + keysStr + mnemonic;
+          } else {
+            allAreMissing = false;
+            auto data = map.at(mnemonic);
+            applyTransforms(data);
+            if ((data < (missingValue - epsilon)).any()) {
+              return std::make_shared<ArrayDataObject>(data);
+            }
+          }
         }
 
-        auto data = map.at(mnemonic_);
-        applyTransforms(data);
-        return std::make_shared<ArrayDataObject>(data);
+        if (allAreMissing) {
+          std::stringstream errStr;
+          errStr << "None of mnemonic(s) [" << keysStr.substr(3) << "] could be found during export.";
+          eckit::BadParameter(errStr.str());
+        } else {
+          return std::make_shared<ArrayDataObject>(data);
+        }
+
     }
 
     void MnemonicVariable::applyTransforms(IngesterArray& data)
@@ -45,4 +60,5 @@ namespace Ingester
             transform->apply(data);
         }
     }
+
 }  // namespace Ingester
