@@ -27,7 +27,26 @@ bufrpeek.py - outputs the values for a single mnemonic or sequence for a
                              output to
 
   Example:
-    bufrtest.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
+    bufrpeek.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
+
+
+bufrmnemonic.py - outputs a map of the BUFR mnemonic hierarchy from a
+                  set of tables in a BUFR file to stdtout. Optionally writes
+                  the output to an ASCII (text) file. Requires 
+                  bufrtblstruc.py and bufrTableTools.py
+
+  Usage:
+    bufrpeek.py <BUFR file> <subset type> [-o <ASCII file> | -n <netCDF file>]
+    If -o and -n are both specified, -o will override -n
+
+    <BUFR file> is the full pathname of the BUFR file to create a mnemonic
+                map for
+    <subset type> is the subset (or observation) type to create a map for
+    <ASCII file> (optional) is the name of an ASCII (text) file to write the
+                            output to
+
+  Example:
+    bufrmnemonicmap.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
 
 
 validateSatwndsConv.py - compares the values for all fields in an IODA
