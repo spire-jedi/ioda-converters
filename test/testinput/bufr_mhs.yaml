@@ -40,28 +40,28 @@ observations:
           latitude:
             mnemonic: CLAT
 
-          satellite identifier:
+          satelliteIdentifier:
             mnemonic: SAID 
 
-          satellite zenith angle:
+          satelliteZenithAngle:
             mnemonic: SAZA 
 
-          satellite azimuth angle:
+          satelliteAzimuthAngle:
             mnemonic: BEARAZ 
 
-          solar zenith angle:
+          solarZenithAngle:
             mnemonic: SOZA 
 
-          solar azimuth angle:
+          solarAzimuthAngle:
             mnemonic: SOLAZI
 
-          height of land surface:
+          heightOfSurface:
             mnemonic: HOLS 
 
-          field of view number:
+          sensorScanPosition:
             mnemonic: FOVN 
 
-          radiance:
+          brightnessTemperature:
             mnemonic: TMBR
 
     ioda:
@@ -71,9 +71,9 @@ observations:
 
       dimensions:
         - name: "nlocs"
-          size: variables/radiance.nrows
+          size: variables/brightnessTemperature.nrows
         - name: "nchans"
-          size: variables/radiance.ncols
+          size: variables/brightnessTemperature.ncols
 
       variables:
         - name: "datetime@MetaData"
@@ -95,57 +95,59 @@ observations:
           longName: "Longitude"
           units: "degrees_east"
           range: [-180, 180]
-        - name: "SatelliteIdentifier@MetaData"
-          source: "variables/satellite identifier"
+
+        - name: "satelliteIdentifier@MetaData"
+          source: "variables/satelliteIdentifier"
           dimensions: ["nlocs"]
           longName: "Satellite Identifier"
           units: "None"
 
         - name: "sensorZenithAngle@MetaData"
-          source: "variables/satellite zenith angle"
+          source: "variables/satelliteZenithAngle"
           dimensions: ["nlocs"]
           longName: "Satellite Zenith Angle"
-          units: "degrees_east"
+          units: "degrees"
           range: [0, 90]
 
         - name: "sensorAzimuthAngle@MetaData"
-          source: "variables/satellite azimuth angle"
+          source: "variables/satelliteAzimuthAngle"
           dimensions: ["nlocs"]
           longName: "Satellite Azimuth Angle"
           units: "degrees_true"
           range: [0, 360]
 
         - name: "solarZenithAngle@MetaData"
-          source: "variables/solar zenith angle"
+          source: "variables/solarZenithAngle"
           dimensions: ["nlocs"]
           longName: "Solar Zenith Angle"
-          units: "degrees_east"
-          range: [0, 90]
+          units: "degrees"
+          range: [0, 180]
 
         - name: "solarAzimuthAngle@MetaData"
-          source: "variables/solar azimuth angle"
+          source: "variables/solarAzimuthAngle"
           dimensions: ["nlocs"]
           longName: "Solar Zenith Angle"
           units: "degrees_true"
           range: [0, 360]
 
         - name: "heightOfSurface@MetaData"
-          source: "variables/height of land surface"
+          source: "variables/heightOfSurface"
           dimensions: ["nlocs"]
           longName: "Height of Land Surface"
           units: "meter"
 
         - name: "sensorScanPosition@MetaData"
-          source: "variables/field of view number"
+          source: "variables/sensorScanPosition"
           dimensions: ["nlocs"]
           longName: "Field of View Number"
-          units: "meter"
+          units: "None"
+          range: [1, 90]
 
-        - name: "radiance@ObsValue"
+        - name: "brightnessTemperature@ObsValue"
           coordinates: "longitude latitude nchans"
-          source: variables/radiance
+          source: variables/brightnessTemperature
           dimensions: ["nlocs", "nchans"]
-          longName: "Radiance"
+          longName: "Brightness Temperature"
           units: "K"
           range: [120, 500]
           chunks: [1000, 15]
