@@ -6,7 +6,7 @@
 observations:
   - obs space:
       name: bufr
-      obsdatain: "./testinput/gdas.t18z.1bmhs.tm00.bufr_d"
+      obsdatain: "./testinput/gdas.t12z.1bmhs.tm00.bufr_d"
       mnemonicSets:
         - mnemonics: [SAID, FOVN, YEAR, MNTH, DAYS, HOUR, MINU, SECO, CLAT, CLON, CLATH, CLONH, HOLS]
         - mnemonics: [SAZA, SOZA, BEARAZ, SOLAZI]
@@ -14,6 +14,16 @@ observations:
           channels : 1-5
 
       exports:
+        splits:
+          satId:
+            category:
+              mnemonic: SAID
+              map:
+                _3: metop-b
+                _4: metop-a
+                _5: metop-c
+                _223: noaa-19
+
         variables:
           timestamp:
             datetime:
@@ -23,16 +33,41 @@ observations:
               hour: HOUR
               minute: MINU
               second: SECO
+
           longitude:
             mnemonic: CLON
+
           latitude:
             mnemonic: CLAT
+
+          satellite identifier:
+            mnemonic: SAID 
+
+          satellite zenith angle:
+            mnemonic: SAZA 
+
+          satellite azimuth angle:
+            mnemonic: BEARAZ 
+
+          solar zenith angle:
+            mnemonic: SOZA 
+
+          solar azimuth angle:
+            mnemonic: SOLAZI
+
+          height of land surface:
+            mnemonic: HOLS 
+
+          field of view number:
+            mnemonic: FOVN 
+
           radiance:
             mnemonic: TMBR
 
     ioda:
       backend: netcdf
-      obsdataout: "./testrun/gdas.t18z.1bmhs.tm00.nc"
+      obsdataout: "./testrun/gdas.t12z.1bmhs.tm00.{splits/satId}.nc"
+#     obsdataout: "./testrun/gdas.t12z.1bmhs.tm00.nc"
 
       dimensions:
         - name: "nlocs"
@@ -60,6 +95,51 @@ observations:
           longName: "Longitude"
           units: "degrees_east"
           range: [-180, 180]
+        - name: "SatelliteIdentifier@MetaData"
+          source: "variables/satellite identifier"
+          dimensions: ["nlocs"]
+          longName: "Satellite Identifier"
+          units: "None"
+
+        - name: "sensorZenithAngle@MetaData"
+          source: "variables/satellite zenith angle"
+          dimensions: ["nlocs"]
+          longName: "Satellite Zenith Angle"
+          units: "degrees_east"
+          range: [0, 90]
+
+        - name: "sensorAzimuthAngle@MetaData"
+          source: "variables/satellite azimuth angle"
+          dimensions: ["nlocs"]
+          longName: "Satellite Azimuth Angle"
+          units: "degrees_true"
+          range: [0, 360]
+
+        - name: "solarZenithAngle@MetaData"
+          source: "variables/solar zenith angle"
+          dimensions: ["nlocs"]
+          longName: "Solar Zenith Angle"
+          units: "degrees_east"
+          range: [0, 90]
+
+        - name: "solarAzimuthAngle@MetaData"
+          source: "variables/solar azimuth angle"
+          dimensions: ["nlocs"]
+          longName: "Solar Zenith Angle"
+          units: "degrees_true"
+          range: [0, 360]
+
+        - name: "heightOfSurface@MetaData"
+          source: "variables/height of land surface"
+          dimensions: ["nlocs"]
+          longName: "Height of Land Surface"
+          units: "meter"
+
+        - name: "sensorScanPosition@MetaData"
+          source: "variables/field of view number"
+          dimensions: ["nlocs"]
+          longName: "Field of View Number"
+          units: "meter"
 
         - name: "radiance@ObsValue"
           coordinates: "longitude latitude nchans"
