@@ -36,7 +36,7 @@ bufrmnemonic.py - outputs a map of the BUFR mnemonic hierarchy from a
                   bufrtblstruc.py and bufrTableTools.py
 
   Usage:
-    bufrpeek.py <BUFR file> <subset type> [-o <ASCII file> | -n <netCDF file>]
+    bufrmnemonicmap.py <BUFR file> <subset type> [-o <ASCII file> 
     If -o and -n are both specified, -o will override -n
 
     <BUFR file> is the full pathname of the BUFR file to create a mnemonic
