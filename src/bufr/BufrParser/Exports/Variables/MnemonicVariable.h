@@ -24,7 +24,7 @@ namespace Ingester
     class MnemonicVariable final : public Variable
     {
      public:
-        explicit MnemonicVariable(const std::string& mnemonicStr, const Transforms& transforms);
+        explicit MnemonicVariable(const eckit::Configuration& conf, const Transforms& transforms);
         ~MnemonicVariable() final = default;
 
         /// \brief Gets the requested data, applies transforms, and returns the requested data

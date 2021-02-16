@@ -31,7 +31,7 @@ namespace
         namespace Variable
         {
             const char* Datetime = "datetime";
-            const char* Mnemonic = "mnemonic";
+            const char* Mnemonics = "mnemonics";
         }  // namespace Variable
 
         namespace Split
@@ -95,11 +95,11 @@ namespace Ingester
                 auto dtconf = subConf.getSubConfiguration(ConfKeys::Variable::Datetime);
                 variable = std::make_shared<DatetimeVariable>(dtconf);
             }
-            else if (subConf.has(ConfKeys::Variable::Mnemonic))
+            else if (subConf.has(ConfKeys::Variable::Mnemonics))
             {
+                auto varconf = subConf.getSubConfiguration(ConfKeys::Variable::Mnemonics);
                 Transforms transforms = TransformBuilder::makeTransforms(subConf);
-                variable = std::make_shared<MnemonicVariable>(
-                    subConf.getString(ConfKeys::Variable::Mnemonic), transforms);
+                variable = std::make_shared<MnemonicVariable>(varconf, transforms);
             }
             else
             {

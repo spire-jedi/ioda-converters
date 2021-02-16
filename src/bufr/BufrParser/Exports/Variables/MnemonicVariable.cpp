@@ -11,13 +11,13 @@
 
 #include "eckit/exception/Exceptions.h"
 
+#include "Export.h"
 #include "IngesterTypes.h"
 
 
 namespace Ingester
 {
-    MnemonicVariable::MnemonicVariable(const std::vector<std::string>& mnemonics, const Transforms& transforms) :
-      mnemonics_(mnemonics),
+    MnemonicVariable::MnemonicVariable(const eckit::Configuration& conf, const Transforms& transforms) :
       transforms_(transforms)
     {
     }
@@ -27,8 +27,17 @@ namespace Ingester
         bool allAreMissing = true;
         std::string keysStr("");
         std::string comma(", ");
-        const float missingValue = 1.E11
-        const float epsilon = 1.E-09
+        const float missingValue = 1.E11;
+        const float epsilon = 1.E-09;
+
+        // From the conf object, parse list of one or more mnemonics.
+        if (conf.has(ConfKeys::Variable::Mnemonics) {
+          mnemonics_ = conf.getStringVector(ConfKeys::Variable::Mnemonics);
+        } else {
+          std::stringstream errStr;
+          errStr << "Configuration is missing critical ingredient of: " << ConfKeys::Variable::Mnemonics;
+          eckit::BadParameter(errStr.str());
+        }
 
         for (auto mnemonic : mnemonics_) {
           if (map.find(mnemonic) == map.end()) {
