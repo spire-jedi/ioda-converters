@@ -31,6 +31,7 @@ list(APPEND _ingester_srcs
   BufrParser/BufrCollectors/BufrRepCollector.h
   BufrParser/BufrCollectors/BufrCollectors.cpp
   BufrParser/BufrCollectors/BufrCollectors.h
+  BufrParser/Exports/ConfKeys.h
   BufrParser/Exports/Export.h
   BufrParser/Exports/Export.cpp
   BufrParser/Exports/RowSlice.h

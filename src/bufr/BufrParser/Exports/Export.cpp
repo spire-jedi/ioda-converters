@@ -6,6 +6,7 @@
  */
 
 #include "Export.h"
+#include "ConfKeys.h"
 
 #include <ostream>
 #include <iostream>
@@ -19,38 +20,6 @@
 #include "Variables/Transforms/Transform.h"
 #include "Variables/Transforms/TransformBuilder.h"
 
-
-namespace
-{
-    namespace ConfKeys
-    {
-        const char* Filters = "filters";
-        const char* Splits = "splits";
-        const char* Variables = "variables";
-
-        namespace Variable
-        {
-            const char* Datetime = "datetime";
-            const char* Mnemonics = "mnemonics";
-        }  // namespace Variable
-
-        namespace Split
-        {
-            const char* Category = "category";
-            const char* Mnemonic = "mnemonic";
-            const char* NameMap = "map";
-        }  // namespace Split
-
-        namespace Filter
-        {
-            const char* Mnemonic = "mnemonic";
-            const char* Bounding = "bounding";
-            const char* UpperBound = "upperBound";
-            const char* LowerBound = "lowerBound";
-        }
-
-    }  // namespace ConfKeys
-}  // namespace
 
 namespace Ingester
 {
