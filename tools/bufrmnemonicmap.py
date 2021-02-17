@@ -44,7 +44,7 @@ def bufrmnemonicmap(BUFRFileName, obsType, textFile=None):
     bufrTableTools.buildMnemonicTree(treeTop, section2)
 
     indentation = 0
-    msg = createMap(treeTop, indentation)
+    msg = createMap(treeTop, section1, indentation)
     
     if textFile:
         fd = open(textFile, 'w')
@@ -56,11 +56,12 @@ def bufrmnemonicmap(BUFRFileName, obsType, textFile=None):
     return
 
 
-def createMap(node, indentation):
+def createMap(node, section1, indentation):
     """ Adds a node and its children nodes to the map
 
         Input:
             node - node representing a mnemonic in the table
+            section1 - 1st section from a table in a BUFR file
             indentation - number of spaces to indent the node entry in the
                           map
 
@@ -73,10 +74,10 @@ def createMap(node, indentation):
         replication = " (replicated)"
     else:
         replication = ""
-    msg = f"\n{spaces}{node.name}{replication}"
+    msg = f"\n{spaces}{node.name}{replication}   {section1[node.name]}"
 
     for i in range(len(node.children)):
-        msg += createMap(node.children[i], indentation + 4)
+        msg += createMap(node.children[i], section1, indentation + 4)
 
     return msg
 
