@@ -32,6 +32,7 @@ list(APPEND _ingester_srcs
   BufrParser/BufrCollectors/BufrCollectors.cpp
   BufrParser/BufrCollectors/BufrCollectors.h
   BufrParser/Exports/ConfKeys.h
+  BufrParser/Exports/ConfKeys.cpp
   BufrParser/Exports/Export.h
   BufrParser/Exports/Export.cpp
   BufrParser/Exports/RowSlice.h
@@ -75,7 +76,7 @@ ecbuild_add_library( TARGET   ingester
                      LINKER_LANGUAGE CXX
                     )
 
-add_library( ${PROJECT_NAME}::ingester ALIAS ingester )
+add_library( ${PROJECT_NAME}::ingester ALIAS ingester)
 
 ecbuild_add_executable( TARGET  bufr2ioda.x
                         SOURCES bufr2ioda.cpp
