@@ -21,14 +21,14 @@ namespace Ingester
       transforms_(transforms)
     {
         // From the conf object, parse list of one or more mnemonics.
-        if (conf.has(ConfKeys::Variable::Mnemonics))
+        if (conf.has(ConfKeys::Variable::Mnemonic))
         {
-            mnemonics_ = conf.getStringVector(ConfKeys::Variable::Mnemonics);
+            mnemonic_ = conf.getStringVector(ConfKeys::Variable::Mnemonic);
         }
         else
         {
             std::stringstream errStr;
-            errStr << "Configuration is missing critical ingredient of: " << ConfKeys::Variable::Mnemonics;
+            errStr << "Configuration is missing critical ingredient of: " << ConfKeys::Variable::Mnemonic;
             throw eckit::BadParameter(errStr.str());
         }
     }
@@ -41,7 +41,7 @@ namespace Ingester
         const float epsilon = 1.E-09;
 
         IngesterArray data;
-        for (auto mnemonic : mnemonics_)
+        for (auto mnemonic : mnemonic_)
         {
             if (map.find(mnemonic) == map.end())
             {

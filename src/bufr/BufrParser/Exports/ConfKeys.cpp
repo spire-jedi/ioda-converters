@@ -18,7 +18,7 @@ namespace Ingester
         namespace Variable
         {
             const char* Datetime = "datetime";
-            const char* Mnemonics = "mnemonics";
+            const char* Mnemonic = "mnemonic";
         }  // namespace Variable
 
         namespace Split

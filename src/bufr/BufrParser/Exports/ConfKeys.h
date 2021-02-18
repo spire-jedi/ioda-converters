@@ -18,7 +18,7 @@ namespace Ingester
         namespace Variable
         {
             extern const char* Datetime;
-            extern const char* Mnemonics;
+            extern const char* Mnemonic;
         }  // namespace Variable
 
         namespace Split

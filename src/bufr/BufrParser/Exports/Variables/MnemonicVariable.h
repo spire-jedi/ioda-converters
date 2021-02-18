@@ -33,7 +33,7 @@ namespace Ingester
 
      private:
         /// \brief The BUFR mnemonic(s) of interest
-        std::vector<std::string> mnemonics_;
+        std::vector<std::string> mnemonic_;
 
         /// \brief Collection of transforms to apply to the data during export
         Transforms transforms_;
