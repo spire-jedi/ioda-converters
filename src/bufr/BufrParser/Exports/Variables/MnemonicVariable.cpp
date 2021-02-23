@@ -21,26 +21,16 @@ namespace Ingester
       transforms_(transforms)
     {
         // From the conf object, parse list of one or more mnemonics.
-        if (conf.has(ConfKeys::Variable::Mnemonic))
-        {
-            std::cout << "  Mnemonic variable conf: " << conf << std::endl;
-
+        std::cout << "  Mnemonic variable conf: " << conf << std::endl;
             try
+            {
+                conf.getStringVector(ConfKeys::Variable::Mnemonic, mnemonic_);
+            }
+            catch (eckit::AssertionFailed::AssertionFailed)
             {
                 auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
                 mnemonic_.push_back(mnemonic);
             }
-            catch (eckit::AssertionFailed)
-            {
-                mnemonic_ = conf.getStringVector(ConfKeys::Variable::Mnemonic);
-            }
-        }
-        else
-        {
-            std::stringstream errStr;
-            errStr << "Configuration is missing critical ingredient of: " << ConfKeys::Variable::Mnemonic;
-            throw eckit::BadParameter(errStr.str());
-        }
     }
 
     std::shared_ptr<DataObject> MnemonicVariable::exportData(const BufrDataMap& map)

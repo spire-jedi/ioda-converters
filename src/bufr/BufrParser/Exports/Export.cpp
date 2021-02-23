@@ -66,9 +66,8 @@ namespace Ingester
             }
             else if (subConf.has(ConfKeys::Variable::Mnemonic))
             {
-                auto varconf = subConf.getSubConfiguration(ConfKeys::Variable::Mnemonic);
                 Transforms transforms = TransformBuilder::makeTransforms(subConf);
-                variable = std::make_shared<MnemonicVariable>(varconf, transforms);
+                variable = std::make_shared<MnemonicVariable>(subConf, transforms);
             }
             else
             {
