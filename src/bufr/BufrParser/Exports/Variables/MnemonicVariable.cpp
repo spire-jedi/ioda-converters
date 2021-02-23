@@ -10,58 +10,65 @@
 #include <ostream>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/value/Value.h"
 
 #include "BufrParser/Exports/ConfKeys.h"
 #include "IngesterTypes.h"
 
+namespace
+{
+    const double MissingValue = 1e10;
+    const double MissingValueEpsilon = 1.0e-9;
+}
+
 
 namespace Ingester
 {
-    MnemonicVariable::MnemonicVariable(const eckit::Configuration& conf, const Transforms& transforms) :
+    MnemonicVariable::MnemonicVariable(const eckit::Configuration& conf,
+                                       const Transforms& transforms) :
       transforms_(transforms)
     {
-        // From the conf object, parse list of one or more mnemonics.
-        std::cout << "  Mnemonic variable conf: " << conf << std::endl;
-        try
+        eckit::Value value = conf.get();
+        if (value.contains(ConfKeys::Variable::Mnemonic))
         {
-            conf.getStringVector(ConfKeys::Variable::Mnemonic, mnemonic_);
-        }
-        catch (const eckit::AssertionFailed::AssertionFailed& e)
-        {
-            auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
-            mnemonic_.push_back(mnemonic);
+            auto mnemonicVal = value[ConfKeys::Variable::Mnemonic];
+            if (mnemonicVal.isList())
+            {
+                mnemonic_ = conf.getStringVector(ConfKeys::Variable::Mnemonic);
+            }
+            else if (mnemonicVal.isString())
+            {
+                mnemonic_.push_back(conf.getString(ConfKeys::Variable::Mnemonic));
+            }
         }
     }
 
     std::shared_ptr<DataObject> MnemonicVariable::exportData(const BufrDataMap& map)
     {
-        bool allAreMissing = true;
-        std::string keysStr;
-        const float missingValue = 1.E11;
-        const float epsilon = 1.E-09;
-
         IngesterArray data;
-        for (auto mnemonic : mnemonic_)
+
+        bool mnemonicsAreMissing = true;
+        for (const auto& mnemonic : mnemonic_)
         {
-            if (map.find(mnemonic) == map.end())
+            if (map.find(mnemonic) != map.end())
             {
-                keysStr = ", " + keysStr + mnemonic;
-            }
-            else
-            {
-                allAreMissing = false;
                 data = map.at(mnemonic);
-                if ((data < (missingValue - epsilon)).any())
+                if ((data < (MissingValue - MissingValueEpsilon)).any())
                 {
+                    mnemonicsAreMissing = false;
                     break;
                 }
             }
         }
 
-        if (allAreMissing)
+        if (mnemonicsAreMissing)
         {
             std::stringstream errStr;
-            errStr << "None of mnemonic(s) [" << keysStr.substr(3) << "] could be found during export.";
+            errStr << "None of mnemonic(s) [";
+            for (const auto& mnemonic : mnemonic_) errStr << mnemonic << ", ";
+            errStr.seekp(-2, std::ios_base::end);  // move the cursor back 2 positions
+            errStr << "] could be found during export.";
+
             throw eckit::BadParameter(errStr.str());
         }
 

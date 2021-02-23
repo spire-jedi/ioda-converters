@@ -24,9 +24,9 @@ observations:
               minute: MINU
               second: SECO
           longitude:
-            mnemonic: CLON
+            mnemonic: [ABC, ABCD]
           latitude:
-            mnemonic: CLAT
+            mnemonic: [CLATH, CLAT]
           radiance:
             mnemonic: TMBR
 
