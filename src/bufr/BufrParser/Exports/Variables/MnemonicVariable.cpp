@@ -15,12 +15,12 @@
 #include "BufrParser/Exports/ConfKeys.h"
 #include "IngesterTypes.h"
 
+
 namespace
 {
     const double MissingValue = 1e10;
     const double MissingValueEpsilon = 1.0e-9;
-}
-
+}  // namespace
 
 namespace Ingester
 {
@@ -83,5 +83,4 @@ namespace Ingester
             transform->apply(data);
         }
     }
-
 }  // namespace Ingester
