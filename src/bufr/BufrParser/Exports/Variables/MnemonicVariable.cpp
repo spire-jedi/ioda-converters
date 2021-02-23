@@ -22,15 +22,15 @@ namespace Ingester
     {
         // From the conf object, parse list of one or more mnemonics.
         std::cout << "  Mnemonic variable conf: " << conf << std::endl;
-            try
-            {
-                conf.getStringVector(ConfKeys::Variable::Mnemonic, mnemonic_);
-            }
-            catch (eckit::AssertionFailed::AssertionFailed)
-            {
-                auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
-                mnemonic_.push_back(mnemonic);
-            }
+        try
+        {
+            conf.getStringVector(ConfKeys::Variable::Mnemonic, mnemonic_);
+        }
+        catch (eckit::AssertionFailed::AssertionFailed)
+        {
+            auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
+            mnemonic_.push_back(mnemonic);
+        }
     }
 
     std::shared_ptr<DataObject> MnemonicVariable::exportData(const BufrDataMap& map)
