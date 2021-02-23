@@ -74,12 +74,11 @@ namespace Ingester
 
         applyTransforms(data);
         return std::make_shared<ArrayDataObject>(data);
-
     }
 
     void MnemonicVariable::applyTransforms(IngesterArray& data)
     {
-        for (auto transform : transforms_)
+        for (const auto& transform : transforms_)
         {
             transform->apply(data);
         }
