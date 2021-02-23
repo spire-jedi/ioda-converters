@@ -23,7 +23,17 @@ namespace Ingester
         // From the conf object, parse list of one or more mnemonics.
         if (conf.has(ConfKeys::Variable::Mnemonic))
         {
-            mnemonic_ = conf.getStringVector(ConfKeys::Variable::Mnemonic);
+            std::cout << "  Mnemonic variable conf: " << conf << std::endl;
+
+            try
+            {
+                auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
+                mnemonic_.push_back(mnemonic);
+            }
+            catch (eckit::AssertionFailed)
+            {
+                mnemonic_ = conf.getStringVector(ConfKeys::Variable::Mnemonic);
+            }
         }
         else
         {

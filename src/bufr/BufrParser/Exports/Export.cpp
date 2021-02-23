@@ -64,9 +64,9 @@ namespace Ingester
                 auto dtconf = subConf.getSubConfiguration(ConfKeys::Variable::Datetime);
                 variable = std::make_shared<DatetimeVariable>(dtconf);
             }
-            else if (subConf.has(ConfKeys::Variable::Mnemonics))
+            else if (subConf.has(ConfKeys::Variable::Mnemonic))
             {
-                auto varconf = subConf.getSubConfiguration(ConfKeys::Variable::Mnemonics);
+                auto varconf = subConf.getSubConfiguration(ConfKeys::Variable::Mnemonic);
                 Transforms transforms = TransformBuilder::makeTransforms(subConf);
                 variable = std::make_shared<MnemonicVariable>(varconf, transforms);
             }

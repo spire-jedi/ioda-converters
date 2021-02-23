@@ -1,0 +1,128 @@
+# (C) Copyright 2021 UCAR
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+observations:
+  - obs space:
+      name: bufr
+      obsdatain: "./testinput/synop_wmo_single.bufr"
+      isStdFormat: true
+      tablepath: "./testinput/bufr_tables"
+
+      mnemonicSets:
+        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, SECO, CLATH, CLONH, WMOB, WMOS, STSN, HBMSL, HSMSL]
+        - mnemonics: [TMDB, TMDP, WDIR, WSPD, PRES]
+
+      exports:
+        variables:
+          timestamp:
+            datetime:
+              year: YEAR
+              month: MNTH
+              day: DAYS
+              hour: HOUR
+              minute: MINU
+              second: SECO
+          stationIdWMOblock:
+            mnemonic: WMOB
+          stationIdWMOstation:
+            mnemonic: WMOS
+          stationLongName:
+            mnemonic: STSN
+#         latitude:
+#           mnemonic: CLATH
+          longitude:
+            mnemonic: CLONH
+          stationElevation:
+            mnemonic: [HBMSL, HSMSL]
+          temperatureAir:
+            mnemonic: TMDB
+          temperatureDewpoint:
+            mnemonic: TMDP
+          windDirection:
+            mnemonic: WDIR
+          windSpeed:
+            mnemonic: WSPD
+          pressureStation:
+            mnemonic: PRES
+
+    ioda:
+      backend: netcdf
+      obsdataout: "./testrun/synop_single.nc"
+
+      dimensions:
+        - name: "nlocs"
+          size: variables/air_temperature.nrows
+
+      variables:
+        - name: "datetime@MetaData"
+          source: variables/timestamp
+          dimensions: [ "nlocs" ]
+          longName: "Datetime"
+          units: "datetime"
+
+        - name: "latitude@MetaData"
+          source: variables/latitude
+          dimensions: [ "nlocs" ]
+          longName: "Latitude"
+          units: "degrees_north"
+
+        - name: "longitude@MetaData"
+          source: variables/longitude
+          dimensions: [ "nlocs" ]
+          longName: "Longitude"
+          units: "degrees_east"
+
+        - name: "stationIdWMOblock@MetaData"
+          source: variables/stationIdWMOblock
+          dimensions: [ "nlocs" ]
+          longName: "Station Identification WMO block number"
+          units: ""
+
+        - name: "stationIdWMOstation@MetaData"
+          source: variables/stationIdWMOstation
+          dimensions: [ "nlocs" ]
+          longName: "Station Identification WMO station number"
+          units: ""
+
+        - name: "stationElevation@MetaData"
+          source: variables/stationElevation
+          dimensions: [ "nlocs" ]
+          longName: "Station Elevation"
+          units: "m"
+
+        - name: "temperatureAir@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/temperatureAir
+          dimensions: [ "nlocs" ]
+          longName: "Air Temperature"
+          units: "K"
+
+        - name: "temperatureDewpoint@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/temperatureDewpoint
+          dimensions: [ "nlocs" ]
+          longName: "Dewpoint Temperature"
+          units: "K"
+
+        - name: "windDirection@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windDirection
+          dimensions: [ "nlocs" ]
+          longName: "Wind Direction"
+          units: "degrees true"
+
+        - name: "windSpeed@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windSpeed
+          dimensions: [ "nlocs" ]
+          longName: "Wind Speed"
+          units: "m/s"
+
+        - name: "PressureStation@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/pressureStation
+          dimensions: [ "nlocs" ]
+          longName: "Surface Pressure"
+          units: "Pa"
