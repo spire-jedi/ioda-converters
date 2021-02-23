@@ -26,7 +26,7 @@ namespace Ingester
         {
             conf.getStringVector(ConfKeys::Variable::Mnemonic, mnemonic_);
         }
-        catch (eckit::AssertionFailed::AssertionFailed)
+        catch (const eckit::AssertionFailed::AssertionFailed& e)
         {
             auto mnemonic = conf.getString(ConfKeys::Variable::Mnemonic);
             mnemonic_.push_back(mnemonic);
