@@ -11,7 +11,7 @@ observations:
       tablepath: "./testinput/bufr_tables"
 
       mnemonicSets:
-        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, SECO, CLATH, CLONH, WMOB, WMOS, STSN, HBMSL, HSMSL]
+        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, SECO, CLATH, CLONH, WMOB, WMOS, HBMSL, HSMSL]
         - mnemonics: [TMDB, TMDP, WDIR, WSPD, PRES]
 
       exports:
@@ -28,10 +28,10 @@ observations:
             mnemonic: WMOB
           stationIdWMOstation:
             mnemonic: WMOS
-          stationLongName:
-            mnemonic: STSN
-#         latitude:
-#           mnemonic: CLATH
+#         stationLongName:
+#           mnemonic: STSN
+          latitude:
+            mnemonic: CLATH
           longitude:
             mnemonic: CLONH
           stationElevation:
@@ -53,7 +53,7 @@ observations:
 
       dimensions:
         - name: "nlocs"
-          size: variables/air_temperature.nrows
+          size: variables/temperatureAir.nrows
 
       variables:
         - name: "datetime@MetaData"
@@ -85,6 +85,12 @@ observations:
           dimensions: [ "nlocs" ]
           longName: "Station Identification WMO station number"
           units: ""
+
+#       - name: "stationLongName@MetaData"
+#         source: variables/stationLongName
+#         dimensions: [ "nlocs" ]
+#         longName: "Station long name"
+#         units: ""
 
         - name: "stationElevation@MetaData"
           source: variables/stationElevation
