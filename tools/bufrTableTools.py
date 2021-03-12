@@ -17,9 +17,9 @@ import sys
 SECTION1_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 SECTION2_PATTERN = "\|.{10}\|.{67}\|"
 SECTION3_PATTERN = "\|.{10}\|.{6}\|.{13}\|.{5}\|.{26}\|-{13}\|"
-DEFINED_MNEMONIC_PATTERN = "^\| [A-Z|0-9]{3,}"
-DELAYED_REP_PATTERN = "\{|\(|\<[A-Z|0-9]{3,}"
-REGULAR_REP_PATTERN = "\"[A-Z|0-9]{3,}\"\d{1,}"
+DEFINED_MNEMONIC_PATTERN = "^\| [A-Z|0-9|_]{3,}"
+DELAYED_REP_PATTERN = "\{|\(|\<|\[[A-Z|0-9|_]{3,}"
+REGULAR_REP_PATTERN = "\"[A-Z|0-9|_]{3,}\"\d{1,}"
 
 # exception for BUFR files/tables
 class BUFRTableError(Exception):
