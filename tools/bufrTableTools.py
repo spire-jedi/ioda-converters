@@ -195,7 +195,7 @@ def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
     buildMnemonicTree(treeTop, section2)
     if parentsToPrune or leavesToPrune:
         status = pruneTree(treeTop, parentsToPrune, leavesToPrune)
-    mnemonicList = findDumpableNodes(treeTop)
+    mnemonicList = findDumpableNodes(treeTop, obsType)
     # There are numerous instances in which leaves from different sequences
     # have the same mnemonic. For the purposes of this function, these
     # leaves are deleted.
@@ -234,7 +234,7 @@ def getMnemonicListBase(obsType, section2, parentsToPrune=[],
     buildMnemonicTree(treeTop, section2)
     if parentsToPrune or leavesToPrune:
         status = pruneTree(treeTop, parentsToPrune, leavesToPrune)
-    mnemonicList = findSearchableNodes(treeTop)
+    mnemonicList = findSearchableNodes(treeTop, obsType)
 
     return mnemonicList
 
@@ -303,7 +303,7 @@ def buildMnemonicTree(root, section2):
     return 
 
 
-def findSearchableNodes(root):
+def findSearchableNodes(root, obsType):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
         that is a sequence is a parent of 1 or more leaves. Leaves are not
@@ -311,6 +311,7 @@ def findSearchableNodes(root):
 
         Input:
             root - the root node of the tree to search
+            obsType - observation type (e.g., "NC031001") or parent key
 
         Return:
             a list of nodes that reference mnemonics that can be retrieved
@@ -322,14 +323,13 @@ def findSearchableNodes(root):
     if len(root.children) > 0:
         # root is not a leaf so visit its children
         for node in root.children:
-            nodeList.extend(findSearchableNodes(node))
+            nodeList.extend(findSearchableNodes(node, obsType))
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
-        #if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT":
-        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT" \
-           and root.parent.children.index(root) == 0:
-            root.parent.children = [x for x in root.parent.children if x.name[0] != '.']
+        if root.parent.name != obsType and root.parent.name != "TMSLPFDT" \
+           and root.parent.name not in [x.name for x in nodeList]:
+            #root.parent.children = [x for x in root.parent.children if x.name[0] != '.']
             nodeList.append(root.parent)
         else:
             if root.name[0] != '.':
@@ -343,7 +343,7 @@ def findSearchableNodes(root):
     return nodeList
 
 
-def findDumpableNodes(root):
+def findDumpableNodes(root, obsType):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
         that is a sequence is a parent of 1 or more leaves. If a node is
@@ -352,6 +352,7 @@ def findDumpableNodes(root):
 
         Input:
             root - the root node of the tree to search
+            obsType - observation type (e.g., "NC031001") or parent key
 
         Return:
             a list of nodes that reference mnemonics that can be retrieved
@@ -363,12 +364,12 @@ def findDumpableNodes(root):
     if len(root.children) > 0:
         # root is not a leaf so visit its children
         for node in root.children:
-            nodeList.extend(findDumpableNodes(node))
+            nodeList.extend(findDumpableNodes(node, obsType))
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
         nodeList.append(root)
-        if root.parent.name[0:2] != "NC" and root.parent.name != "TMSLPFDT" \
+        if root.parent.name != obsType and root.parent.name != "TMSLPFDT" \
            and root.parent.children.index(root) == 0:
             # last clause is so that a parent node won't get entered 
             # multiple times
