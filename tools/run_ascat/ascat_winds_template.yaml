@@ -1,0 +1,126 @@
+# (C) Copyright 2020 NOAA/NWS/NCEP/EMC
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+observations:
+  - obs space:
+      name: bufr
+      obsdatain: "{{obsdatain}}"
+      mnemonicSets:
+        - mnemonics: [SAID, SID, XOB, YOB, DHR, TYP, T29, ELV]
+        - mnemonics: [POB, UOB, VOB]
+
+      exports:
+        filters:
+          - bounding:
+              mnemonic: XOB
+              lowerBound: 0
+              upperBound: 360
+          - bounding:
+              mnemonic: YOB
+              lowerBound: -90
+              upperBound: 90
+        variables:
+          satellite:
+            mnemonic: SAID
+          longitude:
+            mnemonic: XOB
+          latitude:
+            mnemonic: YOB
+          station_id:
+            mnemonic: SID
+          station_elevation:
+            mnemonic: ELV
+          obs_time_minus_cycle_time:
+            mnemonic: DHR
+          prepbufr_delay_time:
+            mnemonic: TYP
+          data_dump_delay_time:
+            mnemonic: T29
+          pressure:
+            mnemonic: POB
+          u_component:
+            mnemonic: UOB
+          v_component:
+            mnemonic: VOB
+
+    ioda:
+      backend: netcdf
+      obsdataout: "{{obsdataout}}"
+
+      dimensions:
+        - name: "nlocs"
+          size: variables/longitude.nrows
+
+      variables:
+        - name: "satellite@MetaData"
+          source: variables/satellite
+          dimensions: ["nlocs"]
+          longName: "Satellite Identifier"
+          units: "id"
+
+        - name: "longitude@MetaData"
+          source: variables/longitude
+          dimensions: ["nlocs"]
+          longName: "Longitude"
+          units: "degrees"
+          range: [0, 360]
+
+        - name: "latitude@MetaData"
+          source: variables/latitude
+          dimensions: ["nlocs"]
+          longName: "Latitude"
+          units: "degrees north"
+          range: [-90, 90]
+
+        - name: "stationIdentifiation@MetaData"
+          source: variables/station_id
+          dimensions: ["nlocs"]
+          longName: "Station Identifier"
+          units: "id"
+
+        - name: "stationElevation@MetaData"
+          source: variables/station_elevation
+          dimensions: ["nlocs"]
+          longName: "Station Elevation"
+          units: "meters"
+
+        - name: "obsTimeMinusCycleTime@MetaValue"
+          source: variables/obs_time_minus_cycle_time
+          dimensions: ["nlocs"]
+          longName: "Observation Time Minus Cycle Time"
+          units: "hours"
+
+        - name: "prepbufrDelayTime@MetaValue"
+          source: variables/prepbufr_delay_time
+          dimensions: ["nlocs"]
+          longName: "Prepbufr Delay Time"
+          units: "code"
+
+        - name: "dataDumpDelayTime@MetaValue"
+          source: variables/data_dump_delay_time
+          dimensions: ["nlocs"]
+          longName: "Data Dump Delay Time"
+          units: "code"
+
+        - name: "pressure@ObsValue"
+          source: variables/pressure
+          coordinates: "latitude longitude"
+          dimensions: ["nlocs"]
+          longName: "Pressure"
+          units: "millibars"
+
+        - name: "uComponent@ObsValue"
+          source: variables/u_component
+          coordinates: "latitude longitude"
+          dimensions: ["nlocs"]
+          longName: "u Component Wind Observation"
+          units: "meters per second"
+
+        - name: "vComponent@ObsValue"
+          source: variables/v_component
+          coordinates: "latitude longitude"
+          dimensions: ["nlocs"]
+          longName: "v Component Wind Observation"
+          units: "meters per second"
