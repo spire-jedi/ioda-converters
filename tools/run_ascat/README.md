@@ -1,4 +1,4 @@
-# Run Sat Winds
+# Run ASCAT
 
 Split a prepbufr file into its subsets, and runs bufr2ioda.x on the 
 resulting scatterometer prepbufr file
