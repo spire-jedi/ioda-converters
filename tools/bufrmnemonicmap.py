@@ -40,7 +40,8 @@ def bufrmnemonicmap(BUFRFileName, obsType, textFile=None):
 
     # get a list of the mnemonics of all the fields shown for the observation
     # type in the .tbl file
-    treeTop = bufrTableTools.MnemonicNode(obsType, False, None, 0)
+    #treeTop = bufrTableTools.MnemonicNode(obsType, False, None, 0)
+    treeTop = bufrTableTools.MnemonicNode(obsType, None, seq=True)
     bufrTableTools.buildMnemonicTree(treeTop, section2)
 
     indentation = 0
@@ -70,14 +71,19 @@ def createMap(node, section1, indentation):
     """
 
     spaces = indentation*' '
-    if node.repl:
-        replication = " (replicated)"
+    if node.name[0] == '.':
+        # Don't know what to do with mnemnonics that begin with '.', so 
+        # just list the mnemonic
+        msg = f"\n{spaces}{node.name}"
     else:
-        replication = ""
-    msg = f"\n{spaces}{node.name}{replication}   {section1[node.name]}"
+        if node.repl:
+            replication = " (replicated)"
+        elif node.name[0]:
+            replication = ""
+        msg = f"\n{spaces}{node.name}{replication}   {section1[node.name]}"
 
-    for i in range(len(node.children)):
-        msg += createMap(node.children[i], section1, indentation + 4)
+        for i in range(len(node.children)):
+            msg += createMap(node.children[i], section1, indentation + 4)
 
     return msg
 

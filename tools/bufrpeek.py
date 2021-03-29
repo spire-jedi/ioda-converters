@@ -53,7 +53,7 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     #mnemonicList = bufrTableTools.removeDuplicateMnemonics \
                    #(bufrTableTools.getMnemonicListAll(obsType, section2))
     mnemonicList = bufrTableTools.firstMnemonicOccurrence \
-                   (bufrTableTools.getMnemonicListBase(obsType, section2))
+                   (bufrTableTools.getMnemonicListMinimal(obsType, section2))
 
     # get the user's choice of which field to dump
     whichField = getMnemonicChoice(mnemonicList, section1)
@@ -144,7 +144,9 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
         #sequenceLength = len([x for x in whichField.children if not x.seq])
         #sequenceLength = len([x for x in whichField.children if 
                               #len(x.children) == 0])
-        leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
+        #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
+        leafIndices = [i for i,x in enumerate(whichField.children) if
+                       len(x.children) == 0]
         fd.write("Order of individual fields: {}\n".format(
             [x.name for x in whichField.children if len(x.children) == 0]))
     #else:
@@ -164,7 +166,8 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
         while (bufr.load_subset() == 0):
             isub += 1
             Vals = bufr.read_subset \
-                   (whichField.name, seq=len(whichField.children) > 0).data.squeeze()
+                   (whichField.name, seq=whichField.seq)
+                   #(whichField.name, seq=len(whichField.children) > 0).data.squeeze()
             if len(whichField.children) > 0:
                 leafValues = []
                 try:
@@ -208,11 +211,9 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
     if len(whichField.children) > 0:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
-        # I've found 1 case so far in which a sequence contains a sequence.
-        # I don't know how that is handled, but in this case the child
-        # sequence was the last child so I can skip it. If the child sequence
-        # isn't the last child, the results will not be correct.
-        leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
+        #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
+        leafIndices = [i for i,x in enumerate(whichField) if 
+                       len(x.children) == 0]
         mnemonics = [x.name for x in whichField.children
                      if not len(x.children) > 0]
         for i in range(1, len(mnemonics)):
@@ -233,8 +234,13 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
         if bfd._subsets() < 1:
             continue
         while bfd.load_subset() == 0:
-            vals = bfd.read_subset \
-                   (whichField.name, seq=len(whichField.children) > 0).data.squeeze()
+            #if "EVENT" in whichField.name:
+            if whichField.event:
+                bfr.read_subset(whichField.name, event=True)
+            else:
+                vals = bfd.read_subset \
+                       (whichField.name, seq=whichField.seq)
+                       #(whichField.name, seq=len(whichField.children) > 0).data.squeeze()
 
             if idxSubset == 0:
                 # first time throught create variables

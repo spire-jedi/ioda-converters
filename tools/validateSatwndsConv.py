@@ -9,6 +9,7 @@ import os
 import os.path
 import subprocess
 import sys
+import time
 import yaml
 
 sys.path.append(os.path.dirname(sys.argv[0]))
@@ -121,7 +122,10 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
                 dateTimeFields = fd.read_subset(datetimeSearchString)
                 # some BUFR files don't have a seconds field. Set the
                 # seconds to 0 if this is the case
-                if dateTimeFields.mask.size == 6 and dateTimeFields[5]:
+                if dateTimeFields.mask.size < 5:
+                    msg = "No date/time field in files\n"
+                    return msg
+                elif dateTimeFields.mask.size == 6 and dateTimeFields[5]:
                     dateTimeFields[5] = 0.
                 # create a datetime string to match what's in the IODA file
 
@@ -346,7 +350,7 @@ def prepMnemonics(bufrFileName, obsType, bufrMnemonics):
     soloList = [x for i, x in enumerate(soloList) if x.name not in 
                 [y.name for y in soloList[:i]]]
 
-    # if the parent name is no the observation (subset) type, then the
+    # if the parent name is not the observation (subset) type, then the
     # field is part of a sequence.
     seqList = [x for x in mnemonicList if x.name in bufrMnemonics
                and x.name not in soloList and x.parent.name != obsType]
@@ -356,6 +360,17 @@ def prepMnemonics(bufrFileName, obsType, bufrMnemonics):
     seqList = [x for i, x in enumerate(seqList) if x.name not in 
                [y.name for y in seqList[:i]] and x.name not in 
                [y.name for y in soloList]]
+
+    # ncepbufr can't read events, so need to get the individual mnemonics
+    # that are needed from the event's child nodes
+    transferred = []
+    for m in seqList:
+        if m.parent.event:
+            soloList.append(m)
+            transferred.append(m)
+    transferred.reverse()
+    for m in transferred:
+        del seqList[seqList.index(m)]
 
     return soloList, seqList
 
@@ -398,8 +413,11 @@ def retrvBufrData(bufrFile, obsType, soloList, seqList):
 
     # step through the BUFR file
     ncols = {}
+    count = 0
     while fd.advance() == 0:
+        print(fd.msg_type, "  ", count)
         while fd.load_subset() == 0:
+            count += 1
             if fd.msg_type == obsType:
 
                 # Retrieve the fields that are not part of a sequence
@@ -420,7 +438,10 @@ def retrvBufrData(bufrFile, obsType, soloList, seqList):
                 for m in seqList:
                     slug = fd.read_subset(m.parent.name, seq=True)
                     for i in range(slug.shape[1]):
-                        tmpArrays[m.name].append(slug[m.seq_index][i])
+                        #tmpArrays[m.name].append(slug[m.seq_index][i])
+                        idx = [i for i,x in enumerate(m.parent.children) if
+                               x == m][0]
+                        tmpArrays[m.name].append(slug[idx][i])
                     ncols[m.name] = slug.shape[1]
 
     fd.close()

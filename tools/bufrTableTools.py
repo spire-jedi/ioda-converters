@@ -18,8 +18,9 @@ SECTION1_PATTERN = "\|.{10}\|.{8}\|.{58}\|"
 SECTION2_PATTERN = "\|.{10}\|.{67}\|"
 SECTION3_PATTERN = "\|.{10}\|.{6}\|.{13}\|.{5}\|.{26}\|-{13}\|"
 DEFINED_MNEMONIC_PATTERN = "^\| [A-Z|0-9|_]{3,}"
-DELAYED_REP_PATTERN = "\{|\(|\<|\[[A-Z|0-9|_]{3,}"
+DELAYED_REP_PATTERN = "\{|\(|\<[A-Z|0-9|_]{3,}"
 REGULAR_REP_PATTERN = "\"[A-Z|0-9|_]{3,}\"\d{1,}"
+EVENT_PATTERN = "\[[A-Z|0-9|_]{3,}\]"
 
 # exception for BUFR files/tables
 class BUFRTableError(Exception):
@@ -36,21 +37,22 @@ class DictFileError(Exception):
 # class (used like a C struct) for nodes in a tree for mnemonics from
 # a BUFR table
 class MnemonicNode:
-    def __init__(self, name, repl, parent, seqIndex):
+    def __init__(self, name, parent, seq=False, repl=False, event=False):
         """ contructor
 
             Input:
                 name - mnemonic name
-                repl - True if the mnemonic has replication, False otherwise
                 parent - the MnemonicNode for the current mnemonic's parent
-                seqIndex - if the parent is a sequence mnemonic, the position
-                           in the list of children
+                seq - True if the mnemonic is a sequence, False otherwise
+                repl - True if the mnemonic has replication, False otherwise
+                event - True if the mnemonic is an event, False otherwise
         """
 
         self.name = name
-        self.repl = repl
         self.parent = parent
-        self.seq_index = seqIndex
+        self.seq = seq
+        self.repl = repl
+        self.event = event
         self.children = []
         return
 
@@ -170,9 +172,12 @@ def readDictFile(dictFile):
     return dictDict
 
 
-def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
+def getMnemonicListLeavesAndSeq(obsType, section2, parentsToPrune=[],
+                                leavesToPrune=[]):
     """ returns a list of the mnemonics, both leaves and sequences, that can 
-        be used to read fields from a BUFR file for a specific observation type
+        be used to read fields from a BUFR file for a specific observation
+        type. Sequences are included if they have child nodes that are
+        leaves.
 
         Input:
             obsType - observation type (e.g., "NC031001") or parent key
@@ -190,12 +195,13 @@ def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
     """
 
     # need to create a root node for a tree
-    treeTop = MnemonicNode(obsType, False, None, 0)
+    #treeTop = MnemonicNode(obsType, False, None, 0)
+    treeTop = MnemonicNode(obsType, None, seq=True)
 
     buildMnemonicTree(treeTop, section2)
     if parentsToPrune or leavesToPrune:
         status = pruneTree(treeTop, parentsToPrune, leavesToPrune)
-    mnemonicList = findDumpableNodes(treeTop, obsType)
+    mnemonicList = findLeavesAndSeqNodes(treeTop, obsType)
     # There are numerous instances in which leaves from different sequences
     # have the same mnemonic. For the purposes of this function, these
     # leaves are deleted.
@@ -206,8 +212,8 @@ def getMnemonicListAll(obsType, section2, parentsToPrune=[], leavesToPrune=[]):
     return mnemonicList
 
 
-def getMnemonicListBase(obsType, section2, parentsToPrune=[],
-                        leavesToPrune=[]):
+def getMnemonicListMinimal(obsType, section2, parentsToPrune=[],
+                           leavesToPrune=[]):
     """ returns a minimalist list of the mnemonics that can be extracted from 
         a BUFR file for a specific observation type. This means that 
         mnemonics for leaves that are in a sequence are not included because 
@@ -229,12 +235,13 @@ def getMnemonicListBase(obsType, section2, parentsToPrune=[],
     """
 
     # need to create a root node for a tree
-    treeTop = MnemonicNode(obsType, False, None, 0)
+    #treeTop = MnemonicNode(obsType, False, None, 0)
+    treeTop = MnemonicNode(obsType, None, seq=True)
 
     buildMnemonicTree(treeTop, section2)
     if parentsToPrune or leavesToPrune:
         status = pruneTree(treeTop, parentsToPrune, leavesToPrune)
-    mnemonicList = findSearchableNodes(treeTop, obsType)
+    mnemonicList = findLeavesOrSeqNodes(treeTop, obsType)
 
     return mnemonicList
 
@@ -252,7 +259,8 @@ def getMnemonicListLeaves(obsType, section2):
     """
 
     # need to create a root node for a tree
-    treeTop = MnemonicNode(obsType, False, None, 0)
+    #treeTop = MnemonicNode(obsType, False, None, 0)
+    treeTop = MnemonicNode(obsType, None, seq=True)
 
     buildMnemonicTree(treeTop, section2)
     mnemonicList = traverseMnemonicTree(treeTop)
@@ -277,9 +285,14 @@ def buildMnemonicTree(root, section2):
         if re.search(DELAYED_REP_PATTERN, m):
             m = m[1:-1]
             repl = True
+            event = False
         elif re.search(REGULAR_REP_PATTERN, m):
             m = m[1:m[1:].index('"') + 1]
             repl = True
+        elif re.search(EVENT_PATTERN, m):
+            m = m[1:-1]
+            repl = True
+            event = True
         #elif m[0] == '.':
             # don't know how to handle mnemonics beginning with a .
             #continue
@@ -288,22 +301,26 @@ def buildMnemonicTree(root, section2):
             continue
         else:
             repl = False
+            event = False
 
-        # last argument assigns 0 to 1st child, 1 to 2nd child, etc.
-        node = MnemonicNode(m, repl, root, findIndexInSequence(root.children))
+        # 4th argument assigns 0 to 1st child, 1 to 2nd child, etc.
+        #node = MnemonicNode(m, repl, root, findIndexInSequence(root.children),
+                            #event)
 
         if m in section2.keys():
-            # if m is a key then it is a parent, so get its members
+            # if m is a key then it is a parent (sequence), so get its members
+            node = MnemonicNode(m, root, seq=True, repl=repl, event=event)
             root.children.append(node)
             buildMnemonicTree(node, section2)
         else:
             # not a parent, so it is a field name.
+            node = MnemonicNode(m, root, repl=repl)
             root.children.append(node)
 
     return 
 
 
-def findSearchableNodes(root, obsType):
+def findLeavesOrSeqNodes(root, obsType):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
         that is a sequence is a parent of 1 or more leaves. Leaves are not
@@ -323,7 +340,7 @@ def findSearchableNodes(root, obsType):
     if len(root.children) > 0:
         # root is not a leaf so visit its children
         for node in root.children:
-            nodeList.extend(findSearchableNodes(node, obsType))
+            nodeList.extend(findLeavesOrSeqNodes(node, obsType))
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
@@ -335,15 +352,10 @@ def findSearchableNodes(root, obsType):
             if root.name[0] != '.':
                 nodeList.append(root)
 
-    # remove duplicates (will happen if leaf nodes share a parent that is
-    # a sequence)
-    #nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]
-                #or len(x.children) == 0]
-
     return nodeList
 
 
-def findDumpableNodes(root, obsType):
+def findLeavesAndSeqNodes(root, obsType):
     """ finds the nodes that reference a mnemonic that can be retrieved
         from a BUFR file. These nodes are the leaves except when a node
         that is a sequence is a parent of 1 or more leaves. If a node is
@@ -364,7 +376,7 @@ def findDumpableNodes(root, obsType):
     if len(root.children) > 0:
         # root is not a leaf so visit its children
         for node in root.children:
-            nodeList.extend(findDumpableNodes(node, obsType))
+            nodeList.extend(findLeavesAndSeqNodes(node, obsType))
     else:
         # a leaf, so it is added to the list unless its parent is a sequence,
         # in which case its parent is added (unless its parent is the obs type)
@@ -376,10 +388,6 @@ def findDumpableNodes(root, obsType):
             nodeList.append(root.parent)
             #root.parent.children \
                 #= [x for x in root.parent.children if x.name[0] != '.']
-
-    # remove duplicates (will happen if leaf nodes share a parent that is
-    # a sequence)
-    #nodeList = [x for i,x in enumerate(nodeList) if not x in nodeList[:i]]
 
     return nodeList
 
