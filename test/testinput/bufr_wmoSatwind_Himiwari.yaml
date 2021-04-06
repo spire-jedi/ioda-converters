@@ -1,0 +1,168 @@
+# (C) Copyright 2021 UCAR
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+observations:
+  - obs space:
+      name: bufr
+      obsdatain: "./testinput/satwind_Himiwari_wmo.bufr"
+      isStdFormat: true
+#     tablepath: "./testinput/bufr_tables"
+      tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
+
+      mnemonicSets:
+        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, CLATH, CLONH]
+        - mnemonics: [SAID, GCLONG, SIDP, SWCM, GNAP, HAMD]
+        - mnemonics: [SAZA, TCMD]
+        - mnemonics: [PRLC, WDIR, WSPD]
+        - mnemonics: [MAQC]
+          channels: 1-4
+        - mnemonics: [PCCF]
+          channels: 1-4
+
+      exports:
+        filters:
+          - bounding:
+              mnemonic: CLONH
+              lowerBound: -180
+              upperBound: 180
+        variables:
+          datetime:
+            datetime:
+              year: YEAR
+              month: MNTH
+              day: DAYS
+              hour: HOUR
+              minute: MINU
+          latitude:
+            mnemonic: CLATH
+          longitude:
+            mnemonic: CLONH
+          satelliteId:
+            mnemonic: SAID
+          dataProviderOrigin:
+            mnemonic: GCLONG
+          generatingApplication:
+            mnemonic: GNAP
+          windComputationMethod:
+            mnemonic: SWCM
+          windHeightAssignMethod:
+            mnemonic: HAMD
+          windTrackingCorrelation:
+            mnemonic: TCMD
+          sensorZenithAngle:
+            mnemonic: SAZA
+          pressureAir:
+            mnemonic: PRLC
+          windDirection:
+            mnemonic: WDIR
+          windSpeed:
+            mnemonic: WSPD
+          windPercentConfidence:
+            mnemonic: PCCF
+
+    ioda:
+      backend: netcdf
+      obsdataout: "./testrun/satwind_Himiwari.nc"
+
+      dimensions:
+        - name: "nlocs"
+          size: variables/latitude.nrows
+        - name: "nconfidences"
+          size: variables/windPercentConfidence.ncols
+
+      globals:
+        - name: "platformCommonName@MetaData"
+          type: string
+          value: "Himiwari_AMV"
+
+        - name: "platformLongDescription@MetaData"
+          type: string
+          value: "Himiwari AMV from IR cloudy regions"
+
+      variables:
+        - name: "satelliteId@MetaData"
+          source: variables/satelliteId
+          dimensions: ["nlocs"]
+          longName: "Satellite identification"
+          units: ""
+
+        - name: "latitude@MetaData"
+          source: variables/latitude
+          dimensions: ["nlocs"]
+          longName: "Latitude"
+          units: "degrees"
+          range: [-90, 90]
+
+        - name: "longitude@MetaData"
+          source: variables/longitude
+          dimensions: ["nlocs"]
+          longName: "Longitude"
+          units: "degrees"
+          range: [-180, 180]
+
+        - name: "datetime@MetaData"
+          source: variables/datetime
+          dimensions: ["nlocs"]
+          longName: "DateTime"
+          units: "datetime"
+
+        - name: "dataProviderOrigin@MetaData"
+          source: variables/dataProviderOrigin
+          dimensions: ["nlocs"]
+          longName: "Data provider origin"
+          units: ""
+
+        - name: "generatingApplication@MetaData"
+          source: variables/generatingApplication
+          dimensions: ["nlocs"]
+          longName: "Generating application"
+          units: ""
+
+        - name: "windComputationMethod@MetaData"
+          source: variables/windComputationMethod
+          dimensions: ["nlocs"]
+          longName: "Satellite wind calculation method"
+          units: " "
+
+        - name: "windHeightAssignMethod@MetaData"
+          source: variables/windHeightAssignMethod
+          dimensions: ["nlocs"]
+          longName: "Satellite wind height assignment method"
+          units: " "
+
+        - name: "sensorZenithAngle@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/sensorZenithAngle
+          dimensions: ["nlocs"]
+          longName: "Satellite zenith angle"
+          units: "degrees"
+
+        - name: "pressureAir@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/pressureAir
+          dimensions: ["nlocs"]
+          longName: "Pressure"
+          units: "Pa"
+
+        - name: "windDirection@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windDirection
+          dimensions: ["nlocs"]
+          longName: "Wind direction"
+          units: "degrees true"
+
+        - name: "windSpeed@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windSpeed
+          dimensions: ["nlocs"]
+          longName: "Wind Speed"
+          units: "m s-1"
+
+        - name: "windPercentConfidence@MetaData"
+          coordinates: "longitude latitude nconfidences"
+          source: variables/windPercentConfidence
+          dimensions: ["nlocs", "nconfidences"]
+          longName: "Percent confidence"
+          units: "percent"
