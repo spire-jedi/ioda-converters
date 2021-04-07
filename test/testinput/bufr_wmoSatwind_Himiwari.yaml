@@ -15,6 +15,7 @@ observations:
         - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, CLATH, CLONH]
         - mnemonics: [SAID, GCLONG, SIDP, SWCM, GNAP, HAMD]
         - mnemonics: [SAZA, TCMD]
+#       - mnemonics: [SCCF]
         - mnemonics: [PRLC, WDIR, WSPD]
         - mnemonics: [MAQC]
           channels: 1-4
@@ -45,6 +46,8 @@ observations:
             mnemonic: GCLONG
           generatingApplication:
             mnemonic: GNAP
+#         sensorCentralFrequency:
+#           mnemonic: SCCF
           windComputationMethod:
             mnemonic: SWCM
           windHeightAssignMethod:
