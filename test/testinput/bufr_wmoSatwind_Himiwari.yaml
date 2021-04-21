@@ -8,14 +8,14 @@ observations:
       name: bufr
       obsdatain: "./testinput/satwind_Himiwari_wmo.bufr"
       isWmoFormat: true
-#     tablepath: "./testinput/bufr_tables"
-      tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
+      tablepath: "./testinput/bufr_tables"
+#     tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
 
       mnemonicSets:
         - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, CLATH, CLONH]
         - mnemonics: [SAID, GCLONG, SIDP, SWCM, GNAP, HAMD]
         - mnemonics: [SAZA, TCMD]
-#       - mnemonics: [SCCF]
+        - mnemonics: [SCCF]
         - mnemonics: [PRLC, WDIR, WSPD]
         - mnemonics: [MAQC]
           channels: 1-4
@@ -46,8 +46,8 @@ observations:
             mnemonic: GCLONG
           generatingApplication:
             mnemonic: GNAP
-#         sensorCentralFrequency:
-#           mnemonic: SCCF
+          sensorCentralFrequency:
+            mnemonic: SCCF
           windComputationMethod:
             mnemonic: SWCM
           windHeightAssignMethod:
@@ -169,3 +169,10 @@ observations:
           dimensions: ["nlocs", "nconfidences"]
           longName: "Percent confidence"
           units: "percent"
+
+        - name: "sensorCentralFrequency@MetaData"
+          coordinates: "longitude latitude nconfidences"
+          source: variables/sensorCentralFrequency
+          dimensions: [ "nlocs", "nconfidences" ]
+          longName: "Sensor Central Frequency"
+          units: "hz"
