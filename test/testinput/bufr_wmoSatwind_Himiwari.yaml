@@ -8,8 +8,8 @@ observations:
       name: bufr
       obsdatain: "./testinput/satwind_Himiwari_wmo.bufr"
       isWmoFormat: true
-      tablepath: "./testinput/bufr_tables"
-#      tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
+      #tablepath: "./testinput/bufr_tables"
+      tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
 
       mnemonicSets:
         - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, CLATH, CLONH]
@@ -173,6 +173,6 @@ observations:
         - name: "sensorCentralFrequency@MetaData"
           coordinates: "longitude latitude nconfidences"
           source: variables/sensorCentralFrequency
-          dimensions: [ "nlocs", "nconfidences" ]
+          dimensions: [ "nlocs" ]
           longName: "Sensor Central Frequency"
           units: "hz"

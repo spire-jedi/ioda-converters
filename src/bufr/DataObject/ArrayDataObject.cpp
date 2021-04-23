@@ -6,6 +6,9 @@
  */
 
 #include <iostream>
+#include <ostream>
+
+#include "eckit/exception/Exceptions.h"
 
 #include "ArrayDataObject.h"
 
@@ -24,6 +27,18 @@ namespace Ingester
     {
         auto params = makeCreationParams(chunks, compressionLevel);
         auto var = obsGroup.vars.createWithScales<FloatType>(name, dimensions, params);
+
+        if ((dimensions.size() != 1 + static_cast<size_t>(eigArray_.cols() > 1)) ||
+            (dimensions[0].getDimensions().numElements != eigArray_.rows()) ||
+            ((dimensions.size() == 2) &&
+             (dimensions[1].getDimensions().numElements != eigArray_.cols())))
+        {
+            std::stringstream errStr;
+            errStr << "The dimensions of the data for " << name << " does not match the number ";
+            errStr << "that is configured for this variable.";
+            throw eckit::BadParameter(errStr.str());
+        }
+
         var.writeWithEigenRegular(eigArray_);
         return var;
     }
