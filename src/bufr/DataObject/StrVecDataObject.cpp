@@ -6,6 +6,9 @@
  */
 
 #include <iostream>
+#include <ostream>
+
+#include "eckit/exception/Exceptions.h"
 
 #include "StrVecDataObject.h"
 
@@ -25,6 +28,16 @@ namespace Ingester
     {
         auto params = makeCreationParams(chunks, compressionLevel);
         auto var = obsGroup.vars.createWithScales<std::string>(name, dimensions, params);
+
+        if ((dimensions.size() != 1) ||
+            (dimensions[0].getDimensions().numElements != static_cast<int64_t>(strVector_.size())))
+        {
+            std::stringstream errStr;
+            errStr << "The dimensions of the data for " << name << " does not match the number ";
+            errStr << "that is configured for this variable.";
+            throw eckit::BadParameter(errStr.str());
+        }
+
         var.write(strVector_);
         return var;
     }
