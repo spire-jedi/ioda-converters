@@ -30,7 +30,7 @@ namespace Ingester
         auto var = obsGroup.vars.createWithScales<std::string>(name, dimensions, params);
 
         if ((dimensions.size() != 1) ||
-            (dimensions[0].getDimensions().numElements != static_cast<long int>(strVector_.size())))
+            (dimensions[0].getDimensions().numElements != static_cast<int64_t>(strVector_.size())))
         {
             std::stringstream errStr;
             errStr << "The dimensions of the data for " << name << " does not match the number ";
