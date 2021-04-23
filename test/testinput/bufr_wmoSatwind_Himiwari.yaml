@@ -8,7 +8,8 @@ observations:
       name: bufr
       obsdatain: "./testinput/satwind_Himiwari_wmo.bufr"
       isWmoFormat: true
-      #tablepath: "./testinput/bufr_tables"
+
+#     tablepath: "./testinput/bufr_tables"
       tablepath: "~/src/ioda-converters/bufr_to_ioda/bufr_tables"
 
       mnemonicSets:
