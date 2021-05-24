@@ -119,7 +119,7 @@ observations:
           longName: "Wind Speed"
           units: "m/s"
 
-        - name: "PressureStation@ObsValue"
+        - name: "pressureStation@ObsValue"
           coordinates: "longitude latitude"
           source: variables/pressureStation
           dimensions: [ "nlocs" ]
