@@ -1,4 +1,4 @@
-# (C) Copyright 2021 NOAA/NWS/NCEP/EMC
+# (C) Copyright 2021 UCAR
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -53,7 +53,7 @@ observations:
 
       dimensions:
         - name: "nlocs"
-          size: variables/air_temperature.nrows
+          size: variables/temperatureAir.nrows
 
       variables:
         - name: "datetime@MetaData"
@@ -120,7 +120,7 @@ observations:
           longName: "Wind Speed"
           units: "m/s"
 
-        - name: "PressureStation@ObsValue"
+        - name: "pressureStation@ObsValue"
           coordinates: "longitude latitude"
           source: variables/pressureStation
           dimensions: [ "nlocs" ]
