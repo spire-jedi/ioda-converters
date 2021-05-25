@@ -64,7 +64,7 @@ observations:
 
       dimensions:
         - name: "nlocs"
-          size: variables/air_temperature.nrows
+          size: variables/latitude.nrows
 
       variables:
         - name: "datetime@MetaData"
@@ -115,8 +115,8 @@ observations:
           longName: "Aircraft tail number"
           units: ""
 
-        - name: "observationSequenceNumber@MetaData"
-          source: variables/observationSequenceNumber
+        - name: "observationSequenceNum@MetaData"
+          source: variables/observationSequenceNum
           dimensions: [ "nlocs" ]
           longName: "Observation sequence number"
           units: ""
