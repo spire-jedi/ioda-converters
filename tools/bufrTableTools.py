@@ -289,6 +289,7 @@ def buildMnemonicTree(root, section2):
         elif re.search(REGULAR_REP_PATTERN, m):
             m = m[1:m[1:].index('"') + 1]
             repl = True
+            event = False
         elif re.search(EVENT_PATTERN, m):
             m = m[1:-1]
             repl = True
