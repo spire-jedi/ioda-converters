@@ -13,6 +13,7 @@ except ModuleNotFoundError:
     print("netCDF4 module not found, so can't choose netCDF output option")
 import numpy as np
 import os.path
+import struct
 import subprocess
 import sys
 
@@ -50,8 +51,6 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
 
     # get a list of the mnemonics of all the fields shown for the observation
     # type in the .tbl file
-    #mnemonicList = bufrTableTools.removeDuplicateMnemonics \
-                   #(bufrTableTools.getMnemonicListAll(obsType, section2))
     mnemonicList = bufrTableTools.firstMnemonicOccurrence \
                    (bufrTableTools.getMnemonicListMinimal(obsType, section2))
 
@@ -61,12 +60,12 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
     # dump the field
     if textFile:
         fd = open(textFile, 'w')
-        dumpBUFRField(BUFRFileName, obsType, whichField, fd)
+        dumpBUFRField(BUFRFileName, obsType, whichField, fd, section3)
         fd.close()
     elif netCDFFile:
         BUFRField2netCDF(BUFRFileName, obsType, whichField, netCDFFile)
     else:
-        dumpBUFRField(BUFRFileName, obsType, whichField, sys.stdout)
+        dumpBUFRField(BUFRFileName, obsType, whichField, sys.stdout, section3)
 
     return
 
@@ -122,7 +121,7 @@ def getMnemonicChoice(mnemonicList, section1):
     return whichField
 
 
-def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
+def dumpBUFRField(BUFRFilePath, obsType, whichField, fd, section3):
     """ dumps the field from the BUFR file. The bulk of the code in this
         function was blatantly plagiarized from Steve Herbener's bufrtest.py.
 
@@ -131,6 +130,7 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
             obsType - the observation type code (NCxxxxxx)
             whichField - MnemonicNode object of the field to dump
             fd - file descriptor of file to write output to
+            section3 - section 3 from a BUFR table
     """
 
     if len(whichField.children) > 0:
@@ -141,10 +141,6 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
-        #sequenceLength = len([x for x in whichField.children if not x.seq])
-        #sequenceLength = len([x for x in whichField.children if 
-                              #len(x.children) == 0])
-        #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
         leafIndices = [i for i,x in enumerate(whichField.children) if
                        len(x.children) == 0]
         fd.write("Order of individual fields: {}\n".format(
@@ -167,27 +163,57 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd):
             isub += 1
             Vals = bufr.read_subset \
                    (whichField.name, seq=whichField.seq)
-                   #(whichField.name, seq=len(whichField.children) > 0).data.squeeze()
             if len(whichField.children) > 0:
                 leafValues = []
                 try:
                     for leaf in leafIndices:
-                        leafValues.append(Vals[leaf][:])
+                        if section3[whichField.children[leaf].name]["units"] \
+                           == "CCITT IA5":
+                            # character string
+                            for v in Vals[leaf][:]:
+                                try:
+                                    leafValues.append(struct.pack('d', v). \
+                                                      decode("utf-8"))
+                                except UnicodeDecodeError:
+                                    leafValues.append(Vals[leaf][:])
+                        else:
+                            # numeric
+                            leafValues.append(Vals[leaf][:])
                     fd.write(
                         "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
                         format(isub, other=leafValues))
-                        #format(isub, other=Vals[:sequenceLength,:]))
                 except IndexError:
                     for leaf in leafIndices:
-                        leafValues.append(Vals[leaf])
+                        if section3[whichField.children[leaf].name]["units"] \
+                           == "CCITT IA5":
+                            # character string
+                            try:
+                                leafValues.append(struct.pack('d',
+                                                              Vals[leaf]). \
+                                                  decode("utf-8"))
+                            except UnicodeDecodeError:
+                                leafValues.append(Vals[leaf])
+                        else:
+                            # numeric
+                            leafValues.append(Vals[leaf])
                     fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
                              format(isub, other=leafValues))
-                             #format(isub, other=Vals[:sequenceLength]))
             
             else:
-                fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
-                         format(isub, other=Vals))
-        #sys.exit(0)
+                if section3[whichField.name]["units"] == "CCITT IA5":
+                    # character string
+                    try:
+                        fd.write(
+                            "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
+                            format(isub, other=struct.pack('d', Vals).\
+                                   decode("utf-8")))
+                    except UnicodeDecodeError:
+                        fd.write(
+                            "    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
+                            format(isub, other=Vals))
+                else:
+                    fd.write("    SUBSET: {0:d}: MNEMONIC VALUES: {other}\n".
+                             format(isub, other=Vals))
 
     # clean up
     bufr.close()
@@ -212,7 +238,7 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
         #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
-        leafIndices = [i for i,x in enumerate(whichField) if 
+        leafIndices = [i for i,x in enumerate(whichField.children) if 
                        len(x.children) == 0]
         mnemonics = [x.name for x in whichField.children
                      if not len(x.children) > 0]
@@ -245,7 +271,8 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
             if idxSubset == 0:
                 # first time throught create variables
                 vars = collections.OrderedDict()
-                if len(vals.shape) == 2:
+                #if len(vals.shape) == 2:
+                if vals.shape[1] > 1:
                     dim2 = nfd.createDimension("nlevels", size=0)
                     dims = ("nlocs", "nlevels")
                 else:
@@ -260,13 +287,22 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
             # write the data. there must be a better way to do this
             idxVal = 0
             for k in vars.keys():
-                if len(vals.shape) == 2:
+                print(k, vals.shape, len(vals.shape))
+                #if len(vals.shape) == 2:
+                    #vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
+                        #= vals[leafIndices[idxVal],:]
+                #elif len(vals.shape) == 1:
+                    #vars[k][idxSubset:idxSubset+1] = vals[leafIndices[idxVal]]
+                #else:
+                    #vars[k][idxSubset:idxSubset+1] = vals
+                if vals.shape == (1,1):
+                    vars[k][idxSubset:idxSubset+1] = vals
+                elif vals.shape[1] == 1:
+                    vars[k][idxSubset:idxSubset+1] \
+                        = vals[leafIndices[idxVal],0]
+                else:
                     vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
                         = vals[leafIndices[idxVal],:]
-                elif len(vals.shape) == 1:
-                    vars[k][idxSubset:idxSubset+1] = vals[leafIndices[idxVal]]
-                else:
-                    vars[k][idxSubset:idxSubset+1] = vals
                 idxVal += 1
 
             idxSubset += 1
