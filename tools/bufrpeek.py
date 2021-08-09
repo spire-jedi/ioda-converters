@@ -234,7 +234,8 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
 
     nfd = netCDF4.Dataset(outputFile, 'w')
 
-    if len(whichField.children) > 0:
+    #if len(whichField.children) > 0:
+    if whichField.seq:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
         #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
@@ -249,6 +250,17 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
         mnemonics = [whichField.name]
 
     dim1 = nfd.createDimension("nlocs", size=0)
+    dims = ("nlocs")
+    if whichField.seq and whichField.repl:
+        dim2 = nfd.createDimension("nlevels", size=0)
+        dims = ("nlocs", "nlevels")
+
+    vars = collections.OrderedDict()
+    for m in mnemonics:
+        try:
+            vars[m] = nfd.createVariable(m, "f8", dims)
+        except RunTimeError:
+            print("not able to create variable ", m)
 
     bfd = ncepbufr.open(BUFRFilePath, 'r')
 
@@ -268,21 +280,21 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
                        (whichField.name, seq=whichField.seq)
                        #(whichField.name, seq=len(whichField.children) > 0).data.squeeze()
 
-            if idxSubset == 0:
+            #if idxSubset == 0:
                 # first time throught create variables
-                vars = collections.OrderedDict()
+                #vars = collections.OrderedDict()
                 #if len(vals.shape) == 2:
-                if vals.shape[1] > 1:
-                    dim2 = nfd.createDimension("nlevels", size=0)
-                    dims = ("nlocs", "nlevels")
-                else:
-                    dims = ("nlocs",)
+                #if vals.shape[1] > 1:
+                    #dim2 = nfd.createDimension("nlevels", size=0)
+                    #dims = ("nlocs", "nlevels")
+                #else:
+                    #dims = ("nlocs",)
 
-                for m in mnemonics:
-                    try:
-                        vars[m] = nfd.createVariable(m, "f8", dims)
-                    except RuntimeError:
-                        print("not able to create variable ", m)
+                #for m in mnemonics:
+                    #try:
+                        #vars[m] = nfd.createVariable(m, "f8", dims)
+                    #except RuntimeError:
+                        #print("not able to create variable ", m)
 
             # write the data. there must be a better way to do this
             idxVal = 0
@@ -300,7 +312,7 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
                 elif vals.shape[1] == 1:
                     vars[k][idxSubset:idxSubset+1] \
                         = vals[leafIndices[idxVal],0]
-                else:
+                elif vals.shape[1] > 1:
                     vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
                         = vals[leafIndices[idxVal],:]
                 idxVal += 1
