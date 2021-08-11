@@ -63,7 +63,8 @@ def bufrdump(BUFRFileName, obsType, textFile=None, netCDFFile=None):
         dumpBUFRField(BUFRFileName, obsType, whichField, fd, section3)
         fd.close()
     elif netCDFFile:
-        BUFRField2netCDF(BUFRFileName, obsType, whichField, netCDFFile)
+        BUFRField2netCDF(BUFRFileName, obsType, whichField, netCDFFile,
+                         section3)
     else:
         dumpBUFRField(BUFRFileName, obsType, whichField, sys.stdout, section3)
 
@@ -221,7 +222,7 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd, section3):
     return
 
 
-def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
+def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile, section3):
     """ dumps the field from the BUFR file to a netCDF file.
 
         Input:
@@ -229,16 +230,15 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
             obsType - the observation type code (NCxxxxxx)
             whichField - MnemonicNode object of field to dump
             outputFile - full pathname of the file to write to
+            section3 - section 3 from a BUFR table
     """
 
 
     nfd = netCDF4.Dataset(outputFile, 'w')
 
-    #if len(whichField.children) > 0:
     if whichField.seq:
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
-        #leafIndices = [x.seq_index for x in whichField.children if len(x.children) == 0]
         leafIndices = [i for i,x in enumerate(whichField.children) if 
                        len(x.children) == 0]
         mnemonics = [x.name for x in whichField.children
@@ -250,16 +250,20 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
         mnemonics = [whichField.name]
 
     dim1 = nfd.createDimension("nlocs", size=0)
-    dims = ("nlocs")
+    dims = ("nlocs",)
     if whichField.seq and whichField.repl:
         dim2 = nfd.createDimension("nlevels", size=0)
         dims = ("nlocs", "nlevels")
+    strDim = nfd.createDimension("strLength", 8)
+    dimsChar = dims + ("strLength",)
 
     vars = collections.OrderedDict()
     for m in mnemonics:
         try:
-            vars[m] = nfd.createVariable(m, "f8", dims)
-        except RunTimeError:
+            vars[m] = nfd.createVariable(m, "c", dimsChar) if \
+                      section3[m.split('_')[0]]["units"] == "CCITT IA5" else \
+                      nfd.createVariable(m, "f8", dims)
+        except RuntimeError:
             print("not able to create variable ", m)
 
     bfd = ncepbufr.open(BUFRFilePath, 'r')
@@ -299,7 +303,7 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
             # write the data. there must be a better way to do this
             idxVal = 0
             for k in vars.keys():
-                print(k, vals.shape, len(vals.shape))
+                #print(k, vals.shape, len(vals.shape))
                 #if len(vals.shape) == 2:
                     #vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
                         #= vals[leafIndices[idxVal],:]
@@ -308,13 +312,42 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile):
                 #else:
                     #vars[k][idxSubset:idxSubset+1] = vals
                 if vals.shape == (1,1):
-                    vars[k][idxSubset:idxSubset+1] = vals
+                    # field is not a sequence
+                    try:
+                        vars[k][idxSubset:idxSubset+1] \
+                            = val if vars[k].dtype == np.float64 else \
+                            struct.pack('d', vals).decode("utf-8")
+                    except UnicodeDecodeError:
+                        vars[k][idxSubset:idxSubset+1] = "        "
                 elif vals.shape[1] == 1:
-                    vars[k][idxSubset:idxSubset+1] \
-                        = vals[leafIndices[idxVal],0]
+                    # field is part of a sequence with no replication
+                    try:
+                        vars[k][idxSubset:idxSubset+1] \
+                            = vals[leafIndices[idxVal], 0] if vars[k].dtype \
+                            == np.float64 else struct.pack(
+                                'd', vals[leafIndices[idxVal],0]). \
+                            decode("utf-8")
+                    except UnicodeDecodeError:
+                        print("A UnicodeDecodeError was found (why?)")
+                        print(vars[k])
+                        print(vars[k].__dict__)
+                        print(vals[leafIndices[idxVal],0])
+                        print(m, section3[m.split('_')[0]]["units"])
+                        vars[k][idxSubset:idxSubset+1] = "        "
                 elif vals.shape[1] > 1:
-                    vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
-                        = vals[leafIndices[idxVal],:]
+                    # field is part of a sequence with replication
+                    if vars[k].dtype == np.float64:
+                        vars[k][idxSubset:idxSubset+1,0:vals.shape[1]] \
+                            = vals[leafIndices[idxVal],:]
+                    else:
+                        for i in range(vals.shape[1]):
+                            try:
+                                vars[k][idxSubset, i] \
+                                    = struct.pack(
+                                        'd', vals[leafIndices[idxVal],i]). \
+                                    decode("utf-8")
+                            except UnicodeDecodeError:
+                                vars[k][idxSubset, i] = "        "
                 idxVal += 1
 
             idxSubset += 1
