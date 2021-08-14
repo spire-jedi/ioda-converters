@@ -400,8 +400,8 @@ subroutine read_amsua_amsub_mhs_ears (filename, filedate)
          if ( lalodat(2) < r8bfms ) rlink % lon = lalodat(2)
 
          rlink % satid  = nint(infodat(1))  ! SAID satellite identifier
-         if (rlink % nchan == nchan_amsua) &
-         rlink % instid = 570  ! SSIN instrument identifier
+         if (rlink % nchan == nchan_amsua) rlink % instid = 570  ! SSIN instrument identifier
+         if (rlink % nchan == nchan_mhs)   rlink % instid = 203  ! SSIN instrument identifier
 
          if ( infodat(3)  < r8bfms ) rlink % scanpos = nint(infodat(3)) ! FOVN field of view number
          if ( infodat(4)  < r8bfms ) rlink % landsea = infodat(4)       ! LSQL land sea qualifier 0:land, 1:sea, 2:coast
