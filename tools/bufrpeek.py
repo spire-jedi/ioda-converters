@@ -84,8 +84,10 @@ def getMnemonicChoice(mnemonicList, section1):
     """
 
     # separate the fields into sequences and single ("solitary") fields
-    solitaryList = [x for x in mnemonicList if len(x.children) == 0]
-    sequenceList = [x for x in mnemonicList if len(x.children) > 0]
+    solitaryList = [x for x in mnemonicList if not x.seq]
+    sequenceList = [x for x in mnemonicList if x.seq]
+    #solitaryList = [x for x in mnemonicList if len(x.children) == 0]
+    #sequenceList = [x for x in mnemonicList if len(x.children) > 0]
 
     # post a list of the fields
     idx = 0
@@ -134,7 +136,8 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd, section3):
             section3 - section 3 from a BUFR table
     """
 
-    if len(whichField.children) > 0:
+    if whichField.seq:
+    #if len(whichField.children) > 0:
         # I don't know what happens if a sequence contains parents. the 
         # following 2 statements may cause errors if the parents are not
         # at the end of the list of children.
@@ -142,10 +145,14 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd, section3):
         # I don't know how that is handled, but in this case the child
         # sequence was the last child so I can skip it. If the child sequence
         # isn't the last child, the results will not be correct.
-        leafIndices = [i for i,x in enumerate(whichField.children) if
-                       len(x.children) == 0]
+        leafIndices = [i for i,x in enumerate(whichField.children) \
+                       if not x.seq]
         fd.write("Order of individual fields: {}\n".format(
-            [x.name for x in whichField.children if len(x.children) == 0]))
+            [x.name for x in whichField.children if not x.seq]))
+        #leafIndices = [i for i,x in enumerate(whichField.children) if
+                       #len(x.children) == 0]
+        #fd.write("Order of individual fields: {}\n".format(
+            #[x.name for x in whichField.children if len(x.children) == 0]))
     #else:
         #sequenceLength = 1
 
@@ -164,7 +171,8 @@ def dumpBUFRField(BUFRFilePath, obsType, whichField, fd, section3):
             isub += 1
             Vals = bufr.read_subset \
                    (whichField.name, seq=whichField.seq)
-            if len(whichField.children) > 0:
+            #if len(whichField.children) > 0:
+            if whichField.seq:
                 leafValues = []
                 try:
                     for leaf in leafIndices:
@@ -240,9 +248,10 @@ def BUFRField2netCDF(BUFRFilePath, obsType, whichField, outputFile, section3):
         # get the individual mnemonics that are in the sequence, faking names
         # where there are duplicates by adding underscores
         leafIndices = [i for i,x in enumerate(whichField.children) if 
-                       len(x.children) == 0]
-        mnemonics = [x.name for x in whichField.children
-                     if not len(x.children) > 0]
+                       not x.seq]
+                       #len(x.children) == 0]
+        mnemonics = [x.name for x in whichField.children if not x.seq]
+                     #if not len(x.children) > 0]
         for i in range(1, len(mnemonics)):
             while mnemonics[i] in mnemonics[0:i]:
                 mnemonics[i] = mnemonics[i] + '_'
