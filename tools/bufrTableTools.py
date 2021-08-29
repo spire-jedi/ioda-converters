@@ -473,7 +473,8 @@ def pruneTree(root, parentsToPrune, leavesToPrune):
         while idx < len(root.children):
             # if the field is a sequence, prune all its children
             #if root.children[idx].seq:
-            if len(root.children[idx].children) > 0:
+            #if len(root.children[idx].children) > 0:
+            if root.children[idx].seq:
                 # if the child is a sequence, add its name to the list
                 # of sequences to prune
                 pruned = pruneTree(root.children[idx],
@@ -523,7 +524,8 @@ def findIndexInSequence(sequenceMnemonics):
 
     idx = 0
     for m in sequenceMnemonics:
-        if len(m.children) > 0:
+        #if len(m.children) > 0:
+        if m.seq:
             idx = idx + findIndexInSequence(m.children)
         else:
             idx += 1
