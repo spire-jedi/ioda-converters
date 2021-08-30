@@ -68,7 +68,8 @@ def validateSatwndsConv(bufrFile, obsType, iodaFile, yamlDir):
     fd = open(f"{obsType}_validation.txt", 'w')
     fd.write(f"{msgHdr}\n{varMsg}\n{dateTimeMsg}\n")
     for m in bufrMnemonicList:
-        if not m in varPairs.values() and not m in DATETIME_MNEMONICS:
+        if not m in varPairs.values() and not m in DATETIME_MNEMONICS \
+           and len(m) > 2:
             fd.write(f"BUFR mnemonic {m} not written to IODA file\n")
     fd.close()
 
@@ -122,7 +123,8 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
                 dateTimeFields = fd.read_subset(datetimeSearchString)
                 # some BUFR files don't have a seconds field. Set the
                 # seconds to 0 if this is the case
-                if dateTimeFields.mask.size < 5:
+                #if dateTimeFields.mask.size < 5:
+                if dateTimeFields.size < 5:
                     msg = "No date/time field in files\n"
                     return msg
                 elif dateTimeFields.mask.size == 6 and dateTimeFields[5]:
@@ -140,7 +142,8 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
 
     # Read the datetime variable from the IODA netCDF file
     #iodaDatetime = iodaDataset.groups["MetaData"].variables["datetime"][:]
-    iodaDatetime = iodaDataset.variables["datetime@MetaData"][:]
+    #iodaDatetime = iodaDataset.variables["datetime@MetaData"][:]
+    iodaDatetime = iodaDataset["MetaData"]["datetime"][:]
 
     msg = f"IODA date/time                {iodaDatetime.size:10d}  BUFR date/tim{len(bufrDatetime):12d}"
 
@@ -150,7 +153,7 @@ def compareDateTime(iodaDataset, bufrFile, obsType):
     else:
         differCount = 0
         for i in range(len(bufrDatetime)):
-            if bufrDatetime[i] != iodaDatetime[i]:
+            if bufrDatetime[i][:-1] != iodaDatetime[i][:-2]:
                 differCount += 1
         msg += f"{differCount:12d}\n"
 
@@ -198,7 +201,10 @@ def checkVariable(iodaDataset, iodaVar, bufrMnemonic, bufrValues):
     msg = ''
 
     # Get the data from the IODA netCDF file
-    iodaValues = iodaDataset.variables[iodaVar][:]
+    iV = iodaVar.split('@')[0]
+    iG = iodaVar.split('@')[1]
+    iodaValues = iodaDataset[iG][iV][:]
+    #iodaValues = iodaDataset.variables[iodaVar][:]
     if len(iodaValues.shape) != 1 or len(bufrValues.shape) != 1:
         # BUFR field is part of a sequence with repetition,  so the IODA
         # array is 2-dimensional
@@ -232,12 +238,16 @@ def checkVariable(iodaDataset, iodaVar, bufrMnemonic, bufrValues):
         msg += "lengths differ"
     else:
         if iodaValues.dtype == np.float32:
-            diffMeasure = max([0.00001, 0.00001*min(min(abs(iodaValues)),
-                                                    min(abs(bufrValues)))])
+            diffMeasure = max([0.0001, 0.0001*min(min(abs(iodaValues)),
+                                                  min(abs(bufrValues)))])
             differCount = 0
             diffArray = np.where(abs(iodaValues - bufrValues) > diffMeasure,
                                  True, False)
             differCount = len(np.extract(diffArray == True, diffArray))
+            #if differCount > 0:
+                #for i in range(iodaValues.shape[0]):
+                    #if abs(iodaValues[i] - bufrValues[i]) > diffMeasure:
+                        #print(i, iodaValues[i], bufrValues[i], iodaValues[i] - bufrValues[i], diffMeasure)
             msg += f"{differCount:12d}"
 
         else:
@@ -273,14 +283,23 @@ def matchIodaFieldsToBufr(obsType, yamlDir):
 
     for v in y["observations"][0]["ioda"]["variables"]:
         if v["name"] != "datetime@MetaData":
+        #if v["name"] != "datetime":
             varName = v["source"].split('/')[-1]
+            #fieldNamePairs[v["name"]] \
+                #= y["observations"][0]["obs space"]["exports"]["variables"][varName]["mnemonic"]
             fieldNamePairs[v["name"]] \
-                = y["observations"][0]["obs space"]["exports"]["variables"][varName]["mnemonic"]
+                = y["observations"][0]["obs space"]["exports"]["variables"][varName]["query"].split('/')[-1]
 
     bufrMnemonicList = []
-    for ms in y["observations"][0]["obs space"]["mnemonicSets"]:
-        if "mnemonics" in ms.keys():
-            bufrMnemonicList.extend(ms["mnemonics"])
+    #for ms in y["observations"][0]["obs space"]["mnemonicSets"]:
+        #if "mnemonics" in ms.keys():
+            #bufrMnemonicList.extend(ms["mnemonics"])
+    for k in y["observations"][0]["obs space"]["exports"]["variables"]:
+        if k == "datetime":
+            continue
+        a = y["observations"][0]["obs space"]["exports"]["variables"][k]["query"]
+        b = a.split('/')
+        bufrMnemonicList.extend(b[-1])
 
     return fieldNamePairs, bufrMnemonicList
 
@@ -415,7 +434,6 @@ def retrvBufrData(bufrFile, obsType, soloList, seqList):
     ncols = {}
     count = 0
     while fd.advance() == 0:
-        print(fd.msg_type, "  ", count)
         while fd.load_subset() == 0:
             count += 1
             if fd.msg_type == obsType:
