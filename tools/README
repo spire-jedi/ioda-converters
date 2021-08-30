@@ -30,10 +30,10 @@ bufrpeek.py - outputs the values for a single mnemonic or sequence for a
     bufrpeek.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
 
 
-bufrmnemonic.py - outputs a map of the BUFR mnemonic hierarchy from a
-                  set of tables in a BUFR file to stdtout. Optionally writes
-                  the output to an ASCII (text) file. Requires 
-                  bufrtblstruc.py and bufrTableTools.py
+bufrmnemonicmap.py - outputs a map of the BUFR mnemonic hierarchy from a
+                     set of tables in a BUFR file to stdtout. Optionally writes
+                     the output to an ASCII (text) file. Requires 
+                     bufrtblstruc.py and bufrTableTools.py
 
   Usage:
     bufrmnemonicmap.py <BUFR file> <subset type> [-o <ASCII file> 
@@ -81,3 +81,12 @@ bufrtblstruc.py - writes the tables for the specified subset type from a
 
   Example:
     bufrtblstruc.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d NC005044
+
+
+bufrmsgtypelist.py - displays a list of the message types found in a BUFR file.
+  Usage  bufrmsttypelist.py <BUFRfile>
+
+    <BUFR file> is the full pathname of a BUFR file
+
+  Example:
+    bufrmsgtypelist.py /scratch1/NCEPDEV/global/glopara/dump/gdas.20210101/12/gdas.t12z.satwnd.tm00.bufr_d
