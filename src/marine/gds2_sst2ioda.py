@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# (C) Copyright 2019 UCAR
+# (C) Copyright 2021 UCAR
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -23,7 +23,7 @@ if not IODA_CONV_PATH.is_dir():
     IODA_CONV_PATH = Path(__file__).parent/'..'/'lib-python'
 sys.path.append(str(IODA_CONV_PATH.resolve()))
 
-import ioda_conv_ncio as iconv
+import ioda_conv_engines as iconv
 
 output_var_names = [
     "sea_surface_temperature",
@@ -220,7 +220,6 @@ def main():
         args.skin_sst = True
 
     # setup the IODA writer
-    writer = iconv.NcWriter(args.output, [], [])
 
     # Setup the configuration that is passed to each worker process
     # Note: Pool.map creates separate processes, and can only take iterable
@@ -229,9 +228,9 @@ def main():
     global_config = {}
     global_config['date'] = args.date
     global_config['thin'] = args.thin
-    global_config['oval_name'] = writer.OvalName()
-    global_config['oerr_name'] = writer.OerrName()
-    global_config['opqc_name'] = writer.OqcName()
+    global_config['oval_name'] = iconv.OvalName()
+    global_config['oerr_name'] = iconv.OerrName()
+    global_config['opqc_name'] = iconv.OqcName()
     global_config['output_sst'] = args.sst
     global_config['output_skin_sst'] = args.skin_sst
     pool_inputs = [(i, global_config) for i in args.input]
