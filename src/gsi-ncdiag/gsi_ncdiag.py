@@ -564,7 +564,8 @@ class Conv(BaseGSI):
         # below is because T has both T and Tv, others should just be 'value'
         # but flexibility for later (GPS?)
         if self.obstype == 'conv_t':
-            self.obsvars = ['tv', 'tsen']
+        #   self.obsvars = ['tv', 'tsen']       #orig
+            self.obsvars = ['tsen']             #emily
         elif self.obstype == 'conv_gps':
             self.obsvars = ['bend', 'refract']
         else:
@@ -872,10 +873,16 @@ def grabobsidx(obsdata, platform, var):
     code = obsdata['Observation_Type'][:]
     if var in ['tsen', 'tv']:
         iqt = obsdata['Setup_QC_Mark'][:]
-        if var == 'tsen':
-            idx2 = (iqt != 0)
-        elif var == 'tv':
-            idx2 = (iqt == 0)
+
+#>>emily
+        idx2 = (iqt == 0 or iqt ==1)
+#<<emily
+#>>orig
+#        if var == 'tsen':
+#            idx2 = (iqt != 0)
+#        elif var == 'tv':
+#            idx2 = (iqt == 0)
+#<<orig
     elif var in ['bend', 'refract']:
         igps = obsdata['GPS_Type'][:]
         if var == 'bend':
