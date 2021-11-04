@@ -269,13 +269,25 @@ def main():
     var_data = {writer._var_list_name: writer.FillNcVector(
         selected_names, "string")}
 
-    # pass parameters to the IODA writer
-    # (needed because we are bypassing ExtractObsData within BuildNetcdf)
-    writer._nvars = len(selected_names)
-    writer._nlocs = obs_data[(selected_names[0], 'ObsValue')].shape[0]
+    VarDims = {
+        'sea_surface_temperature': ['nlocs']
+    }
 
-    # use the writer class to create the final output file
-    writer.BuildNetcdf(obs_data, loc_data, var_data, attr_data)
+    # Read in the profiles
+
+    # write them out
+    GlobalAttrs['date_time_string'] = fdate.strftime("%Y-%m-%dT%H:%M:%SZ")
+    ObsVars, nlocs = iconv.ExtractObsData(prof.data, locationKeyList)
+
+    DimDict = {'nlocs': nlocs}
+    writer = iconv.IodaWriter(args.output, locationKeyList, DimDict)
+
+    VarAttrs = DefaultOrderedDict(lambda: DefaultOrderedDict(dict))
+    VarAttrs[('sea_surface_temperature', 'ObsValue')]['units'] = 'celsius'
+    VarAttrs[('sea_surface_temperature', 'ObsError')]['units'] = 'celsius'
+    VarAttrs[('sea_surface_skin_temperature', 'ObsValue')]['units'] = 'celsius'
+    VarAttrs[('sea_water_salinity', 'ObsValue')]['_FillValue'] = 999 # temporary
+    writer.BuildIoda(ObsVars, VarDims, VarAttrs, GlobalAttrs)
 
 
 if __name__ == '__main__':
