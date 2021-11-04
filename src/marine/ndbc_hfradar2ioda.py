@@ -83,14 +83,14 @@ class Observation(object):
                         if dopx[i] <= 10: 
                            self.data[locKey][qcKey] = 0
                         else:
-                           self.data[locKey][qcKey] = 5
+                           self.data[locKey][qcKey] = 11
                     else:
                         self.data[locKey][valKey] = vals_v[i]
                         self.data[locKey][errKey] = 0.1
                         if dopy[i] <= 10:
                            self.data[locKey][qcKey] = 0
                         else:
-                           self.data[locKey][qcKey] = 5
+                           self.data[locKey][qcKey] = 11
 
 
 def main():
