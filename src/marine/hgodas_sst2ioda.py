@@ -100,7 +100,7 @@ def main():
     prof = Profile(args.input, fdate)
 
     # write them out
-   ObsVars, nlocs = iconv.ExtractObsData(sal.data, locationKeyList)
+    ObsVars, nlocs = iconv.ExtractObsData(prof.data, locationKeyList)
 
     DimDict = {'nlocs': nlocs}
     writer = iconv.IodaWriter(args.output, locationKeyList, DimDict)
