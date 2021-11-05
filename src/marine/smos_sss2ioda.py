@@ -31,6 +31,11 @@ locationKeyList = [
     ("datetime", "string")
 ]
 
+<<<<<<< HEAD
+=======
+GlobalAttrs = {}
+
+>>>>>>> 2f708ec53de424e079cbb457b77ace267aa61cc9
 
 class Salinity(object):
     def __init__(self, filenames, date):
@@ -132,8 +137,15 @@ def main():
     VarAttrs = DefaultOrderedDict(lambda: DefaultOrderedDict(dict))
     VarAttrs[('sea_surface_salinity', 'ObsValue')]['units'] = 'PSU'
     VarAttrs[('sea_surface_salinity', 'ObsError')]['units'] = 'PSU'
+<<<<<<< HEAD
     VarAttrs[('sea_surface_salinity', 'ObsValue')]['_FillValue'] = 999
     VarAttrs[('sea_surface_salinity', 'ObsError')]['_FillValue'] = 999
+=======
+    VarAttrs[('sea_surface_salinity', 'PreQC')]['units'] = 'unitless'
+    VarAttrs[('sea_surface_salinity', 'ObsValue')]['_FillValue'] = 999
+    VarAttrs[('sea_surface_salinity', 'ObsError')]['_FillValue'] = 999
+    VarAttrs[('sea_surface_salinity', 'PreQC')]['_FillValue'] = 999
+>>>>>>> 2f708ec53de424e079cbb457b77ace267aa61cc9
     writer.BuildIoda(ObsVars, VarDims, VarAttrs, GlobalAttrs)
 
 
