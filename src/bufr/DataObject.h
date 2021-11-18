@@ -23,7 +23,8 @@ namespace Ingester
 {
     typedef std::vector<size_t> Dimensions;
     typedef Dimensions Location;
-    typedef Dimensions Slice;
+
+    const float MissingValue = 10e10;
 
     /// \brief Abstract base class for intermediate data object that bridges the Parsers with the
     /// IodaEncoder.
@@ -102,7 +103,7 @@ namespace Ingester
                    const std::string& query,
                    const std::vector<std::string>& dimPaths) :
             DataObjectBase(field_name, group_by_field_name, dimensions, query, dimPaths),
-            data_(data) 
+            data_(data)
         {};
 
         ~DataObject() = default;
@@ -139,6 +140,7 @@ namespace Ingester
         };
 
         std::vector<T> getRawData() const { return data_; }
+        void setRawData(std::vector<T> data) { data_ = data; }
 
         T get(const Location& loc) const
         {
@@ -271,7 +273,7 @@ namespace Ingester
             params.chunk = true;
             params.chunks = chunks;
             params.compressWithGZIP(compressionLevel);
-            params.setFillValue<T>(10e10);
+            params.setFillValue<T>(static_cast<T>(MissingValue));
 
             return params;
         }

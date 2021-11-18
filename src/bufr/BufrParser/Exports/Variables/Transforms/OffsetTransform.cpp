@@ -23,8 +23,10 @@ namespace Ingester
         auto data = object->getRawData();
         for (auto& val : data)
         {
-            val += offset_;
+            if (val != MissingValue) val += offset_;
         }
+
+        object->setRawData(data);
       }
     }
 
