@@ -73,7 +73,7 @@ namespace Ingester
         }
         else
         {
-            if (backend_ == ioda::Engines::BackendNames::ObsStore)
+            if (backend_ == ioda::Engines::BackendNames::Hdf5Mem)
             {
                 filepath_ = "";
             }
@@ -241,7 +241,7 @@ namespace Ingester
         }
         else if (backend_lowercase == "inmemory" || backend_lowercase == "in-memory")
         {
-            setBackend(ioda::Engines::BackendNames::ObsStore);
+            setBackend(ioda::Engines::BackendNames::Hdf5Mem);
         }
         else
         {
